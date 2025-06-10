@@ -4,7 +4,7 @@ import sys
 import time
 
 class IslamAppAPITester:
-    def __init__(self, base_url="https://1dfbf144-705a-4709-bf17-220c9ac682b8.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://3ce10c44-8cb6-4d17-a211-5a46485f7d39.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
