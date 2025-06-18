@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { 
   AuthProvider, 
   Header, 
@@ -160,17 +161,9 @@ const AboutPage = () => {
   );
 };
 
-function App() {
+// Main App Component (Public Site)
+const MainApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
-
-  // Check if we're on admin route
-  if (window.location.pathname.startsWith('/admin')) {
-    return (
-      <AdminProvider>
-        <AdminPanel />
-      </AdminProvider>
-    );
-  }
 
   const renderPage = () => {
     if (currentPage.startsWith('quiz-')) {
@@ -200,16 +193,33 @@ function App() {
         
         {/* Admin Panel Access - Hidden Admin Link */}
         <div style={{ position: 'fixed', bottom: '10px', right: '10px', opacity: 0.1 }}>
-          <button 
-            onClick={() => window.location.href = '/admin'}
+          <a 
+            href="/admin"
             className="text-xs text-gray-400 hover:text-gray-600"
           >
             admin
-          </button>
+          </a>
         </div>
       </div>
     </AuthProvider>
   );
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/admin/*" element={
+          <AdminProvider>
+            <AdminPanel />
+          </AdminProvider>
+        } />
+        <Route path="/*" element={<MainApp />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
+
+export default App;
 
 export default App;
