@@ -45,16 +45,19 @@ export const AdminProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
+      console.log('Attempting login with:', username);
       const response = await axios.post(`${API}/admin/login`, {
         username,
         password
       });
+      console.log('Login response:', response.data);
       const newToken = response.data.access_token;
       setToken(newToken);
       localStorage.setItem('adminToken', newToken);
       return true;
     } catch (error) {
       console.error('Login failed:', error);
+      console.error('Error response:', error.response?.data);
       return false;
     }
   };
