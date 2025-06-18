@@ -164,6 +164,22 @@ const AboutPage = () => {
 // Main App Component (Public Site)
 const MainApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+
+  // Check if URL contains admin and show admin panel
+  React.useEffect(() => {
+    if (window.location.pathname.includes('admin')) {
+      setShowAdminPanel(true);
+    }
+  }, []);
+
+  if (showAdminPanel) {
+    return (
+      <AdminProvider>
+        <AdminPanel />
+      </AdminProvider>
+    );
+  }
 
   const renderPage = () => {
     if (currentPage.startsWith('quiz-')) {
