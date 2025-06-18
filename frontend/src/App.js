@@ -9,6 +9,7 @@ import {
   Lessons,
   Quiz 
 } from "./components";
+import { AdminPanel, AdminProvider } from "./AdminPanel";
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
