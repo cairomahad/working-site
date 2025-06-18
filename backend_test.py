@@ -226,7 +226,8 @@ def test_admin_api():
     print("\n=== Testing Admin API Endpoints ===")
     tester = IslamAppAPITester()
     
-    # Test admin login
+    # Test admin login with the updated credentials
+    print("\n🔑 Testing admin login with credentials: admin/admin123")
     if not tester.test_admin_login("admin", "admin123"):
         print("❌ Admin login failed, stopping admin tests")
         print(f"\n📊 Admin API Tests: {tester.tests_passed}/{tester.tests_run} passed")
