@@ -659,13 +659,13 @@ export const AdminPanel = () => {
       case 'courses':
         return <CourseManagement />;
       case 'students':
-        return <div>Управление учениками (в разработке)</div>;
+        return <StudentManagement />;
       case 'teachers':
-        return <div>Управление преподавателями (в разработке)</div>;
+        return <TeacherManagement />;
       case 'applications':
-        return <div>Заявки (в разработке)</div>;
+        return <ApplicationManagement />;
       case 'reports':
-        return <div>Отчеты (в разработке)</div>;
+        return <ReportsComponent />;
       default:
         return <AdminDashboard />;
     }
