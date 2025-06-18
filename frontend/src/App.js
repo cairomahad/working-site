@@ -163,6 +163,15 @@ const AboutPage = () => {
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
 
+  // Check if we're on admin route
+  if (window.location.pathname.startsWith('/admin')) {
+    return (
+      <AdminProvider>
+        <AdminPanel />
+      </AdminProvider>
+    );
+  }
+
   const renderPage = () => {
     if (currentPage.startsWith('quiz-')) {
       const lessonId = parseInt(currentPage.split('-')[1]);
@@ -188,6 +197,16 @@ function App() {
       <div className="App">
         <Header setCurrentPage={setCurrentPage} currentPage={currentPage} />
         {renderPage()}
+        
+        {/* Admin Panel Access - Hidden Admin Link */}
+        <div style={{ position: 'fixed', bottom: '10px', right: '10px', opacity: 0.1 }}>
+          <button 
+            onClick={() => window.location.href = '/admin'}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            admin
+          </button>
+        </div>
       </div>
     </AuthProvider>
   );
