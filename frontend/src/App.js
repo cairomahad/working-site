@@ -191,14 +191,14 @@ const MainApp = () => {
         <Header setCurrentPage={setCurrentPage} currentPage={currentPage} />
         {renderPage()}
         
-        {/* Admin Panel Access - Hidden Admin Link */}
-        <div style={{ position: 'fixed', bottom: '10px', right: '10px', opacity: 0.1 }}>
-          <a 
-            href="/admin"
-            className="text-xs text-gray-400 hover:text-gray-600"
+        {/* Admin Panel Access */}
+        <div style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
+          <button 
+            onClick={() => window.location.href = '/admin'}
+            className="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-700 shadow-lg"
           >
-            admin
-          </a>
+            🔧 Админ панель
+          </button>
         </div>
       </div>
     </AuthProvider>
