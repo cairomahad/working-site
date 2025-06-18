@@ -648,6 +648,9 @@ export const AdminPanel = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const { isAuthenticated } = useAdmin();
 
+  // Add debug logging
+  console.log('AdminPanel rendered, isAuthenticated:', isAuthenticated);
+
   if (!isAuthenticated) {
     return <AdminLogin onLogin={() => setCurrentPage('dashboard')} />;
   }
