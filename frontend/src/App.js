@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { 
-  AuthProvider, 
+  AuthProvider,
+  useAuth, 
   Header, 
   HeroSection, 
   WhyStudySection, 
