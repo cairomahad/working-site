@@ -87,11 +87,59 @@ class IslamAppAPITester:
         )
         return success
 
+    # Unified Auth Tests
+    def test_unified_login(self, email, password, expected_user_type="user"):
+        """Test unified login endpoint"""
+        print(f"\n🔑 Testing unified login with email: {email}")
+        success, response = self.run_test(
+            "Unified Auth Login",
+            "POST",
+            "auth/login",
+            200,
+            data={"email": email, "password": password}
+        )
+        
+        if success:
+            try:
+                response_data = response.json()
+                self.token = response_data.get('access_token')
+                self.user_type = response_data.get('user_type')
+                self.user_info = response_data.get('user', {})
+                
+                print(f"✅ Login successful")
+                print(f"✅ User type: {self.user_type}")
+                print(f"✅ User info: {json.dumps(self.user_info, indent=2)}")
+                
+                if self.user_type == expected_user_type:
+                    print(f"✅ Correctly identified as {expected_user_type}")
+                    return True
+                else:
+                    print(f"❌ Not identified as {expected_user_type}, got: {self.user_type}")
+                    return False
+            except Exception as e:
+                print(f"❌ Failed to extract data from response: {str(e)}")
+                return False
+        return False
+
+    def test_invalid_login(self, email, password):
+        """Test login with invalid credentials"""
+        print(f"\n❌ Testing Invalid Login with email: {email}")
+        success, response = self.run_test(
+            "Invalid Login",
+            "POST",
+            "auth/login",
+            400,  # Expecting a 400 Bad Request for invalid credentials
+            data={"email": email, "password": password}
+        )
+        
+        # For this test, success means the API correctly rejected the invalid credentials
+        return success
+
     # Admin API Tests
     def test_admin_login(self, username, password):
-        """Test admin login and get token"""
+        """Test admin login and get token (legacy endpoint)"""
         success, response = self.run_test(
-            "Admin Login",
+            "Admin Login (Legacy)",
             "POST",
             "admin/login",
             200,
