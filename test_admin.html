@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Админ Панели - Уроки Ислама</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .admin-button {
+            background-color: #1f2937;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .admin-button:hover {
+            background-color: #374151;
+        }
+        .login-form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #059669;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .info {
+            background-color: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Тестирование Админ Панели</h1>
+        <p>Эта страница поможет протестировать доступ к админ панели проекта "Уроки Ислама".</p>
+        
+        <h2>📋 Данные для входа:</h2>
+        <div class="info result">
+            <strong>Логин:</strong> admin<br>
+            <strong>Пароль:</strong> admin123
+        </div>
+
+        <h2>🚀 Способы доступа:</h2>
+        
+        <h3>1. Через основной сайт:</h3>
+        <p>Перейдите на основной сайт и найдите кнопку "🔧 Админ панель" в правом нижнем углу.</p>
+        <a href="https://3ce10c44-8cb6-4d17-a211-5a46485f7d39.preview.emergentagent.com" 
+           class="admin-button" target="_blank">
+            📱 Открыть основной сайт
+        </a>
+
+        <h3>2. Прямая ссылка на админ панель:</h3>
+        <a href="https://3ce10c44-8cb6-4d17-a211-5a46485f7d39.preview.emergentagent.com/admin" 
+           class="admin-button" target="_blank">
+            🔧 Админ панель (прямая ссылка)
+        </a>
+
+        <h3>3. Тест API авторизации:</h3>
+        <div class="login-form">
+            <div class="form-group">
+                <label for="username">Логин:</label>
+                <input type="text" id="username" value="admin">
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" value="admin123">
+            </div>
+            <button onclick="testLogin()">🧪 Тест API входа</button>
+        </div>
+
+        <div id="apiResult"></div>
+
+        <h2>📊 Что должно быть в админ панели:</h2>
+        <ul>
+            <li><strong>📊 Главная:</strong> Статистика по студентам, курсам, преподавателям</li>
+            <li><strong>📚 Курсы:</strong> Управление курсами (4 тестовых курса)</li>
+            <li><strong>👥 Ученики:</strong> Список студентов (4 тестовых студента)</li>
+            <li><strong>👨‍🏫 Преподаватели:</strong> Список преподавателей (4 тестовых преподавателя)</li>
+            <li><strong>📋 Заявки:</strong> Обработка заявок (2 тестовые заявки)</li>
+            <li><strong>📈 Отчеты:</strong> Аналитика и статистика</li>
+        </ul>
+
+        <h2>🔍 Отладка:</h2>
+        <p>Если админ панель не открывается:</p>
+        <ol>
+            <li>Откройте консоль браузера (F12)</li>
+            <li>Очистите кэш и localStorage: <code>localStorage.clear()</code></li>
+            <li>Проверьте консоль на наличие ошибок</li>
+            <li>Обновите страницу</li>
+        </ol>
+    </div>
+
+    <script>
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('apiResult');
+            
+            resultDiv.innerHTML = '<div class="info result">⏳ Тестирование API...</div>';
+            
+            try {
+                const response = await fetch('https://3ce10c44-8cb6-4d17-a211-5a46485f7d39.preview.emergentagent.com/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success result">
+                            ✅ <strong>API тест успешен!</strong><br>
+                            Токен получен: ${data.access_token.substring(0, 50)}...<br>
+                            Теперь попробуйте войти через админ панель.
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error result">
+                            ❌ <strong>Ошибка API:</strong><br>
+                            ${data.detail || JSON.stringify(data)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error result">
+                        ❌ <strong>Ошибка сети:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
