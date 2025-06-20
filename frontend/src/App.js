@@ -230,14 +230,24 @@ const MainApp = () => {
   );
 };
 
+// Router Component to handle admin/public routing
+const AppRouter = () => {
+  const { isAdmin } = useAuth();
+
+  // If user is admin, show admin panel regardless of URL
+  if (isAdmin) {
+    return <MainAdminPanel />;
+  }
+
+  // For public users, show main app
+  return <MainApp />;
+};
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/admin/*" element={<MainAdminPanel />} />
-          <Route path="/*" element={<MainApp />} />
-        </Routes>
+        <AppRouter />
       </BrowserRouter>
     </AuthProvider>
   );
