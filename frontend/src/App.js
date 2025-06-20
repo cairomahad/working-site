@@ -11,6 +11,8 @@ import {
   Quiz 
 } from "./components";
 import { AdminPanel, AdminProvider } from "./AdminPanel";
+import { CourseLevels, CourseDetail } from "./CourseComponents";
+import { LessonView, TestTaking } from "./LessonComponents";
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
