@@ -10,18 +10,32 @@ const AdminLoginComponent = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const result = await login(email, password);
-    if (!result.success) {
-      setError(result.error || 'Ошибка входа');
-    } else if (!result.isAdmin) {
-      setError('У вас нет прав администратора');
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.user_type === 'admin') {
+        localStorage.setItem('userToken', data.access_token);
+        localStorage.setItem('userData', JSON.stringify({ ...data.user, user_type: data.user_type }));
+        window.location.reload();
+      } else if (response.ok && data.user_type !== 'admin') {
+        setError('У вас нет прав администратора');
+      } else {
+        setError(data.detail || 'Ошибка входа');
+      }
+    } catch (error) {
+      setError('Ошибка подключения к серверу');
     }
     
     setLoading(false);
