@@ -303,14 +303,28 @@ export const AuthModal = ({ onClose }) => {
     setLoading(true);
 
     try {
+      let result;
       if (isLogin) {
-        await login(email, password);
+        result = await login(email, password);
       } else {
-        await register(email, password, name);
+        result = await register(email, password, name);
       }
-      onClose();
+      
+      if (result.success) {
+        onClose();
+        
+        // If user is admin, redirect to admin panel
+        if (result.isAdmin) {
+          // Show success message for admin
+          alert('Добро пожаловать в админ панель!');
+          // Force page reload to show admin panel
+          window.location.reload();
+        }
+      } else {
+        setError(result.error);
+      }
     } catch (error) {
-      setError(error.message);
+      setError('Произошла ошибка. Попробуйте снова.');
     }
     
     setLoading(false);
@@ -335,6 +349,11 @@ export const AuthModal = ({ onClose }) => {
             {error}
           </div>
         )}
+
+        {/* Admin hint */}
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4 text-sm">
+          💡 <strong>Для администраторов:</strong> Используйте свой административный email и пароль для входа в админ панель
+        </div>
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
@@ -362,6 +381,7 @@ export const AuthModal = ({ onClose }) => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-teal-500"
               required
+              placeholder={isLogin ? "Введите ваш email" : "example@domain.com"}
             />
           </div>
 
@@ -376,6 +396,7 @@ export const AuthModal = ({ onClose }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-teal-500"
               required
               minLength={6}
+              placeholder="Введите пароль"
             />
           </div>
 
@@ -395,6 +416,13 @@ export const AuthModal = ({ onClose }) => {
           >
             {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
           </button>
+        </div>
+        
+        {/* Demo credentials hint */}
+        <div className="mt-4 p-3 bg-gray-50 rounded text-xs text-gray-600">
+          <div className="font-medium mb-1">💡 Тестовые данные:</div>
+          <div><strong>Админ:</strong> miftahylum@gmail.com / 197724</div>
+          <div><strong>Студент:</strong> Любой email / Любой пароль</div>
         </div>
       </div>
     </div>
