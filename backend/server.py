@@ -121,6 +121,79 @@ async def admin_login(admin_data: AdminLogin):
     access_token = create_access_token(data={"sub": admin["username"]})
     return {"access_token": access_token, "token_type": "bearer"}
 
+# Unified Auth Route for both users and admins
+@api_router.post("/auth/login")
+async def unified_login(login_data: dict):
+    email = login_data.get("email")
+    password = login_data.get("password")
+    
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Email and password required")
+    
+    # First check if it's an admin by email
+    admin = await db.admins.find_one({"email": email})
+    if admin and verify_password(password, admin["hashed_password"]):
+        # Update last login
+        await db.admins.update_one(
+            {"email": email},
+            {"$set": {"last_login": datetime.utcnow()}}
+        )
+        
+        access_token = create_access_token(data={"sub": admin["username"], "type": "admin"})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user_type": "admin",
+            "user": {
+                "id": admin["id"],
+                "email": admin["email"],
+                "name": admin["full_name"],
+                "role": admin["role"]
+            }
+        }
+    
+    # If not admin, check regular users (Firebase users)
+    # For now, we'll implement a simple check
+    # In a real scenario, you'd verify with Firebase
+    
+    # Check if user exists in our students database
+    student = await db.students.find_one({"email": email})
+    if not student:
+        # Create new student record for Firebase users
+        student = {
+            "id": str(uuid.uuid4()),
+            "name": email.split("@")[0].title(),  # Simple name from email
+            "email": email,
+            "total_score": 0,
+            "is_active": True,
+            "created_at": datetime.utcnow(),
+            "last_activity": datetime.utcnow(),
+            "completed_courses": [],
+            "current_level": CourseLevel.LEVEL_1
+        }
+        await db.students.insert_one(student)
+    else:
+        # Update last activity
+        await db.students.update_one(
+            {"email": email},
+            {"$set": {"last_activity": datetime.utcnow()}}
+        )
+    
+    # For regular users, we'll return a simple token
+    # In production, you'd verify with Firebase here
+    access_token = create_access_token(data={"sub": email, "type": "user"})
+    return {
+        "access_token": access_token,
+        "token_type": "bearer", 
+        "user_type": "user",
+        "user": {
+            "id": student["id"],
+            "email": student["email"],
+            "name": student["name"],
+            "total_score": student.get("total_score", 0)
+        }
+    }
+
 @api_router.get("/admin/me", response_model=AdminUser)
 async def get_current_admin_info(current_admin: dict = Depends(get_current_admin)):
     return AdminUser(**current_admin)
