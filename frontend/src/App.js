@@ -180,11 +180,7 @@ const MainApp = () => {
   }, [isAdmin]);
 
   if (showAdminPanel || isAdmin) {
-    return (
-      <AdminProvider>
-        <AdminPanel />
-      </AdminProvider>
-    );
+    return <MainAdminPanel />;
   }
 
   const renderPage = () => {
