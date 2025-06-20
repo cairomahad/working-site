@@ -238,16 +238,6 @@ const MainApp = () => {
       <div className="App">
         <Header setCurrentPage={setCurrentPage} currentPage={currentPage} />
         {renderPage()}
-        
-        {/* Admin Panel Access */}
-        <div style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-          <button 
-            onClick={() => setShowAdminPanel(true)}
-            className="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-700 shadow-lg"
-          >
-            🔧 Админ панель
-          </button>
-        </div>
       </div>
     </AuthProvider>
   );
