@@ -494,27 +494,37 @@ async def delete_question(test_id: str, question_id: str, current_admin: dict = 
 @api_router.post("/admin/upload")
 async def upload_file(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
     # Validate file type
-    allowed_types = ["image/jpeg", "image/png", "image/gif", "video/mp4", "application/pdf", "application/msword"]
+    allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "application/pdf", "application/msword"]
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="File type not allowed")
     
+    # Validate file size (max 10MB)
+    max_size = 10 * 1024 * 1024  # 10MB
+    file_content = await file.read()
+    if len(file_content) > max_size:
+        raise HTTPException(status_code=400, detail="File size too large (max 10MB)")
+    
     # Generate unique filename
-    file_extension = file.filename.split(".")[-1]
+    file_extension = file.filename.split(".")[-1] if "." in file.filename else "bin"
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
     file_path = UPLOAD_DIR / unique_filename
     
     # Save file
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    
-    file_url = f"/uploads/{unique_filename}"
-    
-    return {
-        "filename": file.filename,
-        "file_url": file_url,
-        "file_type": file.content_type,
-        "file_size": file_path.stat().st_size
-    }
+    try:
+        with open(file_path, "wb") as buffer:
+            buffer.write(file_content)
+        
+        file_url = f"/uploads/{unique_filename}"
+        
+        return {
+            "filename": file.filename,
+            "file_url": file_url,
+            "file_type": file.content_type,
+            "file_size": len(file_content),
+            "success": True
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
 # Student Progress Routes (Public)
 @api_router.post("/enroll/{course_id}")
