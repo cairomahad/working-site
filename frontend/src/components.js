@@ -344,11 +344,10 @@ export const AuthModal = ({ onClose }) => {
           </button>
         </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        {/* Admin hint */}
+        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4 text-sm">
+          💡 <strong>Для администраторов:</strong> Используйте свой административный email и пароль для входа в админ панель
+        </div>
 
         {/* Admin hint */}
         <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4 text-sm">
