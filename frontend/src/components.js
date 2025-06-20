@@ -560,44 +560,15 @@ export const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const q = query(
-          collection(db, 'users'),
-          orderBy('totalScore', 'desc'),
-          limit(10)
-        );
-
-        const unsubscribe = onSnapshot(q, 
-          (snapshot) => {
-            const leaderboardData = [];
-            snapshot.forEach((doc) => {
-              leaderboardData.push({ id: doc.id, ...doc.data() });
-            });
-            
-            // If no data from Firestore, use mock data
-            if (leaderboardData.length === 0) {
-              setLeaders(mockLeaders);
-            } else {
-              setLeaders(leaderboardData);
-            }
-            setLoading(false);
-            setError(null);
-          },
-          (error) => {
-            console.error('Firestore error:', error);
-            // Use mock data when Firestore fails
-            setLeaders(mockLeaders);
-            setLoading(false);
-            setError('Используются демо-данные. Настройте Firestore для реальных данных.');
-          }
-        );
-
-        return unsubscribe;
-      } catch (err) {
-        console.error('Failed to setup Firestore listener:', err);
-        // Fallback to mock data
+        // Use mock data for now since we're using backend API instead of Firestore
         setLeaders(mockLeaders);
         setLoading(false);
-        setError('Используются демо-данные. Настройте Firestore для реальных данных.');
+        setError('Используются демо-данные.');
+      } catch (err) {
+        console.error('Failed to setup leaderboard:', err);
+        setLeaders(mockLeaders);
+        setLoading(false);
+        setError('Используются демо-данные.');
       }
     };
 
