@@ -272,6 +272,50 @@ def test_basic_api():
     print(f"\n📊 Basic API Tests: {tester.tests_passed}/{tester.tests_run} passed")
     return tester.tests_passed == tester.tests_run
 
+def test_unified_auth():
+    """Test unified authentication system"""
+    print("\n=== Testing Unified Authentication System ===")
+    tester = IslamAppAPITester()
+    
+    # Test admin login with the provided credentials
+    print("\n🔑 Testing admin login with credentials: miftahylum@gmail.com/197724")
+    admin_login_success = tester.test_unified_login("miftahylum@gmail.com", "197724", "admin")
+    
+    # Test admin dashboard access if login succeeded
+    if admin_login_success:
+        print("\n🔐 Testing Admin Dashboard Access")
+        dashboard_success, _ = tester.test_dashboard()
+        if dashboard_success:
+            print("✅ Successfully accessed admin dashboard with admin token")
+        else:
+            print("❌ Failed to access admin dashboard with admin token")
+    
+    # Create a new tester instance for student login
+    student_tester = IslamAppAPITester()
+    
+    # Test student login
+    print("\n👤 Testing student login with test credentials")
+    student_login_success = student_tester.test_unified_login("student@test.com", "password123", "user")
+    
+    # Test unauthorized admin access with student token
+    if student_login_success:
+        print("\n🚫 Testing Unauthorized Admin Dashboard Access")
+        unauth_success, unauth_response = student_tester.test_dashboard()
+        if not unauth_success and unauth_response and unauth_response.status_code in [401, 403]:
+            print("✅ Correctly denied admin dashboard access to student user")
+        else:
+            print("❌ Failed to properly restrict admin dashboard access")
+    
+    # Test invalid login
+    invalid_tester = IslamAppAPITester()
+    invalid_login_success = invalid_tester.test_invalid_login("nonexistent@example.com", "wrongpassword")
+    
+    # Print results
+    print(f"\n📊 Unified Auth Tests: {tester.tests_passed + student_tester.tests_passed + invalid_tester.tests_passed}/{tester.tests_run + student_tester.tests_run + invalid_tester.tests_run} passed")
+    return (tester.tests_passed == tester.tests_run and 
+            student_tester.tests_passed == student_tester.tests_run and
+            invalid_tester.tests_passed == invalid_tester.tests_run)
+
 def test_admin_api():
     """Test admin API endpoints"""
     print("\n=== Testing Admin API Endpoints ===")
