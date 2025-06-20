@@ -170,6 +170,8 @@ export const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
   const menuItems = [
     { id: 'dashboard', name: 'Главная', icon: '📊' },
     { id: 'courses', name: 'Курсы', icon: '📚' },
+    { id: 'lessons', name: 'Уроки', icon: '📖' },
+    { id: 'tests', name: 'Тесты', icon: '📝' },
     { id: 'students', name: 'Ученики', icon: '👥' },
     { id: 'teachers', name: 'Преподаватели', icon: '👨‍🏫' },
     { id: 'applications', name: 'Заявки', icon: '📋' },
