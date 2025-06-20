@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import axios from 'axios';
 import { StudentManagement, TeacherManagement, ApplicationManagement, ReportsComponent } from './AdminComponents';
+import { LessonManagement, TestManagement } from './AdminLessonsTests';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
