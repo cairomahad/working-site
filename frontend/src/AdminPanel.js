@@ -667,6 +667,10 @@ export const AdminPanel = () => {
         return <AdminDashboard />;
       case 'courses':
         return <CourseManagement />;
+      case 'lessons':
+        return <LessonManagement />;
+      case 'tests':
+        return <TestManagement />;
       case 'students':
         return <StudentManagement />;
       case 'teachers':
