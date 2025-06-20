@@ -169,12 +169,6 @@ const MainApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  const { isAdmin } = useAuth();
-
-  // If user is admin, show admin panel
-  if (isAdmin) {
-    return <MainAdminPanel />;
-  }
 
   const renderPage = () => {
     if (currentPage.startsWith('quiz-')) {
