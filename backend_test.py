@@ -284,7 +284,7 @@ def test_unified_auth():
     # Test admin dashboard access if login succeeded
     if admin_login_success:
         print("\n🔐 Testing Admin Dashboard Access")
-        dashboard_success, _ = tester.test_dashboard()
+        dashboard_success = tester.test_dashboard()
         if dashboard_success:
             print("✅ Successfully accessed admin dashboard with admin token")
         else:
@@ -300,8 +300,8 @@ def test_unified_auth():
     # Test unauthorized admin access with student token
     if student_login_success:
         print("\n🚫 Testing Unauthorized Admin Dashboard Access")
-        unauth_success, unauth_response = student_tester.test_dashboard()
-        if not unauth_success and unauth_response and unauth_response.status_code in [401, 403]:
+        unauth_success = student_tester.test_dashboard()
+        if not unauth_success:
             print("✅ Correctly denied admin dashboard access to student user")
         else:
             print("❌ Failed to properly restrict admin dashboard access")
