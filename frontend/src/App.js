@@ -234,16 +234,14 @@ const MainApp = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/admin/*" element={
-          <AdminProvider>
-            <AdminPanel />
-          </AdminProvider>
-        } />
-        <Route path="/*" element={<MainApp />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin/*" element={<MainAdminPanel />} />
+          <Route path="/*" element={<MainApp />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
