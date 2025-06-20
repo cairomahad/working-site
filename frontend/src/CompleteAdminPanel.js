@@ -17,19 +17,36 @@ export const useCompleteAdmin = () => {
 };
 
 export const CompleteAdminProvider = ({ children }) => {
-  const { currentUser, isAdmin } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [adminUser, setAdminUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
-    if (currentUser) {
+    const checkAuth = () => {
+      const storedToken = localStorage.getItem('userToken');
+      const userData = localStorage.getItem('userData');
+      
+      if (storedToken && userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user.user_type === 'admin') {
+            setAdminUser(user);
+            setToken(storedToken);
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
       setLoading(false);
-    }
-  }, [currentUser]);
+    };
+
+    checkAuth();
+  }, []);
 
   const value = {
-    adminUser: currentUser,
-    token: localStorage.getItem('userToken'),
-    isAuthenticated: isAdmin
+    adminUser,
+    token,
+    isAuthenticated: !!adminUser
   };
 
   return (
