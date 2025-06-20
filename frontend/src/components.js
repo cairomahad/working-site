@@ -1,27 +1,8 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  updateProfile 
-} from 'firebase/auth';
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  doc, 
-  getDocs, 
-  query, 
-  orderBy, 
-  limit, 
-  where,
-  onSnapshot,
-  serverTimestamp,
-  getDoc,
-  setDoc
-} from 'firebase/firestore';
-import { auth, db } from './firebase';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 // Auth Context
 const AuthContext = createContext();
@@ -36,46 +17,80 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const register = async (email, password, name) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(userCredential.user, { displayName: name });
+  useEffect(() => {
+    // Check for stored authentication
+    const token = localStorage.getItem('userToken');
+    const userData = localStorage.getItem('userData');
     
-    // Create user document in Firestore
-    await setDoc(doc(db, 'users', userCredential.user.uid), {
-      uid: userCredential.user.uid,
-      name: name,
-      email: email,
-      authMethod: 'email',
-      createdAt: serverTimestamp(),
-      totalScore: 0
-    });
-    
-    return userCredential;
+    if (token && userData) {
+      const user = JSON.parse(userData);
+      setCurrentUser(user);
+      setIsAdmin(user.user_type === 'admin');
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const response = await axios.post(`${API}/auth/login`, {
+        email,
+        password
+      });
+      
+      const { access_token, user_type, user } = response.data;
+      
+      // Store authentication data
+      localStorage.setItem('userToken', access_token);
+      localStorage.setItem('userData', JSON.stringify({ ...user, user_type }));
+      
+      setCurrentUser({ ...user, user_type });
+      setIsAdmin(user_type === 'admin');
+      
+      return { success: true, isAdmin: user_type === 'admin' };
+    } catch (error) {
+      console.error('Login failed:', error);
+      return { success: false, error: error.response?.data?.detail || 'Ошибка входа' };
+    }
   };
 
-  const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const register = async (email, password, name) => {
+    try {
+      // For now, we'll use the same login endpoint since we're creating users on the fly
+      const response = await axios.post(`${API}/auth/login`, {
+        email,
+        password
+      });
+      
+      const { access_token, user_type, user } = response.data;
+      
+      localStorage.setItem('userToken', access_token);
+      localStorage.setItem('userData', JSON.stringify({ ...user, user_type }));
+      
+      setCurrentUser({ ...user, user_type });
+      setIsAdmin(user_type === 'admin');
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return { success: false, error: error.response?.data?.detail || 'Ошибка регистрации' };
+    }
   };
 
   const logout = () => {
-    return signOut(auth);
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userData');
+    setCurrentUser(null);
+    setIsAdmin(false);
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
 
   const value = {
     currentUser,
-    register,
+    isAdmin,
     login,
+    register,
     logout
   };
 
