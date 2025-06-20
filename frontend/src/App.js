@@ -167,19 +167,12 @@ const AboutPage = () => {
 // Main App Component (Public Site)
 const MainApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const { isAdmin } = useAuth();
 
-  // Check if URL contains admin and show admin panel
-  React.useEffect(() => {
-    if (window.location.pathname.includes('admin') || isAdmin) {
-      setShowAdminPanel(true);
-    }
-  }, [isAdmin]);
-
-  if (showAdminPanel || isAdmin) {
+  // If user is admin, show admin panel
+  if (isAdmin) {
     return <MainAdminPanel />;
   }
 
