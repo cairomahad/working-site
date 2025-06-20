@@ -167,6 +167,8 @@ const AboutPage = () => {
 const MainApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
 
   // Check if URL contains admin and show admin panel
   React.useEffect(() => {
@@ -189,11 +191,37 @@ const MainApp = () => {
       return <Quiz lessonId={lessonId} setCurrentPage={setCurrentPage} />;
     }
 
+    if (currentPage.startsWith('test-')) {
+      const testId = currentPage.split('-')[1];
+      return <TestTaking testId={testId} setCurrentPage={setCurrentPage} />;
+    }
+
     switch (currentPage) {
       case 'home':
         return <HomePage setCurrentPage={setCurrentPage} />;
       case 'lessons':
-        return <Lessons setCurrentPage={setCurrentPage} />;
+        return (
+          <CourseLevels 
+            setCurrentPage={setCurrentPage} 
+            setSelectedCourse={setSelectedCourse} 
+          />
+        );
+      case 'course-detail':
+        return (
+          <CourseDetail 
+            course={selectedCourse}
+            setCurrentPage={setCurrentPage}
+            setSelectedLesson={setSelectedLesson}
+          />
+        );
+      case 'lesson-view':
+        return (
+          <LessonView 
+            lesson={selectedLesson}
+            setCurrentPage={setCurrentPage}
+            setSelectedCourse={setSelectedCourse}
+          />
+        );
       case 'leaderboard':
         return <Leaderboard />;
       case 'about':
