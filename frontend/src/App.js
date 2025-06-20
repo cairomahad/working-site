@@ -11,7 +11,7 @@ import {
   Lessons,
   Quiz 
 } from "./components";
-import { AdminPanel, AdminProvider } from "./AdminPanel";
+import MainAdminPanel from "./MainAdminPanel";
 import { CourseLevels, CourseDetail } from "./CourseComponents";
 import { LessonView, TestTaking } from "./LessonComponents";
 
