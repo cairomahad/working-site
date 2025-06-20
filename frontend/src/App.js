@@ -223,12 +223,10 @@ const MainApp = () => {
   };
 
   return (
-    <AuthProvider>
-      <div className="App">
-        <Header setCurrentPage={setCurrentPage} currentPage={currentPage} />
-        {renderPage()}
-      </div>
-    </AuthProvider>
+    <div className="App">
+      <Header setCurrentPage={setCurrentPage} currentPage={currentPage} />
+      {renderPage()}
+    </div>
   );
 };
 
