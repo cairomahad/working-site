@@ -274,11 +274,6 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
 // Main Admin Panel Component
 const MainAdminPanel = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const { isAdmin } = useAuth();
-
-  if (!isAdmin) {
-    return <AdminLoginComponent />;
-  }
 
   const renderPage = () => {
     switch (currentPage) {
