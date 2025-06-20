@@ -403,11 +403,14 @@ def main():
     # Run basic API tests
     basic_success = test_basic_api()
     
+    # Run unified auth tests
+    auth_success = test_unified_auth()
+    
     # Run admin API tests
     admin_success = test_admin_api()
     
     # Overall result
-    overall_success = basic_success and admin_success
+    overall_success = basic_success and auth_success and admin_success
     print(f"\n=== Overall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'} ===")
     
     return 0 if overall_success else 1
