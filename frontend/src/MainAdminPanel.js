@@ -204,8 +204,12 @@ const AdminDashboard = () => {
 
 // Main Admin Layout
 const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
-  const { adminUser, logout } = useCompleteAdmin();
-  const { logout: authLogout } = useAuth();
+  const { adminUser, isAuthenticated } = useCompleteAdmin();
+
+  // Show login if not authenticated
+  if (!isAuthenticated) {
+    return <AdminLoginComponent />;
+  }
 
   const menuItems = [
     { id: 'dashboard', name: 'Главная', icon: '📊' },
@@ -219,8 +223,8 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
   ];
 
   const handleLogout = () => {
-    authLogout();
-    if (logout) logout();
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userData');
     window.location.reload();
   };
 
