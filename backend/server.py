@@ -15,6 +15,7 @@ from passlib.context import CryptContext
 import asyncio
 from models import *
 import shutil
+import aiofiles
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
