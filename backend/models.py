@@ -331,16 +331,47 @@ class ApplicationUpdate(BaseModel):
     status: ApplicationStatus
     admin_comment: Optional[str] = None
 
-# Statistics Models
-class DashboardStats(BaseModel):
-    total_students: int
-    total_courses: int
-    total_lessons: int
-    total_tests: int
-    total_teachers: int
-    active_students: int
-    pending_applications: int
-    completed_tests_today: int
+# Test Import Models
+class TestImportData(BaseModel):
+    title: str
+    description: Optional[str] = None
+    course_id: str
+    lesson_id: Optional[str] = None
+    questions: List[Dict[str, Any]]  # Raw question data from JSON/CSV
+    time_limit_minutes: Optional[int] = None
+    passing_score: int = 70
+    max_attempts: int = 3
+
+class TestSession(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    student_id: str
+    test_id: str
+    course_id: str
+    lesson_id: Optional[str] = None
+    selected_questions: List[str] = []  # List of question IDs selected for this session
+    shuffled_options: Dict[str, List[int]] = {}  # question_id -> shuffled option indices
+    answers: Dict[str, Any] = {}  # question_id -> answer
+    score: int = 0
+    total_points: int = 0
+    percentage: float = 0.0
+    is_completed: bool = False
+    is_passed: bool = False
+    time_taken_minutes: int = 0
+    started_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = None
+
+class QuestionPool(BaseModel):
+    """Extended Question model for question pools with 30+ questions"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    text: str
+    question_type: QuestionType
+    options: List[QuestionOption] = []
+    correct_answer: Optional[str] = None
+    explanation: Optional[str] = None
+    points: int = 1
+    category: Optional[str] = None  # For grouping questions
+    difficulty: Optional[str] = None  # easy, medium, hard
+    is_active: bool = True
 
 class CourseStats(BaseModel):
     course_id: str
