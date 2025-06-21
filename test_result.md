@@ -101,3 +101,103 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Автоматизировать процесс добавления учебных материалов к курсам через админскую панель:
+  - Видеоуроки (YouTube ссылки)
+  - Печатные конспекты (PDF/DOCX)
+  - Тесты из JSON/CSV с случайной выборкой 10 из 30 вопросов
+  - Перемешивание ответов при каждом запуске теста
+
+backend:
+  - task: "Enhanced Test Import System"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Starting implementation of JSON/CSV test import with random selection"
+
+  - task: "Random Question Selection API"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Need to implement random selection of 10 questions from available pool"
+
+  - task: "Answer Shuffling System"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implement answer shuffling for each test attempt"
+
+  - task: "Enhanced File Upload"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Improve file upload for larger PDF/DOCX files"
+
+frontend:
+  - task: "Admin Test Import Interface"
+    implemented: false
+    working: "NA"
+    file: "AdminPanel.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Create interface for importing tests from JSON/CSV"
+
+  - task: "Student Lesson Interface"
+    implemented: false
+    working: "NA"
+    file: "LessonView.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Create lesson interface matching islam.school design"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Enhanced Test Import System"
+    - "Random Question Selection API"
+    - "Answer Shuffling System"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Starting backend implementation for advanced test management system with random question selection and answer shuffling"
