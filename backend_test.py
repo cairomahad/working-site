@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 
 class IslamAppAPITester:
-    def __init__(self, base_url="https://3ce10c44-8cb6-4d17-a211-5a46485f7d39.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://48f23428-537a-45b6-aca7-ab08ec534cae.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
