@@ -13,7 +13,7 @@ export const LessonManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingLesson, setEditingLesson] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState('');
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   useEffect(() => {
     fetchLessons();
@@ -238,7 +238,7 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
     estimated_duration_minutes: lesson?.estimated_duration_minutes || 15
   });
   const [loading, setLoading] = useState(false);
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -417,7 +417,7 @@ export const TestManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingTest, setEditingTest] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState('');
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   useEffect(() => {
     fetchTests();
@@ -624,7 +624,7 @@ const TestModal = ({ test, courses, onClose, onSave }) => {
   });
   const [questions, setQuestions] = useState(test?.questions || []);
   const [loading, setLoading] = useState(false);
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
