@@ -264,9 +264,9 @@ class IslamAppAPITester:
     def test_reports(self):
         """Test reports endpoint"""
         success, response = self.run_test(
-            "Get Course Reports",
+            "Get Level Reports",
             "GET",
-            "admin/reports/courses",
+            "admin/reports/levels",
             200
         )
         return success, response
