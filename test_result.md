@@ -103,11 +103,38 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Автоматизировать процесс добавления учебных материалов к курсам через админскую панель:
-  - Видеоуроки (YouTube ссылки)
-  - Печатные конспекты (PDF/DOCX)
-  - Тесты из JSON/CSV с случайной выборкой 10 из 30 вопросов
-  - Перемешивание ответов при каждом запуске теста
+  Протестировать созданный урок "Как правильно совершать намаз" со следующими компонентами:
+
+  1. **Основной урок:**
+     - ID: 9a7c2518-da14-49f6-ad25-7d89b152dc65
+     - Курс: "Очищение и молитва" (ID: 947f1ddb-5e52-4605-810a-9db25d94ba79)
+     - Тип: mixed (с видео и текстом)
+     - YouTube видео: https://www.youtube.com/embed/T4auGhmeBlw
+
+  2. **Тест к уроку:**
+     - ID: 42665711-d8a7-41ae-80e8-a14eaf526ad2
+     - 10 вопросов по теме намаза
+     - Время: 15 минут, проходной балл 70%
+
+  3. **Приложение:**
+     - Текстовый конспект намаза (namaz_konspekt.txt)
+
+  **Тестируемые эндпоинты:**
+  - GET /api/lessons/{lesson_id} - получение урока
+  - GET /api/lessons/{lesson_id}/tests - тесты к уроку  
+  - GET /api/courses/{course_id}/lessons - все уроки курса
+  - POST /api/tests/{test_id}/start-session - начало теста (проверить рандомизацию)
+  - GET /api/admin/lessons/{lesson_id} - админский просмотр урока
+
+  **Проверить:**
+  - Урок отображается корректно
+  - Видео URL работает
+  - Тест связан с уроком
+  - Система рандомизации вопросов функционирует
+  - Файл-приложение доступен
+  - Админские функции работают
+
+  Используй админские данные: username=admin, password=admin123
 
 backend:
   - task: "Enhanced Test Import System"
@@ -116,7 +143,7 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -124,14 +151,17 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented JSON/CSV test import API at /admin/tests/import"
+      - working: true
+        agent: "testing"
+        comment: "Verified that the test import API is working correctly. Successfully tested the endpoint."
 
   - task: "Random Question Selection API"
     implemented: true
-    working: true 
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -139,14 +169,17 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented /tests/{test_id}/start-session with random selection of 10 questions"
+      - working: false
+        agent: "testing"
+        comment: "The API returns a 400 error with message 'Test has no questions'. The test exists but doesn't have any questions added to it. Need to add questions to the test before testing randomization."
 
   - task: "Answer Shuffling System"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -154,6 +187,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented answer shuffling with Fisher-Yates algorithm in test sessions"
+      - working: false
+        agent: "testing"
+        comment: "Cannot verify answer shuffling because the test has no questions. Need to add questions to the test first."
 
   - task: "Enhanced File Upload"
     implemented: true
@@ -161,7 +197,7 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -169,6 +205,21 @@ backend:
       - working: true
         agent: "main"
         comment: "Implemented enhanced file upload with chunked reading and larger size limits"
+      - working: true
+        agent: "testing"
+        comment: "Verified that file upload is working. The lesson has a text attachment (namaz_konspekt.txt) that was successfully uploaded and is accessible."
+
+  - task: "Admin Lesson View API"
+    implemented: false
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "The GET /api/admin/lessons/{lesson_id} endpoint returns a 405 Method Not Allowed error. This endpoint needs to be implemented."
 
 frontend:
   - task: "Admin Test Import Interface"
@@ -228,15 +279,18 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 0
+  test_sequence: 1
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Enhanced Test Import System"
     - "Random Question Selection API"
     - "Answer Shuffling System"
-  stuck_tasks: []
+    - "Admin Lesson View API"
+  stuck_tasks:
+    - "Random Question Selection API"
+    - "Answer Shuffling System"
+    - "Admin Lesson View API"
   test_all: false
   test_priority: "high_first"
 
@@ -249,3 +303,5 @@ agent_communication:
     message: "Frontend Phase 1 COMPLETED: Created MaterialUploadPanel with drag&drop interface for YouTube videos, PDF/DOCX documents, JSON/CSV test import, and batch operations. Added new 'Загрузка материалов' section to admin panel."
   - agent: "main"
     message: "CRITICAL BUG FIXED: Resolved useAdmin context conflict by replacing all useAdmin hooks with useCompleteAdmin in AdminLessonsTests.js and AdminComponents.js. Admin panel should now work without errors."
+  - agent: "testing"
+    message: "Backend testing completed. Found issues with the Random Question Selection API, Answer Shuffling System, and Admin Lesson View API. The test has no questions, so we can't verify randomization or shuffling. The admin lesson view endpoint is not implemented (405 Method Not Allowed). The lesson itself and file upload are working correctly."
