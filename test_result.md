@@ -210,6 +210,21 @@ frontend:
         agent: "main"
         comment: "Created comprehensive upload interface with drag&drop, YouTube integration, document upload, and batch operations"
 
+  - task: "Fix AdminProvider Context Error"
+    implemented: true
+    working: true
+    file: "AdminLessonsTests.js, AdminComponents.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "ERROR: useAdmin must be used within AdminProvider - context conflict"
+      - working: true
+        agent: "main"
+        comment: "FIXED: Replaced all useAdmin with useCompleteAdmin in AdminLessonsTests.js and AdminComponents.js"
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
