@@ -373,6 +373,39 @@ class QuestionPool(BaseModel):
     difficulty: Optional[str] = None  # easy, medium, hard
     is_active: bool = True
 
+# Statistics Models
+class DashboardStats(BaseModel):
+    total_students: int
+    total_courses: int
+    total_lessons: int
+    total_tests: int
+    total_teachers: int
+    active_students: int
+    pending_applications: int
+    completed_tests_today: int
+
+class CourseStats(BaseModel):
+    course_id: str
+    course_title: str
+    level: CourseLevel
+    enrolled_students: int
+    completed_students: int
+    lessons_count: int
+    tests_count: int
+    average_score: float
+    completion_rate: float
+
+class LevelStats(BaseModel):
+    level: CourseLevel
+    courses_count: int
+    total_lessons: int
+    enrolled_students: int
+    completion_rate: float
+    points: int = 1
+    category: Optional[str] = None  # For grouping questions
+    difficulty: Optional[str] = None  # easy, medium, hard
+    is_active: bool = True
+
 class CourseStats(BaseModel):
     course_id: str
     course_title: str
