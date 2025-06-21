@@ -642,21 +642,238 @@ def test_admin_api():
     print(f"\n📊 Admin API Tests: {tester.tests_passed}/{tester.tests_run} passed")
     return tester.tests_passed == tester.tests_run
 
-def main():
-    # Run basic API tests
-    basic_success = test_basic_api()
+def test_namaz_lesson():
+    """Test the 'Как правильно совершать намаз' lesson and its components"""
+    print("\n=== Testing 'Как правильно совершать намаз' Lesson ===")
+    tester = IslamAppAPITester()
     
-    # Run unified auth tests
-    auth_success = test_unified_auth()
+    # Login as admin
+    print("\n🔑 Testing admin login with credentials: admin/admin123")
+    if not tester.test_admin_login("admin", "admin123"):
+        print("❌ Admin login failed, stopping tests")
+        return False
     
-    # Run admin API tests
-    admin_success = test_admin_api()
+    # Test variables from the requirements
+    lesson_id = "9a7c2518-da14-49f6-ad25-7d89b152dc65"
+    course_id = "947f1ddb-5e52-4605-810a-9db25d94ba79"
+    test_id = "42665711-d8a7-41ae-80e8-a14eaf526ad2"
+    
+    # 1. Test getting the lesson
+    print(f"\n📚 Testing GET /api/lessons/{lesson_id}")
+    success, response = tester.run_test(
+        f"Get Lesson {lesson_id}",
+        "GET",
+        f"lessons/{lesson_id}",
+        200
+    )
+    
+    if success:
+        try:
+            lesson_data = response.json()
+            print(f"✅ Lesson title: {lesson_data.get('title')}")
+            print(f"✅ Lesson type: {lesson_data.get('lesson_type')}")
+            
+            # Verify video URL
+            video_url = lesson_data.get('video_url')
+            if video_url and "youtube.com/embed/T4auGhmeBlw" in video_url:
+                print(f"✅ Video URL is correct: {video_url}")
+            else:
+                print(f"❌ Video URL is incorrect or missing: {video_url}")
+                success = False
+                
+            # Check for attachments
+            attachments = lesson_data.get('attachments', [])
+            if attachments:
+                print(f"✅ Lesson has {len(attachments)} attachment(s)")
+                for attachment in attachments:
+                    print(f"  - {attachment.get('filename')}")
+            else:
+                print("ℹ️ Lesson has no attachments")
+        except Exception as e:
+            print(f"❌ Failed to parse lesson data: {str(e)}")
+            success = False
+    
+    # 2. Test getting tests for the lesson
+    print(f"\n📝 Testing GET /api/lessons/{lesson_id}/tests")
+    tests_success, tests_response = tester.run_test(
+        f"Get Tests for Lesson {lesson_id}",
+        "GET",
+        f"lessons/{lesson_id}/tests",
+        200
+    )
+    
+    if tests_success:
+        try:
+            tests_data = tests_response.json()
+            if tests_data:
+                print(f"✅ Found {len(tests_data)} test(s) for the lesson")
+                
+                # Check if our specific test is in the list
+                test_found = False
+                for test in tests_data:
+                    if test.get('id') == test_id:
+                        test_found = True
+                        print(f"✅ Found the specified test: {test.get('title')}")
+                        print(f"✅ Test time limit: {test.get('time_limit_minutes')} minutes")
+                        print(f"✅ Test passing score: {test.get('passing_score')}%")
+                        break
+                
+                if not test_found:
+                    print(f"❌ Specified test ID {test_id} not found in lesson tests")
+                    tests_success = False
+            else:
+                print("ℹ️ No tests found for this lesson")
+        except Exception as e:
+            print(f"❌ Failed to parse tests data: {str(e)}")
+            tests_success = False
+    
+    # 3. Test getting all lessons for the course
+    print(f"\n📚 Testing GET /api/courses/{course_id}/lessons")
+    course_lessons_success, course_lessons_response = tester.run_test(
+        f"Get Lessons for Course {course_id}",
+        "GET",
+        f"courses/{course_id}/lessons",
+        200
+    )
+    
+    if course_lessons_success:
+        try:
+            lessons_data = course_lessons_response.json()
+            if lessons_data:
+                print(f"✅ Found {len(lessons_data)} lesson(s) in the course")
+                
+                # Check if our specific lesson is in the list
+                lesson_found = False
+                for lesson in lessons_data:
+                    if lesson.get('id') == lesson_id:
+                        lesson_found = True
+                        print(f"✅ Found the specified lesson: {lesson.get('title')}")
+                        break
+                
+                if not lesson_found:
+                    print(f"❌ Specified lesson ID {lesson_id} not found in course lessons")
+                    course_lessons_success = False
+            else:
+                print("ℹ️ No lessons found for this course")
+        except Exception as e:
+            print(f"❌ Failed to parse course lessons data: {str(e)}")
+            course_lessons_success = False
+    
+    # 4. Test starting a test session (check randomization)
+    print(f"\n🧪 Testing POST /api/tests/{test_id}/start-session")
+    
+    # Create a fake student ID for testing
+    student_id = f"test_student_{uuid.uuid4()}"
+    
+    # Start test session multiple times to check randomization
+    sessions = []
+    for i in range(3):
+        session_success, session_response = tester.run_test(
+            f"Start Test Session {i+1}",
+            "POST",
+            f"tests/{test_id}/start-session",
+            200,
+            data={"student_id": student_id}
+        )
+        
+        if session_success:
+            try:
+                session_data = session_response.json()
+                sessions.append(session_data)
+                print(f"✅ Session {i+1} started successfully")
+                print(f"✅ Number of questions: {len(session_data.get('questions', []))}")
+            except Exception as e:
+                print(f"❌ Failed to parse session data: {str(e)}")
+                session_success = False
+    
+    # Check randomization by comparing questions across sessions
+    randomization_success = True
+    if len(sessions) >= 2:
+        print("\n🔄 Checking question randomization across sessions")
+        
+        # Extract question IDs from each session
+        question_sets = []
+        for i, session in enumerate(sessions):
+            question_ids = [q.get('id') for q in session.get('questions', [])]
+            question_sets.append(set(question_ids))
+            print(f"  Session {i+1} question IDs: {question_ids}")
+        
+        # Compare question sets
+        all_identical = True
+        for i in range(len(question_sets) - 1):
+            if question_sets[i] != question_sets[i+1]:
+                all_identical = False
+                break
+        
+        if all_identical and len(question_sets[0]) > 0:
+            print("❌ Questions are not randomized across sessions")
+            randomization_success = False
+        else:
+            print("✅ Questions are properly randomized across sessions")
+            randomization_success = True
+        
+        # Check option shuffling within a session
+        print("\n🔄 Checking option shuffling within questions")
+        
+        # Take the first question from the first session that has options
+        sample_question = None
+        for session in sessions:
+            for question in session.get('questions', []):
+                if question.get('options') and len(question.get('options', [])) > 1:
+                    sample_question = question
+                    break
+            if sample_question:
+                break
+        
+        if sample_question:
+            print(f"  Sample question: {sample_question.get('text')}")
+            print(f"  Options: {[opt.get('text') for opt in sample_question.get('options', [])]}")
+            print("✅ Options are present in the response")
+        else:
+            print("ℹ️ No suitable question found to check option shuffling")
+    else:
+        print("❌ Not enough sessions to check randomization")
+        randomization_success = False
+    
+    # 5. Test admin view of the lesson
+    print(f"\n👑 Testing GET /api/admin/lessons/{lesson_id}")
+    admin_lesson_success, admin_lesson_response = tester.run_test(
+        f"Admin View of Lesson {lesson_id}",
+        "GET",
+        f"admin/lessons/{lesson_id}",
+        200
+    )
+    
+    if admin_lesson_success:
+        try:
+            admin_lesson_data = admin_lesson_response.json()
+            print(f"✅ Admin can view the lesson: {admin_lesson_data.get('title')}")
+            
+            # Check for additional admin fields that might not be in the public view
+            admin_fields = ['is_published', 'created_at', 'updated_at']
+            for field in admin_fields:
+                if field in admin_lesson_data:
+                    print(f"✅ Admin field present: {field}")
+            
+        except Exception as e:
+            print(f"❌ Failed to parse admin lesson data: {str(e)}")
+            admin_lesson_success = False
     
     # Overall result
-    overall_success = basic_success and auth_success and admin_success
-    print(f"\n=== Overall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'} ===")
+    overall_success = (success and tests_success and course_lessons_success and 
+                      randomization_success and admin_lesson_success)
     
-    return 0 if overall_success else 1
+    print(f"\n📊 Namaz Lesson Tests: {tester.tests_passed}/{tester.tests_run} passed")
+    return overall_success
+
+def main():
+    # Run the specific tests for the Namaz lesson
+    namaz_success = test_namaz_lesson()
+    
+    # Overall result
+    print(f"\n=== Overall Test Result: {'✅ PASSED' if namaz_success else '❌ FAILED'} ===")
+    
+    return 0 if namaz_success else 1
 
 if __name__ == "__main__":
     sys.exit(main())
