@@ -3,6 +3,7 @@ import { useAuth } from './components';
 import { CompleteAdminProvider, useCompleteAdmin, EnhancedCourseManagement, EnhancedTeacherManagement } from './CompleteAdminPanel';
 import { LessonManagement, TestManagement } from './AdminLessonsTests';
 import { StudentManagement, ApplicationManagement, ReportsComponent } from './AdminComponents';
+import MaterialUploadPanel from './MaterialUploadPanel';
 
 // Login Component for Admin Panel
 const AdminLoginComponent = () => {
