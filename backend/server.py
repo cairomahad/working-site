@@ -63,6 +63,62 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
+def shuffle_options(options: List[QuestionOption]) -> tuple[List[QuestionOption], List[int]]:
+    """Shuffle question options and return shuffled options with mapping"""
+    indices = list(range(len(options)))
+    random.shuffle(indices)
+    shuffled_options = [options[i] for i in indices]
+    return shuffled_options, indices
+
+def select_random_questions(questions: List[Question], count: int = 10) -> List[Question]:
+    """Select random questions from a larger pool"""
+    if len(questions) <= count:
+        return questions
+    return random.sample(questions, count)
+
+def parse_csv_test(csv_content: str) -> List[Dict[str, Any]]:
+    """Parse CSV test data into question format"""
+    questions = []
+    csv_reader = csv.DictReader(io.StringIO(csv_content))
+    
+    for row in csv_reader:
+        question = {
+            "text": row.get("question", ""),
+            "question_type": row.get("type", "single_choice"),
+            "options": [],
+            "correct_answer": row.get("correct_answer", ""),
+            "explanation": row.get("explanation", ""),
+            "points": int(row.get("points", 1))
+        }
+        
+        # Parse options (assuming columns like option1, option2, etc.)
+        options = []
+        for i in range(1, 10):  # Support up to 9 options
+            option_key = f"option{i}"
+            if option_key in row and row[option_key]:
+                options.append({
+                    "text": row[option_key],
+                    "is_correct": row.get("correct_answer") == str(i)
+                })
+        
+        question["options"] = options
+        questions.append(question)
+    
+    return questions
+
+def parse_json_test(json_content: str) -> List[Dict[str, Any]]:
+    """Parse JSON test data into question format"""
+    try:
+        data = json.loads(json_content)
+        if isinstance(data, dict) and "questions" in data:
+            return data["questions"]
+        elif isinstance(data, list):
+            return data
+        else:
+            raise ValueError("Invalid JSON format")
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON content")
+
 async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
