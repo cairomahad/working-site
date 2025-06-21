@@ -111,52 +111,64 @@ user_problem_statement: |
 
 backend:
   - task: "Enhanced Test Import System"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Starting implementation of JSON/CSV test import with random selection"
+      - working: true
+        agent: "main"
+        comment: "Implemented JSON/CSV test import API at /admin/tests/import"
 
   - task: "Random Question Selection API"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true 
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Need to implement random selection of 10 questions from available pool"
+      - working: true
+        agent: "main"
+        comment: "Implemented /tests/{test_id}/start-session with random selection of 10 questions"
 
   - task: "Answer Shuffling System"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implement answer shuffling for each test attempt"
+      - working: true
+        agent: "main"
+        comment: "Implemented answer shuffling with Fisher-Yates algorithm in test sessions"
 
   - task: "Enhanced File Upload"
-    implemented: false
-    working: "NA"
+    implemented: true
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Improve file upload for larger PDF/DOCX files"
+      - working: true
+        agent: "main"
+        comment: "Implemented enhanced file upload with chunked reading and larger size limits"
 
 frontend:
   - task: "Admin Test Import Interface"
