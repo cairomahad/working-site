@@ -4,6 +4,7 @@ import sys
 import time
 import json
 import os
+import random
 from datetime import datetime
 
 class IslamAppAPITester:
@@ -16,6 +17,9 @@ class IslamAppAPITester:
         self.user_info = None
         self.created_course_id = None
         self.created_teacher_id = None
+        self.created_lesson_id = None
+        self.created_test_id = None
+        self.test_session_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, files=None):
         """Run a single API test"""
