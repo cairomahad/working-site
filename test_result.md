@@ -230,3 +230,5 @@ agent_communication:
     message: "Starting backend implementation for advanced test management system with random question selection and answer shuffling"
   - agent: "main"
     message: "Backend Phase 1 COMPLETED: All major API endpoints implemented - test import, random selection, shuffling, enhanced file upload. Ready for backend testing."
+  - agent: "main"
+    message: "Frontend Phase 1 COMPLETED: Created MaterialUploadPanel with drag&drop interface for YouTube videos, PDF/DOCX documents, JSON/CSV test import, and batch operations. Added new 'Загрузка материалов' section to admin panel."
