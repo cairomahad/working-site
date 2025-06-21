@@ -269,6 +269,236 @@ class IslamAppAPITester:
             200
         )
         return success, response
+        
+    # New API Test Methods
+    
+    def test_enhanced_file_upload(self, file_path, file_type):
+        """Test enhanced file upload endpoint"""
+        print(f"\n📁 Testing Enhanced File Upload with file: {file_path}")
+        
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': (os.path.basename(file_path), f, file_type)}
+                
+                success, response = self.run_test(
+                    "Enhanced File Upload",
+                    "POST",
+                    "admin/upload-enhanced",
+                    200,
+                    files=files,
+                    data={}
+                )
+                
+                if success:
+                    try:
+                        response_data = response.json()
+                        file_url = response_data.get('file_url')
+                        print(f"✅ File uploaded successfully: {file_url}")
+                        return True, response_data
+                    except Exception as e:
+                        print(f"❌ Failed to extract data from response: {str(e)}")
+                        return False, None
+                return False, None
+        except Exception as e:
+            print(f"❌ Failed to open file: {str(e)}")
+            return False, None
+    
+    def test_lesson_attachment(self, lesson_id, file_path, file_type):
+        """Test adding attachment to a lesson"""
+        print(f"\n📎 Testing Lesson Attachment with file: {file_path}")
+        
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': (os.path.basename(file_path), f, file_type)}
+                
+                success, response = self.run_test(
+                    "Add Lesson Attachment",
+                    "POST",
+                    f"admin/lessons/{lesson_id}/attachments",
+                    200,
+                    files=files,
+                    data={}
+                )
+                
+                if success:
+                    try:
+                        response_data = response.json()
+                        print(f"✅ Attachment added successfully")
+                        return True, response_data
+                    except Exception as e:
+                        print(f"❌ Failed to extract data from response: {str(e)}")
+                        return False, None
+                return False, None
+        except Exception as e:
+            print(f"❌ Failed to open file: {str(e)}")
+            return False, None
+    
+    def test_import_test_from_json(self, file_path, course_id, lesson_id=None):
+        """Test importing test from JSON file"""
+        print(f"\n📊 Testing Test Import from JSON: {file_path}")
+        
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': (os.path.basename(file_path), f, 'application/json')}
+                
+                data = {
+                    'course_id': course_id
+                }
+                
+                if lesson_id:
+                    data['lesson_id'] = lesson_id
+                
+                success, response = self.run_test(
+                    "Import Test from JSON",
+                    "POST",
+                    "admin/tests/import",
+                    200,
+                    files=files,
+                    data=data
+                )
+                
+                if success:
+                    try:
+                        response_data = response.json()
+                        test_id = response_data.get('test_id')
+                        print(f"✅ Test imported successfully: {test_id}")
+                        return True, response_data
+                    except Exception as e:
+                        print(f"❌ Failed to extract data from response: {str(e)}")
+                        return False, None
+                return False, None
+        except Exception as e:
+            print(f"❌ Failed to open file: {str(e)}")
+            return False, None
+    
+    def test_start_test_session(self, test_id, student_id):
+        """Test starting a test session with random questions"""
+        print(f"\n🧪 Testing Start Test Session for test: {test_id}")
+        
+        data = {
+            'student_id': student_id
+        }
+        
+        success, response = self.run_test(
+            "Start Test Session",
+            "POST",
+            f"tests/{test_id}/start-session",
+            200,
+            data=data
+        )
+        
+        if success:
+            try:
+                response_data = response.json()
+                session_id = response_data.get('session_id')
+                questions = response_data.get('questions', [])
+                
+                print(f"✅ Test session started successfully: {session_id}")
+                print(f"✅ Number of questions: {len(questions)}")
+                
+                # Verify random selection (should be 10 questions)
+                if len(questions) == 10:
+                    print(f"✅ Correctly selected 10 random questions")
+                else:
+                    print(f"❌ Expected 10 questions, got {len(questions)}")
+                
+                # Check if options exist for questions
+                if questions and 'options' in questions[0]:
+                    print(f"✅ Question options are included")
+                    
+                    # Store a sample question for later verification of shuffling
+                    self.sample_question = questions[0]
+                else:
+                    print(f"❌ Question options not found")
+                
+                return True, response_data
+            except Exception as e:
+                print(f"❌ Failed to extract data from response: {str(e)}")
+                return False, None
+        return False, None
+    
+    def test_submit_test_session(self, session_id, answers):
+        """Test submitting answers for a test session"""
+        print(f"\n📝 Testing Submit Test Session: {session_id}")
+        
+        success, response = self.run_test(
+            "Submit Test Session",
+            "POST",
+            f"test-sessions/{session_id}/submit",
+            200,
+            data=answers
+        )
+        
+        if success:
+            try:
+                response_data = response.json()
+                score = response_data.get('score')
+                total_points = response_data.get('total_points')
+                percentage = response_data.get('percentage')
+                is_passed = response_data.get('is_passed')
+                
+                print(f"✅ Test submission successful")
+                print(f"✅ Score: {score}/{total_points} ({percentage}%)")
+                print(f"✅ Passed: {is_passed}")
+                
+                return True, response_data
+            except Exception as e:
+                print(f"❌ Failed to extract data from response: {str(e)}")
+                return False, None
+        return False, None
+    
+    def create_test_json_file(self, filename="test_questions.json"):
+        """Create a sample JSON file with test questions"""
+        print(f"\n📄 Creating sample test JSON file: {filename}")
+        
+        questions = []
+        
+        # Create 15 sample questions
+        for i in range(1, 16):
+            options = []
+            correct_index = random.randint(0, 3)
+            
+            for j in range(4):
+                options.append({
+                    "text": f"Option {j+1} for Question {i}",
+                    "is_correct": j == correct_index
+                })
+            
+            question = {
+                "text": f"Sample Question {i}?",
+                "question_type": "single_choice",
+                "options": options,
+                "explanation": f"Explanation for question {i}",
+                "points": 1
+            }
+            
+            questions.append(question)
+        
+        test_data = {
+            "questions": questions
+        }
+        
+        try:
+            with open(filename, 'w') as f:
+                json.dump(test_data, f, indent=2)
+            print(f"✅ Created sample test file with {len(questions)} questions")
+            return True, filename
+        except Exception as e:
+            print(f"❌ Failed to create test file: {str(e)}")
+            return False, None
+    
+    def create_sample_pdf(self, filename="sample.pdf"):
+        """Create a simple text file as a mock PDF"""
+        print(f"\n📄 Creating sample PDF file: {filename}")
+        
+        try:
+            with open(filename, 'w') as f:
+                f.write("This is a sample PDF file content for testing purposes.")
+            print(f"✅ Created sample PDF file")
+            return True, filename
+        except Exception as e:
+            print(f"❌ Failed to create PDF file: {str(e)}")
+            return False, None
 
 def test_basic_api():
     """Test basic API endpoints"""
