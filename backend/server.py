@@ -1074,6 +1074,7 @@ async def startup_event():
     """Initialize default data"""
     admin_count = await db.admins.count_documents({})
     if admin_count == 0:
+        # Create default admin
         default_admin = AdminUser(
             username="admin",
             email="admin@uroki-islama.ru",
@@ -1084,6 +1085,18 @@ async def startup_event():
         admin_dict["hashed_password"] = get_password_hash("admin123")
         await db.admins.insert_one(admin_dict)
         logger.info("Default admin user created: admin/admin123")
+        
+        # Create second admin with frontend credentials
+        second_admin = AdminUser(
+            username="miftahulum",
+            email="miftahulum@gmail.com",
+            full_name="Мифтахулюм",
+            role=UserRole.SUPER_ADMIN
+        )
+        second_admin_dict = second_admin.dict()
+        second_admin_dict["hashed_password"] = get_password_hash("197724")
+        await db.admins.insert_one(second_admin_dict)
+        logger.info("Second admin user created: miftahulum@gmail.com/197724")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
