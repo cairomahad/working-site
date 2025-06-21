@@ -550,6 +550,134 @@ async def delete_question(test_id: str, question_id: str, current_admin: dict = 
     
     return {"message": "Question deleted successfully"}
 
+# Enhanced File Upload Routes
+@api_router.post("/admin/upload-enhanced")
+async def upload_enhanced_file(
+    file: UploadFile = File(...), 
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Enhanced file upload with support for larger files and more formats"""
+    # Extended allowed types
+    allowed_types = [
+        "image/jpeg", "image/png", "image/gif", "image/webp",
+        "video/mp4", "video/avi", "video/mov",
+        "application/pdf", 
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/csv",
+        "application/json",
+        "text/plain"
+    ]
+    
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"File type not allowed. Allowed types: {', '.join(allowed_types)}"
+        )
+    
+    # Increased file size limits based on type
+    if file.content_type.startswith("video/"):
+        max_size = 100 * 1024 * 1024  # 100MB for videos
+    elif file.content_type == "application/pdf":
+        max_size = 50 * 1024 * 1024   # 50MB for PDFs
+    else:
+        max_size = 10 * 1024 * 1024   # 10MB for other files
+    
+    # Read file in chunks to handle large files
+    total_size = 0
+    chunks = []
+    
+    while chunk := await file.read(1024 * 1024):  # Read 1MB chunks
+        chunks.append(chunk)
+        total_size += len(chunk)
+        
+        if total_size > max_size:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File size too large (max {max_size // (1024*1024)}MB)"
+            )
+    
+    file_content = b''.join(chunks)
+    
+    # Generate unique filename with timestamp
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    file_extension = file.filename.split(".")[-1] if "." in file.filename else "bin"
+    unique_filename = f"{timestamp}_{uuid.uuid4().hex[:8]}.{file_extension}"
+    file_path = UPLOAD_DIR / unique_filename
+    
+    # Save file
+    try:
+        async with aiofiles.open(file_path, "wb") as f:
+            await f.write(file_content)
+        
+        file_url = f"/uploads/{unique_filename}"
+        
+        return {
+            "filename": file.filename,
+            "file_url": file_url,
+            "file_type": file.content_type,
+            "file_size": total_size,
+            "success": True,
+            "message": "File uploaded successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+
+@api_router.post("/admin/lessons/{lesson_id}/attachments")
+async def add_lesson_attachment(
+    lesson_id: str,
+    file: UploadFile = File(...),
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Add attachment to a lesson"""
+    lesson = await db.lessons.find_one({"id": lesson_id})
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    
+    # Upload file
+    upload_result = await upload_enhanced_file(file, current_admin)
+    
+    # Create attachment object
+    attachment = LessonAttachment(
+        filename=upload_result["filename"],
+        file_url=upload_result["file_url"],
+        file_type=upload_result["file_type"],
+        file_size=upload_result["file_size"]
+    )
+    
+    # Add to lesson
+    await db.lessons.update_one(
+        {"id": lesson_id},
+        {"$push": {"attachments": attachment.dict()}}
+    )
+    
+    return {
+        "message": "Attachment added successfully",
+        "attachment": attachment
+    }
+
+@api_router.delete("/admin/lessons/{lesson_id}/attachments/{attachment_id}")
+async def remove_lesson_attachment(
+    lesson_id: str,
+    attachment_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Remove attachment from a lesson"""
+    lesson = await db.lessons.find_one({"id": lesson_id})
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    
+    # Remove attachment from lesson
+    result = await db.lessons.update_one(
+        {"id": lesson_id},
+        {"$pull": {"attachments": {"id": attachment_id}}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+    
+    return {"message": "Attachment removed successfully"}
+
 # File Upload Routes
 @api_router.post("/admin/upload")
 async def upload_file(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
