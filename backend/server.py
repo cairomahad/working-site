@@ -640,6 +640,266 @@ async def get_level_statistics(current_admin: dict = Depends(get_current_admin))
     
     return stats
 
+# Enhanced Test Management Routes
+
+@api_router.post("/admin/tests/import")
+async def import_test_from_file(
+    file: UploadFile = File(...), 
+    course_id: str = None,
+    lesson_id: str = None,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Import test questions from JSON or CSV file"""
+    if not file.filename.endswith(('.json', '.csv')):
+        raise HTTPException(status_code=400, detail="Only JSON and CSV files are supported")
+    
+    # Verify course exists
+    course = await db.courses.find_one({"id": course_id})
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    
+    # Verify lesson exists if specified
+    if lesson_id:
+        lesson = await db.lessons.find_one({"id": lesson_id})
+        if not lesson:
+            raise HTTPException(status_code=404, detail="Lesson not found")
+    
+    try:
+        content = await file.read()
+        content_str = content.decode('utf-8')
+        
+        # Parse questions based on file type
+        if file.filename.endswith('.json'):
+            questions_data = parse_json_test(content_str)
+        else:  # CSV
+            questions_data = parse_csv_test(content_str)
+        
+        # Create test
+        test_data = {
+            "title": f"Imported Test - {file.filename}",
+            "description": f"Test imported from {file.filename}",
+            "course_id": course_id,
+            "lesson_id": lesson_id,
+            "time_limit_minutes": 30,
+            "passing_score": 70,
+            "max_attempts": 3,
+            "is_published": True,
+            "order": 1
+        }
+        
+        test_obj = Test(**test_data)
+        
+        # Convert questions to proper format
+        questions = []
+        for i, q_data in enumerate(questions_data):
+            options = []
+            for opt_data in q_data.get("options", []):
+                option = QuestionOption(
+                    text=opt_data["text"],
+                    is_correct=opt_data.get("is_correct", False)
+                )
+                options.append(option)
+            
+            question = Question(
+                text=q_data["text"],
+                question_type=QuestionType(q_data.get("question_type", "single_choice")),
+                options=options,
+                correct_answer=q_data.get("correct_answer"),
+                explanation=q_data.get("explanation"),
+                points=q_data.get("points", 1),
+                order=i + 1
+            )
+            questions.append(question)
+        
+        test_obj.questions = questions
+        
+        # Save to database
+        await db.tests.insert_one(test_obj.dict())
+        
+        # Update course tests count
+        await db.courses.update_one(
+            {"id": course_id},
+            {"$inc": {"tests_count": 1}}
+        )
+        
+        return {
+            "message": "Test imported successfully",
+            "test_id": test_obj.id,
+            "questions_count": len(questions),
+            "test": test_obj
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to import test: {str(e)}")
+
+@api_router.post("/tests/{test_id}/start-session")
+async def start_test_session(test_id: str, student_data: dict):
+    """Start a new test session with random question selection"""
+    test = await db.tests.find_one({"id": test_id, "is_published": True})
+    if not test:
+        raise HTTPException(status_code=404, detail="Test not found")
+    
+    # Check if student exists
+    student_id = student_data.get("student_id")
+    if not student_id:
+        raise HTTPException(status_code=400, detail="Student ID required")
+    
+    # Check previous attempts
+    attempt_count = await db.test_sessions.count_documents({
+        "student_id": student_id,
+        "test_id": test_id,
+        "is_completed": True
+    })
+    
+    if attempt_count >= test.get("max_attempts", 3):
+        raise HTTPException(status_code=400, detail="Maximum attempts reached")
+    
+    # Select random questions (10 from available pool)
+    all_questions = test.get("questions", [])
+    if len(all_questions) == 0:
+        raise HTTPException(status_code=400, detail="Test has no questions")
+    
+    selected_questions = select_random_questions(all_questions, 10)
+    
+    # Create shuffled options for each question
+    shuffled_options = {}
+    for question in selected_questions:
+        if question.get("options"):
+            _, shuffle_indices = shuffle_options([QuestionOption(**opt) for opt in question["options"]])
+            shuffled_options[question["id"]] = shuffle_indices
+    
+    # Create test session
+    session = TestSession(
+        student_id=student_id,
+        test_id=test_id,
+        course_id=test["course_id"],
+        lesson_id=test.get("lesson_id"),
+        selected_questions=[q["id"] for q in selected_questions],
+        shuffled_options=shuffled_options,
+        total_points=sum(q.get("points", 1) for q in selected_questions)
+    )
+    
+    await db.test_sessions.insert_one(session.dict())
+    
+    # Prepare questions for frontend (with shuffled options)
+    questions_for_frontend = []
+    for question in selected_questions:
+        q_copy = question.copy()
+        if question["id"] in shuffled_options:
+            shuffle_indices = shuffled_options[question["id"]]
+            original_options = question.get("options", [])
+            q_copy["options"] = [original_options[i] for i in shuffle_indices]
+            # Remove correct answer info for security
+            for opt in q_copy["options"]:
+                opt.pop("is_correct", None)
+        questions_for_frontend.append(q_copy)
+    
+    return {
+        "session_id": session.id,
+        "test_title": test["title"],
+        "questions": questions_for_frontend,
+        "time_limit_minutes": test.get("time_limit_minutes"),
+        "total_points": session.total_points
+    }
+
+@api_router.post("/test-sessions/{session_id}/submit")
+async def submit_test_session(session_id: str, answers: Dict[str, Any]):
+    """Submit test session answers and calculate score"""
+    session = await db.test_sessions.find_one({"id": session_id})
+    if not session:
+        raise HTTPException(status_code=404, detail="Test session not found")
+    
+    if session.get("is_completed"):
+        raise HTTPException(status_code=400, detail="Test session already completed")
+    
+    # Get test data
+    test = await db.tests.find_one({"id": session["test_id"]})
+    if not test:
+        raise HTTPException(status_code=404, detail="Test not found")
+    
+    # Calculate score
+    score = 0
+    total_points = 0
+    selected_question_ids = session.get("selected_questions", [])
+    
+    for question in test.get("questions", []):
+        if question["id"] in selected_question_ids:
+            total_points += question.get("points", 1)
+            
+            # Check if answer is correct
+            question_id = question["id"]
+            if question_id in answers:
+                user_answer = answers[question_id]
+                
+                if question.get("question_type") == "single_choice":
+                    # For shuffled options, we need to map back to original indices
+                    if question_id in session.get("shuffled_options", {}):
+                        shuffle_indices = session["shuffled_options"][question_id]
+                        if isinstance(user_answer, int) and 0 <= user_answer < len(shuffle_indices):
+                            original_index = shuffle_indices[user_answer]
+                            if original_index < len(question.get("options", [])):
+                                if question["options"][original_index].get("is_correct"):
+                                    score += question.get("points", 1)
+                    else:
+                        # No shuffling applied
+                        if isinstance(user_answer, int) and 0 <= user_answer < len(question.get("options", [])):
+                            if question["options"][user_answer].get("is_correct"):
+                                score += question.get("points", 1)
+                
+                elif question.get("question_type") == "text_input":
+                    if str(user_answer).strip().lower() == str(question.get("correct_answer", "")).strip().lower():
+                        score += question.get("points", 1)
+    
+    # Calculate percentage
+    percentage = (score / total_points * 100) if total_points > 0 else 0
+    is_passed = percentage >= test.get("passing_score", 70)
+    
+    # Update session
+    update_data = {
+        "answers": answers,
+        "score": score,
+        "total_points": total_points,
+        "percentage": percentage,
+        "is_completed": True,
+        "is_passed": is_passed,
+        "completed_at": datetime.utcnow()
+    }
+    
+    await db.test_sessions.update_one(
+        {"id": session_id},
+        {"$set": update_data}
+    )
+    
+    # Also create a test attempt record for compatibility
+    attempt = TestAttempt(
+        student_id=session["student_id"],
+        test_id=session["test_id"],
+        course_id=session["course_id"],
+        lesson_id=session.get("lesson_id"),
+        answers=answers,
+        score=score,
+        total_points=total_points,
+        percentage=percentage,
+        is_passed=is_passed,
+        completed_at=datetime.utcnow()
+    )
+    
+    await db.test_attempts.insert_one(attempt.dict())
+    
+    return {
+        "score": score,
+        "total_points": total_points,
+        "percentage": percentage,
+        "is_passed": is_passed,
+        "passing_score": test.get("passing_score", 70)
+    }
+
+@api_router.get("/admin/tests/{test_id}/sessions")
+async def get_test_sessions(test_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Get all sessions for a specific test"""
+    sessions = await db.test_sessions.find({"test_id": test_id}).to_list(1000)
+    return sessions
+
 # Legacy routes for compatibility
 @api_router.get("/admin/students", response_model=List[Student])
 async def get_students(current_admin: dict = Depends(get_current_admin)):
