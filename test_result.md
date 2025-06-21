@@ -247,3 +247,5 @@ agent_communication:
     message: "Backend Phase 1 COMPLETED: All major API endpoints implemented - test import, random selection, shuffling, enhanced file upload. Ready for backend testing."
   - agent: "main"
     message: "Frontend Phase 1 COMPLETED: Created MaterialUploadPanel with drag&drop interface for YouTube videos, PDF/DOCX documents, JSON/CSV test import, and batch operations. Added new 'Загрузка материалов' section to admin panel."
+  - agent: "main"
+    message: "CRITICAL BUG FIXED: Resolved useAdmin context conflict by replacing all useAdmin hooks with useCompleteAdmin in AdminLessonsTests.js and AdminComponents.js. Admin panel should now work without errors."
