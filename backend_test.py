@@ -581,11 +581,11 @@ def test_admin_api():
     course_data = {
         "title": "Тестовый курс",
         "description": "Описание тестового курса",
+        "level": "level_1",
         "teacher_id": "1",  # Will be updated if we have real teachers
         "teacher_name": "Тестовый преподаватель",
         "difficulty": "Легко",
-        "duration_minutes": 30,
-        "questions_count": 10,
+        "estimated_duration_hours": 30,
         "image_url": "https://example.com/image.jpg"
     }
     
