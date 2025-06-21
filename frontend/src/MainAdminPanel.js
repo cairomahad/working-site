@@ -299,6 +299,8 @@ const MainAdminPanel = () => {
     switch (currentPage) {
       case 'dashboard':
         return <AdminDashboard />;
+      case 'upload':
+        return <MaterialUploadPanel />;
       case 'courses':
         return <EnhancedCourseManagement />;
       case 'lessons':
