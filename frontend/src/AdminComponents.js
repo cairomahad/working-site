@@ -11,7 +11,7 @@ export const StudentManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterActive, setFilterActive] = useState('all');
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   useEffect(() => {
     fetchStudents();
@@ -179,7 +179,7 @@ export const TeacherManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   useEffect(() => {
     fetchTeachers();
@@ -323,7 +323,7 @@ const TeacherModal = ({ teacher, onClose, onSave }) => {
     image_url: teacher?.image_url || ''
   });
   const [loading, setLoading] = useState(false);
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -436,7 +436,7 @@ export const ApplicationManagement = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   useEffect(() => {
     fetchApplications();
@@ -584,7 +584,7 @@ export const ApplicationManagement = () => {
 export const ReportsComponent = () => {
   const [courseStats, setCourseStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { token } = useAdmin();
+  const { token } = useCompleteAdmin();
 
   useEffect(() => {
     fetchCourseStats();
