@@ -85,6 +85,7 @@ class Course(BaseModel):
 
 class CourseCreate(BaseModel):
     title: str
+    slug: Optional[str] = None
     description: str
     level: CourseLevel
     teacher_id: str
@@ -94,6 +95,7 @@ class CourseCreate(BaseModel):
     image_url: Optional[str] = None
     order: Optional[int] = 1
     prerequisites: List[str] = []
+    additional_materials: Optional[str] = None
 
 class CourseUpdate(BaseModel):
     title: Optional[str] = None
