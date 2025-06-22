@@ -298,7 +298,8 @@ const EnhancedCourseModal = ({ course, teachers, onClose, onSave }) => {
     estimated_duration_hours: course?.estimated_duration_hours || 20,
     image_url: course?.image_url || '',
     order: course?.order || 1,
-    prerequisites: course?.prerequisites || []
+    prerequisites: course?.prerequisites || [],
+    status: course?.status || 'draft'
   });
   const [loading, setLoading] = useState(false);
   const { token } = useCompleteAdmin();
