@@ -238,6 +238,25 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
     estimated_duration_minutes: lesson?.estimated_duration_minutes || 15
   });
   const [loading, setLoading] = useState(false);
+  const [showTestForm, setShowTestForm] = useState(false);
+  const [testFormData, setTestFormData] = useState({
+    title: '',
+    description: '',
+    time_limit_minutes: 15,
+    passing_score: 70,
+    max_attempts: 3,
+    questions: []
+  });
+  const [newQuestion, setNewQuestion] = useState({
+    question_text: '',
+    question_type: 'single_choice',
+    options: [
+      { text: '', is_correct: false },
+      { text: '', is_correct: false }
+    ],
+    explanation: '',
+    points: 1
+  });
   const { token } = useCompleteAdmin();
 
   const handleSubmit = async (e) => {
