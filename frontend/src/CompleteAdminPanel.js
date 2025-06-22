@@ -272,16 +272,26 @@ export const EnhancedCourseManagement = () => {
                 <span>{course.estimated_duration_hours}ч</span>
               </div>
               
-              <div className="flex space-x-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleEditCourse(course)}
-                  className="flex-1 bg-teal-100 text-teal-700 py-2 px-3 rounded text-sm hover:bg-teal-200"
+                  className="bg-teal-100 text-teal-700 py-2 px-3 rounded text-sm hover:bg-teal-200 transition-colors"
                 >
                   Редактировать
                 </button>
                 <button
+                  onClick={() => handlePublishCourse(course)}
+                  className={`py-2 px-3 rounded text-sm transition-colors ${
+                    course.status === 'published' 
+                      ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' 
+                      : 'bg-green-100 text-green-700 hover:bg-green-200'
+                  }`}
+                >
+                  {course.status === 'published' ? 'Снять с публикации' : 'Опубликовать'}
+                </button>
+                <button
                   onClick={() => handleDeleteCourse(course.id)}
-                  className="bg-red-100 text-red-700 py-2 px-3 rounded text-sm hover:bg-red-200"
+                  className="bg-red-100 text-red-700 py-2 px-3 rounded text-sm hover:bg-red-200 transition-colors col-span-2"
                 >
                   Удалить
                 </button>
