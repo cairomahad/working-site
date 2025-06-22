@@ -7,10 +7,11 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 // Main Lessons Page Component - similar to islam.school/lessons
-export const LessonsPage = ({ setCurrentPage, setSelectedCourse, setSelectedLesson }) => {
+export const LessonsPage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCourses();
@@ -27,8 +28,7 @@ export const LessonsPage = ({ setCurrentPage, setSelectedCourse, setSelectedLess
   };
 
   const handleCourseClick = (course) => {
-    setSelectedCourse(course);
-    setCurrentPage('course-lessons');
+    navigate(`/lessons/${course.slug || course.id}`);
   };
 
   // Course subject images
