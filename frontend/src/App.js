@@ -187,6 +187,30 @@ const MainApp = () => {
         return <HomePage setCurrentPage={setCurrentPage} />;
       case 'lessons':
         return (
+          <LessonsPage 
+            setCurrentPage={setCurrentPage} 
+            setSelectedCourse={setSelectedCourse}
+            setSelectedLesson={setSelectedLesson}
+          />
+        );
+      case 'course-lessons':
+        return (
+          <CourseLessonsPage 
+            course={selectedCourse}
+            setCurrentPage={setCurrentPage}
+            setSelectedLesson={setSelectedLesson}
+          />
+        );
+      case 'lesson-detail':
+        return (
+          <LessonDetailPage 
+            lesson={selectedLesson}
+            course={selectedCourse}
+            setCurrentPage={setCurrentPage}
+          />
+        );
+      case 'old-lessons':
+        return (
           <CourseLevels 
             setCurrentPage={setCurrentPage} 
             setSelectedCourse={setSelectedCourse} 
