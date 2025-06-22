@@ -143,6 +143,7 @@ class Lesson(BaseModel):
 class LessonCreate(BaseModel):
     course_id: str
     title: str
+    slug: Optional[str] = None
     description: Optional[str] = None
     content: str
     lesson_type: LessonType
