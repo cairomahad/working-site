@@ -129,14 +129,12 @@ export const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
-            <div className="flex items-center cursor-pointer" onClick={() => setCurrentPage('home')}>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">У</span>
-                </div>
-                <span className="text-2xl font-bold text-teal-600">ИСЛАМА</span>
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-lg">У</span>
               </div>
-            </div>
+              <span className="text-2xl font-bold text-teal-600">ИСЛАМА</span>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
