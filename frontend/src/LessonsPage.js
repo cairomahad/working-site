@@ -189,10 +189,11 @@ export const LessonsPage = () => {
 };
 
 // Course Lessons List Component - similar to course detail page
-export const CourseLessonsPage = ({ course, setCurrentPage, setSelectedLesson }) => {
+export const CourseLessonsPage = ({ course }) => {
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (course) {
@@ -211,12 +212,11 @@ export const CourseLessonsPage = ({ course, setCurrentPage, setSelectedLesson })
   };
 
   const handleLessonClick = (lesson) => {
-    setSelectedLesson(lesson);
-    setCurrentPage('lesson-detail');
+    navigate(`/lessons/${course.slug || course.id}/${lesson.slug || lesson.id}`);
   };
 
   const handleBackToLessons = () => {
-    setCurrentPage('lessons');
+    navigate('/lessons');
   };
 
   if (loading) {
