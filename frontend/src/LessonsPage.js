@@ -485,11 +485,13 @@ export const LessonDetailPage = ({ lesson, course }) => {
           <div className="mb-8">
             <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
               <iframe
-                src={lesson.video_url}
+                src={convertToEmbedUrl(lesson.video_url)}
                 title={lesson.title}
                 className="absolute top-0 left-0 w-full h-full rounded-lg"
                 frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           </div>
