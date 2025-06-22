@@ -120,17 +120,23 @@ class Lesson(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     course_id: str
     title: str
+    slug: Optional[str] = None
     description: Optional[str] = None
     content: str  # HTML content
     lesson_type: LessonType
     video_url: Optional[str] = None
     video_duration: Optional[int] = None  # in seconds
-    attachments: List[LessonAttachment] = []
+    attachment_url: Optional[str] = None  # Single attachment URL
     order: int
     is_published: bool = True
     estimated_duration_minutes: int = 15
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.slug:
+            self.slug = create_slug(self.title)
 
 class LessonCreate(BaseModel):
     course_id: str
