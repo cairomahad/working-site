@@ -311,3 +311,5 @@ agent_communication:
     message: "ENHANCED COURSE MANAGEMENT: Added quick publish/unpublish button next to edit button in course list. Users can now quickly change course status without opening edit modal. Button shows 'Опубликовать' for draft courses and 'Снять с публикации' for published courses."
   - agent: "main"
     message: "YOUTUBE VIDEO FIX: Fixed YouTube video display issue. Added convertToEmbedUrl function to both LessonsPage.js and MaterialUploadPanel.js to convert YouTube URLs to proper embed format. Added required iframe attributes (allow, referrerPolicy) for YouTube embedding. Videos now save and display correctly without connection errors."
+  - agent: "main"
+    message: "HOTFIX: Fixed runtime error 'convertToEmbedUrl is not defined' in LessonDetailPage component. Added convertToEmbedUrl function to LessonDetailPage component to resolve the error when viewing lessons with YouTube videos."
