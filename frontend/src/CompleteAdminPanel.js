@@ -413,7 +413,7 @@ const EnhancedCourseModal = ({ course, teachers, onClose, onSave }) => {
               </select>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Сложность</label>
                 <select
@@ -449,6 +449,19 @@ const EnhancedCourseModal = ({ course, teachers, onClose, onSave }) => {
                   min="1"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Статус</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                >
+                  <option value="draft">Черновик</option>
+                  <option value="published">Опубликован</option>
+                  <option value="archived">Архив</option>
+                </select>
               </div>
             </div>
 
