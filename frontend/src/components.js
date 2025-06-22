@@ -215,60 +215,69 @@ export const Header = () => {
 
           {/* Mobile Navigation Menu */}
           {showMobileMenu && (
-            <div className="md:hidden border-t border-gray-100 py-4">
-              <nav className="flex flex-col space-y-4">
-                <button 
-                  onClick={() => handleMobileMenuClick('home')}
-                  className={`${currentPage === 'home' ? 'text-teal-600 bg-teal-50' : 'text-gray-700'} px-4 py-2 text-left rounded-lg hover:text-teal-600 hover:bg-teal-50 font-medium transition-colors`}
+            <div className="md:hidden border-t border-gray-100">
+              <div className="px-4 py-2 space-y-1">
+                <Link
+                  to="/"
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isCurrentPage('/') && location.pathname === '/' ? 'text-teal-600 bg-teal-50' : 'text-gray-700 hover:text-teal-600 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setShowMobileMenu(false)}
                 >
-                  🏠 Главная
-                </button>
-                <button 
-                  onClick={() => handleMobileMenuClick('lessons')}
-                  className={`${currentPage === 'lessons' ? 'text-teal-600 bg-teal-50' : 'text-gray-700'} px-4 py-2 text-left rounded-lg hover:text-teal-600 hover:bg-teal-50 font-medium transition-colors`}
+                  Главная
+                </Link>
+                <Link
+                  to="/lessons"
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isCurrentPage('/lessons') ? 'text-teal-600 bg-teal-50' : 'text-gray-700 hover:text-teal-600 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setShowMobileMenu(false)}
                 >
-                  📚 Уроки
-                </button>
-                <button 
-                  onClick={() => handleMobileMenuClick('leaderboard')}
-                  className={`${currentPage === 'leaderboard' ? 'text-teal-600 bg-teal-50' : 'text-gray-700'} px-4 py-2 text-left rounded-lg hover:text-teal-600 hover:bg-teal-50 font-medium transition-colors`}
+                  Уроки
+                </Link>
+                <Link
+                  to="/leaderboard"
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isCurrentPage('/leaderboard') ? 'text-teal-600 bg-teal-50' : 'text-gray-700 hover:text-teal-600 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setShowMobileMenu(false)}
                 >
-                  🏆 Лидерборд
-                </button>
-                <button 
-                  onClick={() => handleMobileMenuClick('about')}
-                  className={`${currentPage === 'about' ? 'text-teal-600 bg-teal-50' : 'text-gray-700'} px-4 py-2 text-left rounded-lg hover:text-teal-600 hover:bg-teal-50 font-medium transition-colors`}
+                  Лидерборд
+                </Link>
+                <Link
+                  to="/about"
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isCurrentPage('/about') ? 'text-teal-600 bg-teal-50' : 'text-gray-700 hover:text-teal-600 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setShowMobileMenu(false)}
                 >
-                  ℹ️ О проекте
-                </button>
+                  О проекте
+                </Link>
                 
-                {/* Mobile Auth Section */}
-                <div className="border-t border-gray-100 pt-4 mt-4">
-                  {currentUser ? (
-                    <div className="flex flex-col space-y-3">
-                      <div className="px-4 py-2 text-gray-700 text-sm">
-                        Привет, {currentUser.displayName || currentUser.email}
-                      </div>
-                      <button
-                        onClick={handleLogout}
-                        className="mx-4 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-center"
-                      >
-                        Выйти
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setShowAuthModal(true);
-                        setShowMobileMenu(false);
-                      }}
-                      className="mx-4 bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition-colors font-medium text-center w-full"
-                    >
-                      Войти
-                    </button>
-                  )}
-                </div>
-              </nav>
+                {!currentUser && (
+                  <button
+                    onClick={() => {
+                      setShowAuthModal(true);
+                      setShowMobileMenu(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-teal-500 hover:bg-teal-600"
+                  >
+                    Войти
+                  </button>
+                )}
+                
+                {currentUser && (
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-teal-600 hover:bg-gray-50"
+                  >
+                    Выйти
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
