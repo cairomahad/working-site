@@ -327,10 +327,11 @@ export const CourseLessonsPage = ({ course }) => {
 };
 
 // Individual Lesson Detail Component - similar to islam.school lesson page
-export const LessonDetailPage = ({ lesson, course, setCurrentPage }) => {
+export const LessonDetailPage = ({ lesson, course }) => {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (lesson) {
@@ -349,11 +350,11 @@ export const LessonDetailPage = ({ lesson, course, setCurrentPage }) => {
   };
 
   const handleBackToCourse = () => {
-    setCurrentPage('course-lessons');
+    navigate(`/lessons/${course?.slug || course?.id}`);
   };
 
   const handleStartTest = (testId) => {
-    setCurrentPage(`test-${testId}`);
+    navigate(`/test/${testId}`);
   };
 
   if (loading) {
