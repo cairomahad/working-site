@@ -47,10 +47,21 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+import re
+
+def create_slug(text: str) -> str:
+    """Convert text to URL-friendly slug"""
+    # Convert to lowercase and replace non-alphanumeric with hyphens
+    slug = re.sub(r'[^\w\s-]', '', text.lower())
+    slug = re.sub(r'[-\s]+', '-', slug)
+    # Remove leading/trailing hyphens
+    return slug.strip('-')
+
 # Course Models
 class Course(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
+    slug: Optional[str] = None
     description: str
     level: CourseLevel
     teacher_id: str
@@ -63,8 +74,14 @@ class Course(BaseModel):
     image_url: Optional[str] = None
     order: int = 1  # Порядок отображения
     prerequisites: List[str] = []  # ID предыдущих курсов
+    additional_materials: Optional[str] = None  # URL to additional materials
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.slug:
+            self.slug = create_slug(self.title)
 
 class CourseCreate(BaseModel):
     title: str
