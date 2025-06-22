@@ -87,6 +87,25 @@ const VideoUploadSection = () => {
     }
   };
 
+  const convertToEmbedUrl = (url) => {
+    if (!url) return '';
+    
+    // If it's already an embed URL, return as is
+    if (url.includes('youtube.com/embed/')) {
+      return url;
+    }
+    
+    // Extract video ID from various YouTube URL formats
+    const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    
+    if (videoIdMatch && videoIdMatch[1]) {
+      const videoId = videoIdMatch[1];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+    return url; // Return original URL if no match found
+  };
+
   const handleVideoUpload = async (courseId, lessonId) => {
     if (!youtubeUrl || !validateYouTubeUrl(youtubeUrl)) {
       alert('Пожалуйста, введите корректную ссылку на YouTube видео');
@@ -94,6 +113,7 @@ const VideoUploadSection = () => {
     }
 
     try {
+      const embedUrl = convertToEmbedUrl(youtubeUrl);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/admin/lessons/${lessonId}`, {
         method: 'PUT',
         headers: {
@@ -101,7 +121,7 @@ const VideoUploadSection = () => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          video_url: youtubeUrl
+          video_url: embedUrl
         })
       });
 
