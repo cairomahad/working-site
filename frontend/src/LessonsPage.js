@@ -427,6 +427,26 @@ export const LessonDetailPage = ({ lesson, course }) => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
+  // Function to convert YouTube URL to embed format
+  const convertToEmbedUrl = (url) => {
+    if (!url) return '';
+    
+    // If it's already an embed URL, return as is
+    if (url.includes('youtube.com/embed/')) {
+      return url;
+    }
+    
+    // Extract video ID from various YouTube URL formats
+    const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    
+    if (videoIdMatch && videoIdMatch[1]) {
+      const videoId = videoIdMatch[1];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+    return url; // Return original URL if no match found
+  };
+
   useEffect(() => {
     if (lesson) {
       fetchLessonTests();
