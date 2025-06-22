@@ -31,33 +31,61 @@ export const LessonsPage = () => {
     navigate(`/lessons/${course.slug || course.id}`);
   };
 
-  // Course subject images
-  const getSubjectImage = (title) => {
+  // Course configurations
+  const getCourseConfig = (title) => {
     const titleLower = title.toLowerCase();
     if (titleLower.includes('основы') || titleLower.includes('вер')) {
-      return 'https://images.pexels.com/photos/16126230/pexels-photo-16126230.jpeg';
+      return {
+        icon: (
+          <svg className="w-12 h-12 text-teal-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+        ),
+        description: 'Чем ислам отличается от других религий. Во что верят мусульмане.',
+        hasLiterature: true,
+        literatureUrl: '/files/simplethings.pdf'
+      };
     } else if (titleLower.includes('практик')) {
-      return 'https://images.pexels.com/photos/16313080/pexels-photo-16313080.jpeg';
+      return {
+        icon: (
+          <svg className="w-12 h-12 text-teal-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.72-2.89-.01-2.2-1.9-2.96-3.65-3.3z"/>
+          </svg>
+        ),
+        description: 'Основные ежедневные ритуалы в жизни мусульманина.',
+        hasLiterature: true,
+        literatureUrl: 'https://drive.google.com/file/d/1AH8avYSHM8KDWw6xRMfVJVTVtFhjBzIi/view'
+      };
     } else if (titleLower.includes('этик')) {
-      return 'https://images.unsplash.com/photo-1698043649093-05c5d835f290';
+      return {
+        icon: (
+          <svg className="w-12 h-12 text-teal-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        ),
+        description: 'Отношения человека с Творцом, своей душой и окружением.',
+        hasLiterature: false
+      };
     } else if (titleLower.includes('истор')) {
-      return 'https://images.unsplash.com/photo-1563827044778-badfd8b48a83';
+      return {
+        icon: (
+          <svg className="w-12 h-12 text-teal-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19v2h-1.5v17c0 .55-.45 1-1 1h-9c-.55 0-1-.45-1-1V4H5V2h3.5c.28 0 .5-.22.5-.5s.22-.5.5-.5h3c.28 0 .5.22.5.5s.22.5.5.5z"/>
+          </svg>
+        ),
+        description: 'Мир от сотворения до конца времён. Пророки, Писания, цивилизации.',
+        hasLiterature: false
+      };
     }
-    return 'https://images.pexels.com/photos/16126230/pexels-photo-16126230.jpeg';
-  };
-
-  const getSubjectDescription = (title) => {
-    const titleLower = title.toLowerCase();
-    if (titleLower.includes('основы') || titleLower.includes('вер')) {
-      return 'Чем ислам отличается от других религий. Во что верят мусульмане.';
-    } else if (titleLower.includes('практик')) {
-      return 'Основные ежедневные ритуалы в жизни мусульманина.';
-    } else if (titleLower.includes('этик')) {
-      return 'Отношения человека с Творцом, своей душой и окружением.';
-    } else if (titleLower.includes('истор')) {
-      return 'Мир от сотворения до конца времён. Пророки, Писания, цивилизации.';
-    }
-    return 'Изучение основ исламской религии и культуры.';
+    return {
+      icon: (
+        <svg className="w-12 h-12 text-teal-500" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+      ),
+      description: 'Изучение основ исламской религии и культуры.',
+      hasLiterature: false
+    };
   };
 
   if (loading) {
@@ -69,118 +97,164 @@ export const LessonsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Уроки</h1>
-          <p className="text-xl text-teal-100 max-w-2xl mx-auto">
-            Изучайте ислам поэтапно с нашими структурированными курсами
-          </p>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        {/* Progress Notification for Non-registered Users */}
-        {!currentUser && (
-          <div className="mb-8 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-amber-800">
+    <div className="min-h-screen bg-gray-50">
+      {/* Progress Notification for Non-registered Users */}
+      {!currentUser && (
+        <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white py-4">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-center">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">!</span>
+                </div>
+                <p className="text-sm md:text-base">
                   Вы смогли бы сохранять и отслеживать прогресс после регистрации, а в конце обучения получить сертификат!
-                </h3>
+                </p>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Course Cards Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
-              onClick={() => handleCourseClick(course)}
-            >
-              <div className="relative h-48">
-                <img
-                  src={course.image_url || getSubjectImage(course.title)}
-                  alt={course.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-white text-xl font-bold mb-1">{course.title}</h3>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <p className="text-gray-600 mb-4 leading-relaxed">
-                  {course.description || getSubjectDescription(course.title)}
-                </p>
-                
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <span className="flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    {course.lessons_count || 0} уроков
-                  </span>
-                  <span className="flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {course.estimated_duration_hours}ч
-                  </span>
-                </div>
-
-                {course.additional_materials && (
-                  <div className="mb-4">
-                    <a
-                      href={course.additional_materials}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-teal-600 hover:text-teal-700 text-sm font-medium flex items-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      Дополнительная литература
-                    </a>
-                  </div>
-                )}
-
-                <button className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium">
-                  Начать изучение
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
+      )}
 
-        {/* Additional Services Section */}
-        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-8 text-center">
-          <div className="max-w-md mx-auto">
-            <div className="w-20 h-20 mx-auto mb-4">
-              <svg className="w-full h-full text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      <div className="flex min-h-screen">
+        {/* Left Sidebar - Consultation Panel */}
+        <div className="w-80 bg-gradient-to-b from-teal-400 via-teal-500 to-teal-600 text-white p-8 flex flex-col justify-center relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 left-10 w-32 h-32 border border-white rounded-full"></div>
+            <div className="absolute bottom-20 right-10 w-24 h-24 border border-white rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-white rounded-full"></div>
+          </div>
+          
+          <div className="relative z-10 text-center">
+            <div className="mb-6">
+              <svg className="w-16 h-16 mx-auto mb-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Консультация имама</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-2xl font-bold mb-4">Консультация<br/>имама</h3>
+            <p className="text-sm text-teal-100 mb-6 leading-relaxed">
               Получите персональные ответы на вопросы по исламу от квалифицированных преподавателей
             </p>
-            <button className="bg-teal-500 text-white py-2 px-6 rounded-lg hover:bg-teal-600 transition-colors font-medium">
+            <button className="bg-white text-teal-600 px-6 py-3 rounded-lg hover:bg-teal-50 transition-colors font-medium">
               Задать вопрос
             </button>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 p-8">
+          <div className="max-w-4xl">
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">Уроки</h1>
+            
+            {/* Courses List */}
+            <div className="space-y-8">
+              {courses.map((course, index) => {
+                const config = getCourseConfig(course.title);
+                const lessonsCount = course.lessons_count || 10; // Default to 10 for demo
+                
+                return (
+                  <div
+                    key={course.id}
+                    className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300 cursor-pointer group"
+                    onClick={() => handleCourseClick(course)}
+                  >
+                    <div className="p-6">
+                      <div className="flex items-start space-x-6">
+                        {/* Course Icon */}
+                        <div className="flex-shrink-0">
+                          {config.icon}
+                        </div>
+                        
+                        {/* Course Content */}
+                        <div className="flex-1">
+                          <h2 className="text-2xl font-bold text-teal-600 mb-2 group-hover:text-teal-700 transition-colors">
+                            {course.title}
+                          </h2>
+                          <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                            {config.description}
+                          </p>
+                          
+                          {/* Progress Circles */}
+                          <div className="flex items-center space-x-2 mb-4">
+                            {[...Array(lessonsCount)].map((_, i) => (
+                              <div
+                                key={i}
+                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                  i === 0 ? 'bg-teal-500 border-teal-500' : 
+                                  i === lessonsCount - 1 ? 'bg-teal-500 border-teal-500' :
+                                  'border-teal-300 bg-white'
+                                }`}
+                              >
+                                {(i === 0 || i === lessonsCount - 1) && (
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                                {(i > 0 && i < lessonsCount - 1) && (
+                                  <svg className="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Additional Literature Link */}
+                          {config.hasLiterature && (
+                            <a
+                              href={config.literatureUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Дополнительная литература
+                              <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            </a>
+                          )}
+                        </div>
+                        
+                        {/* Right side content */}
+                        <div className="flex-shrink-0 text-right">
+                          {course.additional_materials && (
+                            <div className="mb-2">
+                              <a
+                                href={course.additional_materials}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-gray-500 hover:text-teal-600 transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Пособие
+                                <svg className="w-3 h-3 ml-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {courses.length === 0 && (
+              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Курсы скоро будут добавлены</h3>
+                <p className="text-gray-500">Платформа находится в разработке</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
