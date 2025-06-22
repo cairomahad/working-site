@@ -140,30 +140,30 @@ export const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
-              <button 
-                onClick={() => setCurrentPage('home')}
-                className={`${currentPage === 'home' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+              <Link 
+                to="/"
+                className={`${isCurrentPage('/') && location.pathname === '/' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
               >
                 Главная
-              </button>
-              <button 
-                onClick={() => setCurrentPage('lessons')}
-                className={`${currentPage === 'lessons' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+              </Link>
+              <Link 
+                to="/lessons"
+                className={`${isCurrentPage('/lessons') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
               >
                 Уроки
-              </button>
-              <button 
-                onClick={() => setCurrentPage('leaderboard')}
-                className={`${currentPage === 'leaderboard' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+              </Link>
+              <Link 
+                to="/leaderboard"
+                className={`${isCurrentPage('/leaderboard') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
               >
                 Лидерборд
-              </button>
-              <button 
-                onClick={() => setCurrentPage('about')}
-                className={`${currentPage === 'about' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+              </Link>
+              <Link 
+                to="/about"
+                className={`${isCurrentPage('/about') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
               >
                 О проекте
-              </button>
+              </Link>
             </nav>
 
             {/* Desktop Auth buttons */}
