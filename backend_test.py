@@ -866,14 +866,282 @@ def test_namaz_lesson():
     print(f"\n📊 Namaz Lesson Tests: {tester.tests_passed}/{tester.tests_run} passed")
     return overall_success
 
+def test_admin_lesson_view():
+    """Test the admin lesson view API endpoint"""
+    print("\n=== Testing Admin Lesson View API ===")
+    tester = IslamAppAPITester()
+    
+    # Login as admin
+    print("\n🔑 Testing admin login with credentials: admin/admin123")
+    if not tester.test_admin_login("admin", "admin123"):
+        print("❌ Admin login failed, stopping tests")
+        return False
+    
+    # Test variables from the requirements
+    lesson_id = "9a7c2518-da14-49f6-ad25-7d89b152dc65"
+    
+    # Test admin lesson view endpoint
+    print(f"\n👑 Testing GET /api/admin/lessons/{lesson_id}")
+    admin_lesson_success, admin_lesson_response = tester.run_test(
+        f"Admin View of Lesson {lesson_id}",
+        "GET",
+        f"admin/lessons/{lesson_id}",
+        200
+    )
+    
+    if admin_lesson_success:
+        try:
+            admin_lesson_data = admin_lesson_response.json()
+            print(f"✅ Admin can view the lesson: {admin_lesson_data.get('title')}")
+            
+            # Check for additional admin fields that might not be in the public view
+            admin_fields = ['is_published', 'created_at', 'updated_at']
+            for field in admin_fields:
+                if field in admin_lesson_data:
+                    print(f"✅ Admin field present: {field}")
+            
+            return True
+        except Exception as e:
+            print(f"❌ Failed to parse admin lesson data: {str(e)}")
+            return False
+    
+    return False
+
+def test_random_question_selection():
+    """Test the random question selection API"""
+    print("\n=== Testing Random Question Selection API ===")
+    tester = IslamAppAPITester()
+    
+    # Login as admin
+    print("\n🔑 Testing admin login with credentials: admin/admin123")
+    if not tester.test_admin_login("admin", "admin123"):
+        print("❌ Admin login failed, stopping tests")
+        return False
+    
+    # Test variables from the requirements
+    test_id = "42665711-d8a7-41ae-80e8-a14eaf526ad2"
+    
+    # Create a fake student ID for testing
+    student_id = f"test_student_{uuid.uuid4()}"
+    
+    # Start test session
+    print(f"\n🧪 Testing POST /api/tests/{test_id}/start-session")
+    session_success, session_response = tester.run_test(
+        f"Start Test Session",
+        "POST",
+        f"tests/{test_id}/start-session",
+        200,
+        data={"student_id": student_id}
+    )
+    
+    if session_success:
+        try:
+            session_data = session_response.json()
+            questions = session_data.get('questions', [])
+            
+            print(f"✅ Test session started successfully")
+            print(f"✅ Number of questions: {len(questions)}")
+            
+            # Verify random selection (should be 10 questions)
+            if len(questions) == 10:
+                print(f"✅ Correctly selected 10 random questions")
+            else:
+                print(f"❌ Expected 10 questions, got {len(questions)}")
+                
+            # Store session ID for answer shuffling test
+            tester.test_session_id = session_data.get('session_id')
+            
+            return True
+        except Exception as e:
+            print(f"❌ Failed to parse session data: {str(e)}")
+            return False
+    
+    return False
+
+def test_answer_shuffling():
+    """Test the answer shuffling system"""
+    print("\n=== Testing Answer Shuffling System ===")
+    tester = IslamAppAPITester()
+    
+    # Login as admin
+    print("\n🔑 Testing admin login with credentials: admin/admin123")
+    if not tester.test_admin_login("admin", "admin123"):
+        print("❌ Admin login failed, stopping tests")
+        return False
+    
+    # Test variables from the requirements
+    test_id = "42665711-d8a7-41ae-80e8-a14eaf526ad2"
+    
+    # Create multiple test sessions to compare option shuffling
+    student_id = f"test_student_{uuid.uuid4()}"
+    sessions = []
+    
+    for i in range(2):
+        session_success, session_response = tester.run_test(
+            f"Start Test Session {i+1}",
+            "POST",
+            f"tests/{test_id}/start-session",
+            200,
+            data={"student_id": student_id}
+        )
+        
+        if session_success:
+            try:
+                session_data = session_response.json()
+                sessions.append(session_data)
+                print(f"✅ Session {i+1} started successfully")
+            except Exception as e:
+                print(f"❌ Failed to parse session data: {str(e)}")
+    
+    # Check option shuffling by comparing the same question across sessions
+    if len(sessions) >= 2:
+        print("\n🔄 Checking option shuffling across sessions")
+        
+        # Find a common question between sessions
+        common_question_id = None
+        for q1 in sessions[0].get('questions', []):
+            for q2 in sessions[1].get('questions', []):
+                if q1.get('id') == q2.get('id'):
+                    common_question_id = q1.get('id')
+                    break
+            if common_question_id:
+                break
+        
+        if common_question_id:
+            # Get the question from both sessions
+            q1 = next((q for q in sessions[0].get('questions', []) if q.get('id') == common_question_id), None)
+            q2 = next((q for q in sessions[1].get('questions', []) if q.get('id') == common_question_id), None)
+            
+            if q1 and q2 and 'options' in q1 and 'options' in q2:
+                # Compare option order
+                options1 = [opt.get('text') for opt in q1.get('options', [])]
+                options2 = [opt.get('text') for opt in q2.get('options', [])]
+                
+                print(f"  Question: {q1.get('text')}")
+                print(f"  Session 1 options: {options1}")
+                print(f"  Session 2 options: {options2}")
+                
+                if options1 != options2 and len(options1) > 1 and len(options2) > 1:
+                    print("✅ Options are properly shuffled across sessions")
+                    return True
+                elif len(options1) <= 1 or len(options2) <= 1:
+                    print("ℹ️ Not enough options to verify shuffling")
+                    return False
+                else:
+                    print("❌ Options are not shuffled across sessions")
+                    return False
+            else:
+                print("❌ Could not find options for the common question")
+                return False
+        else:
+            print("❌ No common questions found between sessions")
+            return False
+    else:
+        print("❌ Not enough sessions to check option shuffling")
+        return False
+    
+    return False
+
+def test_course_api_endpoints():
+    """Test the course API endpoints"""
+    print("\n=== Testing Course API Endpoints ===")
+    tester = IslamAppAPITester()
+    
+    # Test variables from the requirements
+    course_id = "947f1ddb-5e52-4605-810a-9db25d94ba79"
+    
+    # Test getting all courses
+    print(f"\n📚 Testing GET /api/courses")
+    courses_success, courses_response = tester.run_test(
+        "Get All Courses",
+        "GET",
+        "courses",
+        200
+    )
+    
+    if courses_success:
+        try:
+            courses_data = courses_response.json()
+            print(f"✅ Found {len(courses_data)} course(s)")
+            
+            # Check if our specific course is in the list
+            course_found = False
+            for course in courses_data:
+                if course.get('id') == course_id:
+                    course_found = True
+                    print(f"✅ Found the specified course: {course.get('title')}")
+                    
+                    # Check for slug field
+                    if 'slug' in course:
+                        print(f"✅ Course has slug field: {course.get('slug')}")
+                    else:
+                        print(f"❌ Course is missing slug field")
+                    
+                    break
+            
+            if not course_found:
+                print(f"❌ Specified course ID {course_id} not found in courses")
+        except Exception as e:
+            print(f"❌ Failed to parse courses data: {str(e)}")
+    
+    # Test getting lessons for the course
+    print(f"\n📚 Testing GET /api/courses/{course_id}/lessons")
+    lessons_success, lessons_response = tester.run_test(
+        f"Get Lessons for Course {course_id}",
+        "GET",
+        f"courses/{course_id}/lessons",
+        200
+    )
+    
+    if lessons_success:
+        try:
+            lessons_data = lessons_response.json()
+            print(f"✅ Found {len(lessons_data)} lesson(s) in the course")
+            
+            # Check for slug field in lessons
+            if lessons_data:
+                for lesson in lessons_data:
+                    if 'slug' in lesson:
+                        print(f"✅ Lesson has slug field: {lesson.get('slug')}")
+                    else:
+                        print(f"❌ Lesson is missing slug field")
+                    break
+        except Exception as e:
+            print(f"❌ Failed to parse lessons data: {str(e)}")
+    
+    return courses_success and lessons_success
+
 def main():
     # Run the specific tests for the Namaz lesson
     namaz_success = test_namaz_lesson()
     
-    # Overall result
-    print(f"\n=== Overall Test Result: {'✅ PASSED' if namaz_success else '❌ FAILED'} ===")
+    # Test admin lesson view API
+    admin_lesson_view_success = test_admin_lesson_view()
     
-    return 0 if namaz_success else 1
+    # Test random question selection API
+    random_question_success = test_random_question_selection()
+    
+    # Test answer shuffling system
+    answer_shuffling_success = test_answer_shuffling()
+    
+    # Test course API endpoints
+    course_api_success = test_course_api_endpoints()
+    
+    # Overall result
+    print(f"\n=== Overall Test Results ===")
+    print(f"Namaz Lesson Tests: {'✅ PASSED' if namaz_success else '❌ FAILED'}")
+    print(f"Admin Lesson View API: {'✅ PASSED' if admin_lesson_view_success else '❌ FAILED'}")
+    print(f"Random Question Selection API: {'✅ PASSED' if random_question_success else '❌ FAILED'}")
+    print(f"Answer Shuffling System: {'✅ PASSED' if answer_shuffling_success else '❌ FAILED'}")
+    print(f"Course API Endpoints: {'✅ PASSED' if course_api_success else '❌ FAILED'}")
+    
+    overall_success = (namaz_success and admin_lesson_view_success and 
+                      random_question_success and answer_shuffling_success and
+                      course_api_success)
+    
+    print(f"\n=== Overall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'} ===")
+    
+    return 0 if overall_success else 1
 
 if __name__ == "__main__":
     sys.exit(main())
