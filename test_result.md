@@ -305,3 +305,5 @@ agent_communication:
     message: "CRITICAL BUG FIXED: Resolved useAdmin context conflict by replacing all useAdmin hooks with useCompleteAdmin in AdminLessonsTests.js and AdminComponents.js. Admin panel should now work without errors."
   - agent: "testing"
     message: "Backend testing completed. Found issues with the Random Question Selection API, Answer Shuffling System, and Admin Lesson View API. The test has no questions, so we can't verify randomization or shuffling. The admin lesson view endpoint is not implemented (405 Method Not Allowed). The lesson itself and file upload are working correctly."
+  - agent: "main"
+    message: "COURSE PUBLICATION FIX: Added status field to EnhancedCourseModal in CompleteAdminPanel.js. Users can now select course status (Черновик/Опубликован/Архив) when creating or editing courses. This fixes the issue where courses were stuck in draft status."
