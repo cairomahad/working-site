@@ -195,6 +195,26 @@ export const EnhancedCourseManagement = () => {
     }
   };
 
+  const handlePublishCourse = async (course) => {
+    const newStatus = course.status === 'published' ? 'draft' : 'published';
+    const action = newStatus === 'published' ? 'опубликовать' : 'снять с публикации';
+    
+    if (window.confirm(`Вы уверены, что хотите ${action} курс "${course.title}"?`)) {
+      try {
+        await axios.put(`${API}/admin/courses/${course.id}`, {
+          status: newStatus
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchCourses();
+        alert(`Курс успешно ${newStatus === 'published' ? 'опубликован' : 'снят с публикации'}!`);
+      } catch (error) {
+        console.error('Failed to update course status:', error);
+        alert('Ошибка изменения статуса курса');
+      }
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center py-12">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
