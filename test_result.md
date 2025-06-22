@@ -309,3 +309,5 @@ agent_communication:
     message: "COURSE PUBLICATION FIX: Added status field to EnhancedCourseModal in CompleteAdminPanel.js. Users can now select course status (Черновик/Опубликован/Архив) when creating or editing courses. This fixes the issue where courses were stuck in draft status."
   - agent: "main"
     message: "ENHANCED COURSE MANAGEMENT: Added quick publish/unpublish button next to edit button in course list. Users can now quickly change course status without opening edit modal. Button shows 'Опубликовать' for draft courses and 'Снять с публикации' for published courses."
+  - agent: "main"
+    message: "YOUTUBE VIDEO FIX: Fixed YouTube video display issue. Added convertToEmbedUrl function to both LessonsPage.js and MaterialUploadPanel.js to convert YouTube URLs to proper embed format. Added required iframe attributes (allow, referrerPolicy) for YouTube embedding. Videos now save and display correctly without connection errors."
