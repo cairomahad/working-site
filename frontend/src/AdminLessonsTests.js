@@ -280,6 +280,102 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
     setLoading(false);
   };
 
+  const addQuestionOption = () => {
+    setNewQuestion({
+      ...newQuestion,
+      options: [...newQuestion.options, { text: '', is_correct: false }]
+    });
+  };
+
+  const removeQuestionOption = (index) => {
+    const options = newQuestion.options.filter((_, i) => i !== index);
+    setNewQuestion({ ...newQuestion, options });
+  };
+
+  const updateQuestionOption = (index, field, value) => {
+    const options = [...newQuestion.options];
+    options[index] = { ...options[index], [field]: value };
+    setNewQuestion({ ...newQuestion, options });
+  };
+
+  const addQuestionToTest = () => {
+    if (!newQuestion.question_text.trim()) {
+      alert('Введите текст вопроса');
+      return;
+    }
+    
+    const validOptions = newQuestion.options.filter(opt => opt.text.trim());
+    if (validOptions.length < 2) {
+      alert('Добавьте минимум 2 варианта ответа');
+      return;
+    }
+    
+    if (!validOptions.some(opt => opt.is_correct)) {
+      alert('Отметьте минимум один правильный ответ');
+      return;
+    }
+
+    setTestFormData({
+      ...testFormData,
+      questions: [...testFormData.questions, { ...newQuestion, options: validOptions }]
+    });
+
+    // Reset question form
+    setNewQuestion({
+      question_text: '',
+      question_type: 'single_choice',
+      options: [
+        { text: '', is_correct: false },
+        { text: '', is_correct: false }
+      ],
+      explanation: '',
+      points: 1
+    });
+  };
+
+  const removeQuestionFromTest = (index) => {
+    const questions = testFormData.questions.filter((_, i) => i !== index);
+    setTestFormData({ ...testFormData, questions });
+  };
+
+  const createTestForLesson = async () => {
+    if (!testFormData.title.trim()) {
+      alert('Введите название теста');
+      return;
+    }
+    
+    if (testFormData.questions.length === 0) {
+      alert('Добавьте минимум один вопрос');
+      return;
+    }
+
+    try {
+      const testData = {
+        ...testFormData,
+        course_id: formData.course_id,
+        lesson_id: lesson?.id || null // Will be updated after lesson creation
+      };
+
+      await axios.post(`${API}/admin/tests`, testData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert('Тест успешно создан!');
+      setShowTestForm(false);
+      setTestFormData({
+        title: '',
+        description: '',
+        time_limit_minutes: 15,
+        passing_score: 70,
+        max_attempts: 3,
+        questions: []
+      });
+    } catch (error) {
+      console.error('Failed to create test:', error);
+      alert('Ошибка создания теста');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
