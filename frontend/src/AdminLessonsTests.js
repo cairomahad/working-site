@@ -500,6 +500,192 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
               </div>
             </div>
 
+            {/* Test Creation Section */}
+            <div className="border-t pt-6 mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-medium text-gray-900">Тест к уроку</h4>
+                <button
+                  type="button"
+                  onClick={() => setShowTestForm(!showTestForm)}
+                  className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                >
+                  {showTestForm ? 'Скрыть форму теста' : 'Добавить тест'}
+                </button>
+              </div>
+
+              {showTestForm && (
+                <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Название теста</label>
+                      <input
+                        type="text"
+                        value={testFormData.title}
+                        onChange={(e) => setTestFormData({...testFormData, title: e.target.value})}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                        placeholder="Например: Тест по уроку о намазе"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Время (мин)</label>
+                      <input
+                        type="number"
+                        value={testFormData.time_limit_minutes}
+                        onChange={(e) => setTestFormData({...testFormData, time_limit_minutes: parseInt(e.target.value)})}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                        min="1"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Описание теста</label>
+                    <textarea
+                      value={testFormData.description}
+                      onChange={(e) => setTestFormData({...testFormData, description: e.target.value})}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                      rows="2"
+                      placeholder="Краткое описание теста"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Проходной балл (%)</label>
+                      <input
+                        type="number"
+                        value={testFormData.passing_score}
+                        onChange={(e) => setTestFormData({...testFormData, passing_score: parseInt(e.target.value)})}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                        min="1"
+                        max="100"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Макс. попыток</label>
+                      <input
+                        type="number"
+                        value={testFormData.max_attempts}
+                        onChange={(e) => setTestFormData({...testFormData, max_attempts: parseInt(e.target.value)})}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                        min="1"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Question Creation Form */}
+                  <div className="border-t pt-4">
+                    <h5 className="font-medium text-gray-900 mb-3">Добавить вопрос</h5>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Текст вопроса</label>
+                        <input
+                          type="text"
+                          value={newQuestion.question_text}
+                          onChange={(e) => setNewQuestion({...newQuestion, question_text: e.target.value})}
+                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Введите текст вопроса"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Варианты ответов</label>
+                        <div className="space-y-2 mt-2">
+                          {newQuestion.options.map((option, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={option.is_correct}
+                                onChange={(e) => updateQuestionOption(index, 'is_correct', e.target.checked)}
+                                className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                              />
+                              <input
+                                type="text"
+                                value={option.text}
+                                onChange={(e) => updateQuestionOption(index, 'text', e.target.value)}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                                placeholder={`Вариант ${index + 1}`}
+                              />
+                              {newQuestion.options.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeQuestionOption(index)}
+                                  className="text-red-600 hover:text-red-800"
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="flex space-x-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={addQuestionOption}
+                            className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                          >
+                            + Добавить вариант
+                          </button>
+                          <button
+                            type="button"
+                            onClick={addQuestionToTest}
+                            className="px-3 py-1 text-sm bg-teal-100 text-teal-700 rounded hover:bg-teal-200"
+                          >
+                            Добавить вопрос
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Объяснение (необязательно)</label>
+                        <input
+                          type="text"
+                          value={newQuestion.explanation}
+                          onChange={(e) => setNewQuestion({...newQuestion, explanation: e.target.value})}
+                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Объяснение правильного ответа"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Questions List */}
+                  {testFormData.questions.length > 0 && (
+                    <div className="border-t pt-4">
+                      <h5 className="font-medium text-gray-900 mb-3">Вопросы теста ({testFormData.questions.length})</h5>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {testFormData.questions.map((question, index) => (
+                          <div key={index} className="flex items-center justify-between bg-white p-3 rounded border">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{index + 1}. {question.question_text}</p>
+                              <p className="text-xs text-gray-500">{question.options.length} вариантов ответа</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeQuestionFromTest(index)}
+                              className="text-red-600 hover:text-red-800 text-sm"
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <button
+                        type="button"
+                        onClick={createTestForLesson}
+                        className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        Создать тест ({testFormData.questions.length} вопросов)
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 type="button"
