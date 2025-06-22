@@ -313,3 +313,5 @@ agent_communication:
     message: "YOUTUBE VIDEO FIX: Fixed YouTube video display issue. Added convertToEmbedUrl function to both LessonsPage.js and MaterialUploadPanel.js to convert YouTube URLs to proper embed format. Added required iframe attributes (allow, referrerPolicy) for YouTube embedding. Videos now save and display correctly without connection errors."
   - agent: "main"
     message: "HOTFIX: Fixed runtime error 'convertToEmbedUrl is not defined' in LessonDetailPage component. Added convertToEmbedUrl function to LessonDetailPage component to resolve the error when viewing lessons with YouTube videos."
+  - agent: "main"
+    message: "LESSON TEST CREATION: Added comprehensive test creation functionality directly in lesson edit modal. Admins can now create tests with multiple questions and answer options while editing/creating lessons. Features: test settings (time limit, passing score, max attempts), question creation with multiple choice options, question management, and direct test creation."
