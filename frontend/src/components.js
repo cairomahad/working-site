@@ -103,23 +103,24 @@ export const AuthProvider = ({ children }) => {
 };
 
 // Header Component
-export const Header = ({ setCurrentPage, currentPage }) => {
+export const Header = () => {
   const { currentUser, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
-      setCurrentPage('home');
+      navigate('/');
     } catch (error) {
       console.error('Failed to log out', error);
     }
   };
 
-  const handleMobileMenuClick = (page) => {
-    setCurrentPage(page);
-    setShowMobileMenu(false);
+  const isCurrentPage = (path) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   return (
