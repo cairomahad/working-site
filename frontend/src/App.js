@@ -258,8 +258,208 @@ const AppRouter = () => {
     return <MainAdminPanel />;
   }
 
-  // For public users, show main app
-  return <MainApp />;
+  // For public users, show main app with React Router
+  return (
+    <Routes>
+      <Route path="/" element={<MainApp />} />
+      <Route path="/lessons" element={<LessonsPageRouter />} />
+      <Route path="/lessons/:courseSlug" element={<CourseLessonsRouter />} />
+      <Route path="/lessons/:courseSlug/:lessonSlug" element={<LessonDetailRouter />} />
+      <Route path="/leaderboard" element={<LeaderboardPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/test/:testId" element={<TestRouter />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+// Route Components
+const LessonsPageRouter = () => {
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const navigate = useNavigate();
+
+  const handleCourseSelect = (course) => {
+    setSelectedCourse(course);
+    navigate(`/lessons/${course.slug || course.id}`);
+  };
+
+  return (
+    <div className="App">
+      <Header />
+      <LessonsPage 
+        setSelectedCourse={handleCourseSelect}
+        setSelectedLesson={setSelectedLesson}
+      />
+    </div>
+  );
+};
+
+const CourseLessonsRouter = () => {
+  const { courseSlug } = useParams();
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCourse();
+  }, [courseSlug]);
+
+  const fetchCourse = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/courses`);
+      const foundCourse = response.data.find(c => c.slug === courseSlug || c.id === courseSlug);
+      setCourse(foundCourse);
+    } catch (error) {
+      console.error('Failed to fetch course:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleLessonSelect = (lesson) => {
+    setSelectedLesson(lesson);
+    navigate(`/lessons/${courseSlug}/${lesson.slug || lesson.id}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="App">
+        <Header />
+        <div className="min-h-screen bg-white flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="App">
+        <Header />
+        <div className="min-h-screen bg-white flex justify-center items-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Курс не найден</h2>
+            <button
+              onClick={() => navigate('/lessons')}
+              className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors"
+            >
+              Вернуться к урокам
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="App">
+      <Header />
+      <CourseLessonsPage 
+        course={course}
+        setSelectedLesson={handleLessonSelect}
+      />
+    </div>
+  );
+};
+
+const LessonDetailRouter = () => {
+  const { courseSlug, lessonSlug } = useParams();
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCourseAndLesson();
+  }, [courseSlug, lessonSlug]);
+
+  const fetchCourseAndLesson = async () => {
+    try {
+      // Fetch course
+      const coursesResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/courses`);
+      const foundCourse = coursesResponse.data.find(c => c.slug === courseSlug || c.id === courseSlug);
+      setCourse(foundCourse);
+
+      if (foundCourse) {
+        // Fetch lessons
+        const lessonsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/courses/${foundCourse.id}/lessons`);
+        const foundLesson = lessonsResponse.data.find(l => l.slug === lessonSlug || l.id === lessonSlug);
+        setLesson(foundLesson);
+      }
+    } catch (error) {
+      console.error('Failed to fetch course and lesson:', error);
+    }
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="App">
+        <Header />
+        <div className="min-h-screen bg-white flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!course || !lesson) {
+    return (
+      <div className="App">
+        <Header />
+        <div className="min-h-screen bg-white flex justify-center items-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Урок не найден</h2>
+            <button
+              onClick={() => navigate('/lessons')}
+              className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors"
+            >
+              Вернуться к урокам
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="App">
+      <Header />
+      <LessonDetailPage 
+        lesson={lesson}
+        course={course}
+      />
+    </div>
+  );
+};
+
+const TestRouter = () => {
+  const { testId } = useParams();
+  const navigate = useNavigate();
+
+  return (
+    <div className="App">
+      <Header />
+      <TestTaking 
+        testId={testId} 
+        setCurrentPage={(page) => {
+          if (page === 'lessons') {
+            navigate('/lessons');
+          }
+        }}
+      />
+    </div>
+  );
+};
+
+const LeaderboardPage = () => {
+  return (
+    <div className="App">
+      <Header />
+      <Leaderboard />
+    </div>
+  );
 };
 
 function App() {
