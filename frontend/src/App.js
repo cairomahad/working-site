@@ -14,6 +14,7 @@ import {
 import MainAdminPanel from "./MainAdminPanel";
 import { CourseLevels, CourseDetail } from "./CourseComponents";
 import { LessonView, TestTaking } from "./LessonComponents";
+import { LessonsPage, CourseLessonsPage, LessonDetailPage } from "./LessonsPage";
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
