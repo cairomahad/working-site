@@ -1381,6 +1381,41 @@ async def startup_event():
         await db.admins.insert_one(second_admin_dict)
         logger.info("Second admin user created: miftahulum@gmail.com/197724")
 
+    # Create default team members if none exist
+    team_count = await db.team_members.count_documents({})
+    if team_count == 0:
+        default_team = [
+            TeamMember(
+                name="Али Евтеев",
+                subject="Этика",
+                image_url="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                order=1
+            ),
+            TeamMember(
+                name="Абдуль-Басит Микушкин",
+                subject="Основы веры", 
+                image_url="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+                order=2
+            ),
+            TeamMember(
+                name="Алексей Котенев",
+                subject="Практика веры",
+                image_url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+                order=3
+            ),
+            TeamMember(
+                name="Микаиль Ганиев",
+                subject="История",
+                image_url="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face",
+                order=4
+            )
+        ]
+        
+        for member in default_team:
+            await db.team_members.insert_one(member.dict())
+        
+        logger.info("Default team members created")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
