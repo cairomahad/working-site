@@ -604,6 +604,222 @@ export const QAQuestionPage = () => {
   );
 };
 
+// Форма задать вопрос
+export const AskQuestionForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    category: 'general',
+    title: '',
+    question_text: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Здесь можно добавить API endpoint для отправки вопросов пользователей
+      // Пока что просто имитируем отправку
+      console.log('Вопрос отправлен:', formData);
+      
+      // Имитация задержки отправки
+      setTimeout(() => {
+        setSubmitted(true);
+        setLoading(false);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Ошибка отправки вопроса:', error);
+      alert('Ошибка отправки вопроса. Попробуйте еще раз.');
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Вопрос отправлен!</h2>
+            <p className="text-gray-600 mb-6">
+              Спасибо за ваш вопрос. Он будет рассмотрен нашими имамами, и ответ появится в разделе "Вопросы и Ответы".
+            </p>
+            <div className="space-x-3">
+              <button
+                onClick={() => navigate('/qa')}
+                className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                Перейти к Q&A
+              </button>
+              <button
+                onClick={() => {
+                  setSubmitted(false);
+                  setFormData({
+                    name: '',
+                    email: '',
+                    category: 'general',
+                    title: '',
+                    question_text: ''
+                  });
+                }}
+                className="text-teal-600 hover:text-teal-700 px-6 py-2 border border-teal-600 rounded-lg hover:bg-teal-50 transition-colors"
+              >
+                Задать еще вопрос
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-teal-600 to-teal-700 text-white py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-3xl font-bold mb-4">Задать вопрос</h1>
+          <p className="text-xl text-teal-100">
+            Получите ответ от знающих имамов на ваши вопросы об исламе
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Имя */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ваше имя *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email (для уведомлений) *
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
+              />
+            </div>
+
+            {/* Категория */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Категория вопроса *
+              </label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
+              >
+                <option value="general">Общие вопросы</option>
+                <option value="aqidah">Вероучение</option>
+                <option value="ibadah">Поклонение</option>
+                <option value="muamalat">Взаимоотношения</option>
+                <option value="akhlaq">Нравственность</option>
+                <option value="fiqh">Фикх</option>
+                <option value="hadith">Хадисы</option>
+                <option value="quran">Коран</option>
+                <option value="seerah">Жизнеописание Пророка</option>
+              </select>
+            </div>
+
+            {/* Заголовок */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Краткое описание вопроса *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Например: Как правильно совершать намаз?"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
+              />
+            </div>
+
+            {/* Текст вопроса */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Подробное описание вопроса *
+              </label>
+              <textarea
+                value={formData.question_text}
+                onChange={(e) => setFormData(prev => ({ ...prev, question_text: e.target.value }))}
+                rows={6}
+                placeholder="Опишите ваш вопрос подробно. Чем детальнее вы опишете ситуацию, тем более точный ответ сможет дать имам."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
+              />
+            </div>
+
+            {/* Информация */}
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-1">Пожалуйста, учтите:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Ответ может занять от нескольких дней до недели</li>
+                    <li>Мы отвечаем только на вопросы, связанные с исламом</li>
+                    <li>Вопрос будет проверен модератором перед публикацией</li>
+                    <li>Ответ будет опубликован в разделе Q&A для всех пользователей</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Кнопки */}
+            <div className="flex justify-end space-x-3 pt-6">
+              <button
+                type="button"
+                onClick={() => navigate('/qa')}
+                className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Отправка...' : 'Отправить вопрос'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Страница поиска
 export const QASearchPage = () => {
   const [questions, setQuestions] = useState([]);
