@@ -468,6 +468,43 @@ const LeaderboardPage = () => {
   );
 };
 
+// Q&A Route Components
+const QAMainPageRouter = () => {
+  return (
+    <div className="App">
+      <Header />
+      <QAMainPage />
+    </div>
+  );
+};
+
+const QACategoryPageRouter = () => {
+  return (
+    <div className="App">
+      <Header />
+      <QACategoryPage />
+    </div>
+  );
+};
+
+const QAQuestionPageRouter = () => {
+  return (
+    <div className="App">
+      <Header />
+      <QAQuestionPage />
+    </div>
+  );
+};
+
+const QASearchPageRouter = () => {
+  return (
+    <div className="App">
+      <Header />
+      <QASearchPage />
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -476,6 +513,6 @@ function App() {
       </BrowserRouter>
     </AuthProvider>
   );
-}
+};
 
 export default App;
