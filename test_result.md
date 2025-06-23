@@ -476,3 +476,5 @@ agent_communication:
     message: "ABOUT PAGE NAVIGATION: Enhanced About page with navigation section featuring cards linking to all major site sections (Lessons, Q&A, Leaderboard, Home). Improved user experience by providing easy access to different parts of the platform from the About page."
   - agent: "main"
     message: "ЗАДАЧА ВЫПОЛНЕНА: Успешно убраны все подсказки для администраторов с сайта. Удалены подсказки из AuthModal (модальное окно входа) и Leaderboard (страница лидерборда). Интерфейс стал чище и более профессиональным без отвлекающих административных подсказок. Фронтенд перезапущен, все службы работают корректно."
+  - agent: "main"
+    message: "ПРОВЕРКА САЙТА НА БАГИ: Начинаю полную проверку всех компонентов приложения. Обнаружены потенциальные проблемы: отсутствует функция create_slug в server.py (используется в models.py), эндпоинт GET /api/admin/lessons/{lesson_id} не реализован, есть известные проблемы с тестами без вопросов. Провожу комплексное тестирование."
