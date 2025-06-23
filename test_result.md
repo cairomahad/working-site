@@ -232,7 +232,7 @@ backend:
     implemented: true
     working: false
     file: "server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -245,6 +245,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "Cannot verify answer shuffling because the test has no questions. Need to add questions to the test first."
+      - working: false
+        agent: "testing"
+        comment: "Cannot verify answer shuffling because the test with ID 42665711-d8a7-41ae-80e8-a14eaf526ad2 doesn't exist in the database."
 
   - task: "Enhanced File Upload"
     implemented: true
