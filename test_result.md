@@ -315,3 +315,5 @@ agent_communication:
     message: "HOTFIX: Fixed runtime error 'convertToEmbedUrl is not defined' in LessonDetailPage component. Added convertToEmbedUrl function to LessonDetailPage component to resolve the error when viewing lessons with YouTube videos."
   - agent: "main"
     message: "LESSON TEST CREATION: Added comprehensive test creation functionality directly in lesson edit modal. Admins can now create tests with multiple questions and answer options while editing/creating lessons. Features: test settings (time limit, passing score, max attempts), question creation with multiple choice options, question management, and direct test creation."
+  - agent: "testing"
+    message: "Tested Q&A API endpoints. All endpoints are working correctly. GET /api/qa/questions returns a list of questions, GET /api/qa/questions/{id} and GET /api/qa/questions/slug/{slug} return specific questions and increment view counters. GET /api/qa/categories, /api/qa/featured, /api/qa/popular, /api/qa/recent, and /api/qa/stats all return expected data. Search and filtering work correctly. Admin endpoints (POST, PUT, DELETE) also work as expected with proper authentication."
