@@ -382,6 +382,14 @@ async def get_lesson(lesson_id: str):
         raise HTTPException(status_code=404, detail="Lesson not found")
     return Lesson(**lesson)
 
+@api_router.get("/admin/lessons/{lesson_id}", response_model=Lesson)
+async def get_admin_lesson(lesson_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Get lesson for admin (includes unpublished lessons)"""
+    lesson = await db.lessons.find_one({"id": lesson_id})
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    return Lesson(**lesson)
+
 @api_router.put("/admin/lessons/{lesson_id}", response_model=Lesson)
 async def update_lesson(lesson_id: str, lesson_data: LessonUpdate, current_admin: dict = Depends(get_current_admin)):
     lesson = await db.lessons.find_one({"id": lesson_id})
