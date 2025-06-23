@@ -188,6 +188,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Verified all team endpoints working correctly. GET /api/team, GET /api/admin/team, POST/PUT/DELETE /api/admin/team/* all function properly with proper authentication."
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing of Team Management API completed. All endpoints are working correctly. GET /api/team returns public team members, GET /api/admin/team returns all team members for admin view. POST /api/admin/team successfully creates new team members. PUT /api/admin/team/{member_id} correctly updates team members, and DELETE /api/admin/team/{member_id} successfully deletes team members."
   
   - task: "Enhanced Test Import System"
     implemented: true
