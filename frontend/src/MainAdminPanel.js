@@ -313,6 +313,8 @@ const MainAdminPanel = () => {
         return <TestManagement />;
       case 'qa':
         return <QAManagement />;
+      case 'team':
+        return <TeamManagement />;
       case 'students':
         return <StudentManagement />;
       case 'teachers':
