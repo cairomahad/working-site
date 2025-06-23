@@ -423,7 +423,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Remove Imam Consultation Panel"
+    - "Team Management Admin Interface"
+    - "Dynamic Team Display"
+    - "About Page Navigation" 
     - "Random Question Selection API"
     - "Answer Shuffling System"
     - "Admin Lesson View API"
