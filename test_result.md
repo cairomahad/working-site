@@ -211,7 +211,7 @@ backend:
     implemented: true
     working: false
     file: "server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -224,6 +224,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "The API returns a 400 error with message 'Test has no questions'. The test exists but doesn't have any questions added to it. Need to add questions to the test before testing randomization."
+      - working: false
+        agent: "testing"
+        comment: "The API now returns a 404 error with message 'Test not found'. The test with ID 42665711-d8a7-41ae-80e8-a14eaf526ad2 doesn't exist in the database."
 
   - task: "Answer Shuffling System"
     implemented: true
