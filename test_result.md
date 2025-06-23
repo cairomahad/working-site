@@ -162,6 +162,24 @@ user_problem_statement: |
   Используй админские данные: username=admin, password=admin123
 
 backend:
+  - task: "Team Management API"
+    implemented: true
+    working: true
+    file: "server.py, models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Starting implementation of Team Management API for admin and public access"
+      - working: true
+        agent: "main"
+        comment: "Implemented complete Team CRUD API with endpoints for public team display and admin management"
+      - working: true
+        agent: "testing"
+        comment: "Verified all team endpoints working correctly. GET /api/team, GET /api/admin/team, POST/PUT/DELETE /api/admin/team/* all function properly with proper authentication."
+  
   - task: "Enhanced Test Import System"
     implemented: true
     working: true
