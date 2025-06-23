@@ -20,6 +20,30 @@ import { QAMainPage, QACategoryPage, QAQuestionPage, QASearchPage, AskQuestionFo
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, []);
+
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/team`);
+      setTeamMembers(response.data);
+    } catch (error) {
+      console.error('Failed to fetch team members:', error);
+      // Fallback to hardcoded data if API fails
+      setTeamMembers([
+        { name: "Али Евтеев", subject: "Этика", image_base64: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" },
+        { name: "Абдуль-Басит Микушкин", subject: "Основы веры", image_base64: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" },
+        { name: "Алексей Котенев", subject: "Практика веры", image_base64: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face" },
+        { name: "Микаиль Ганиев", subject: "История", image_base64: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face" }
+      ]);
+    }
+    setLoadingTeam(false);
+  };
+
   const handleStartLearning = () => {
     setCurrentPage('lessons');
   };
