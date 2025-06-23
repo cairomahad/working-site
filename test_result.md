@@ -317,6 +317,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Tested POST /api/admin/qa/questions and PUT /api/admin/qa/questions/{question_id} endpoints. Both are working correctly. Created a test question with the provided data and successfully updated it. The endpoints do not cause any issues with the admin panel."
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing of Q&A API completed. All endpoints are working correctly including creation, updating, and deletion of questions. The API properly handles authentication and returns appropriate responses."
 
 frontend:
   - task: "Team Management Admin Interface"
