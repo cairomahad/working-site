@@ -1078,6 +1078,63 @@ async def get_qa_questions(
     questions = await db.qa_questions.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return [QAQuestion(**q) for q in questions]
 
+# ==================== TEAM MANAGEMENT ENDPOINTS ====================
+
+@api_router.get("/team", response_model=List[TeamMember])
+async def get_team_members():
+    """Получить всех членов команды для публичной страницы"""
+    members = await db.team_members.find({"is_active": True}).sort("order", 1).to_list(1000)
+    return [TeamMember(**member) for member in members]
+
+@api_router.get("/admin/team", response_model=List[TeamMember])
+async def get_admin_team_members(current_admin: dict = Depends(get_current_admin)):
+    """Получить всех членов команды для админки"""
+    members = await db.team_members.find().sort("order", 1).to_list(1000)
+    return [TeamMember(**member) for member in members]
+
+@api_router.post("/admin/team", response_model=TeamMember)
+async def create_team_member(member_data: TeamMemberCreate, current_admin: dict = Depends(get_current_admin)):
+    """Создать нового члена команды"""
+    member_dict = member_data.dict()
+    member_obj = TeamMember(**member_dict)
+    await db.team_members.insert_one(member_obj.dict())
+    return member_obj
+
+@api_router.get("/admin/team/{member_id}", response_model=TeamMember)
+async def get_team_member(member_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Получить конкретного члена команды"""
+    member = await db.team_members.find_one({"id": member_id})
+    if not member:
+        raise HTTPException(status_code=404, detail="Член команды не найден")
+    return TeamMember(**member)
+
+@api_router.put("/admin/team/{member_id}", response_model=TeamMember)
+async def update_team_member(
+    member_id: str, 
+    member_data: TeamMemberUpdate, 
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Обновить члена команды"""
+    member = await db.team_members.find_one({"id": member_id})
+    if not member:
+        raise HTTPException(status_code=404, detail="Член команды не найден")
+    
+    update_data = {k: v for k, v in member_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.team_members.update_one({"id": member_id}, {"$set": update_data})
+    
+    updated_member = await db.team_members.find_one({"id": member_id})
+    return TeamMember(**updated_member)
+
+@api_router.delete("/admin/team/{member_id}")
+async def delete_team_member(member_id: str, current_admin: dict = Depends(require_admin_role)):
+    """Удалить члена команды"""
+    result = await db.team_members.delete_one({"id": member_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Член команды не найден")
+    return {"message": "Член команды успешно удален"}
+
 @api_router.get("/qa/questions/{question_id}", response_model=QAQuestion)
 async def get_qa_question(question_id: str):
     """Получить конкретный вопрос по ID"""
