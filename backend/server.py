@@ -71,6 +71,14 @@ def shuffle_options(options: List[QuestionOption]) -> tuple[List[QuestionOption]
     shuffled_options = [options[i] for i in indices]
     return shuffled_options, indices
 
+def create_slug(text: str) -> str:
+    """Convert text to URL-friendly slug"""
+    # Convert to lowercase and replace non-alphanumeric with hyphens
+    slug = re.sub(r'[^\w\s-]', '', text.lower())
+    slug = re.sub(r'[-\s]+', '-', slug)
+    # Remove leading/trailing hyphens
+    return slug.strip('-')
+
 def select_random_questions(questions: List[Question], count: int = 10) -> List[Question]:
     """Select random questions from a larger pool"""
     if len(questions) <= count:
