@@ -4,6 +4,7 @@ import { CompleteAdminProvider, useCompleteAdmin, EnhancedCourseManagement, Enha
 import { LessonManagement, TestManagement } from './AdminLessonsTests';
 import { StudentManagement, ApplicationManagement, ReportsComponent } from './AdminComponents';
 import MaterialUploadPanel from './MaterialUploadPanel';
+import { QAManagement } from './QAManagement';
 
 // Login Component for Admin Panel
 const AdminLoginComponent = () => {
