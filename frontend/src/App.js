@@ -16,7 +16,7 @@ import MainAdminPanel from "./MainAdminPanel";
 import { CourseLevels, CourseDetail } from "./CourseComponents";
 import { LessonView, TestTaking } from "./LessonComponents";
 import { LessonsPage, CourseLessonsPage, LessonDetailPage } from "./LessonsPage";
-import { QAMainPage, QACategoryPage, QAQuestionPage, QASearchPage } from "./QAComponents";
+import { QAMainPage, QACategoryPage, QAQuestionPage, QASearchPage, AskQuestionForm } from "./QAComponents";
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
