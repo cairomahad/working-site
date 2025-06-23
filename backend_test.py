@@ -1111,6 +1111,284 @@ def test_course_api_endpoints():
     
     return courses_success and lessons_success
 
+def test_team_endpoints():
+    """Test the team management endpoints"""
+    print("\n=== Testing Team Management Endpoints ===")
+    tester = IslamAppAPITester()
+    
+    # Test getting public team members
+    print(f"\n👥 Testing GET /api/team")
+    public_team_success, public_team_response = tester.run_test(
+        "Get Public Team Members",
+        "GET",
+        "team",
+        200
+    )
+    
+    if public_team_success:
+        try:
+            team_data = public_team_response.json()
+            print(f"✅ Found {len(team_data)} public team member(s)")
+            
+            # Check if team members have required fields
+            if team_data:
+                member = team_data[0]
+                required_fields = ['id', 'name', 'subject']
+                for field in required_fields:
+                    if field in member:
+                        print(f"✅ Team member has required field: {field}")
+                    else:
+                        print(f"❌ Team member is missing required field: {field}")
+        except Exception as e:
+            print(f"❌ Failed to parse team data: {str(e)}")
+    
+    # Login as admin for admin endpoints
+    print("\n🔑 Testing admin login with credentials: admin@uroki-islama.ru/admin123")
+    if not tester.test_unified_login("admin@uroki-islama.ru", "admin123", "admin"):
+        print("❌ Admin login failed, stopping team admin tests")
+        return False
+    
+    # Test getting admin team members
+    print(f"\n👥 Testing GET /api/admin/team")
+    admin_team_success, admin_team_response = tester.run_test(
+        "Get Admin Team Members",
+        "GET",
+        "admin/team",
+        200
+    )
+    
+    created_member_id = None
+    
+    if admin_team_success:
+        try:
+            team_data = admin_team_response.json()
+            print(f"✅ Found {len(team_data)} team member(s) in admin view")
+        except Exception as e:
+            print(f"❌ Failed to parse admin team data: {str(e)}")
+    
+    # Test creating a team member
+    print(f"\n➕ Testing POST /api/admin/team")
+    
+    # Sample base64 image (small transparent PNG)
+    sample_base64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    
+    member_data = {
+        "name": "Тестовый Преподаватель",
+        "subject": "Тестовый предмет",
+        "image_base64": sample_base64,
+        "bio": "Тестовая биография",
+        "email": "test@example.com",
+        "order": 5
+    }
+    
+    create_success, create_response = tester.run_test(
+        "Create Team Member",
+        "POST",
+        "admin/team",
+        200,
+        data=member_data
+    )
+    
+    if create_success:
+        try:
+            created_member = create_response.json()
+            created_member_id = created_member.get('id')
+            print(f"✅ Created team member with ID: {created_member_id}")
+            
+            # Check if created member has the correct data
+            for key, value in member_data.items():
+                if key in created_member and created_member[key] == value:
+                    print(f"✅ Created member has correct {key}")
+                elif key in created_member:
+                    print(f"❌ Created member has incorrect {key}: expected {value}, got {created_member[key]}")
+                else:
+                    print(f"❌ Created member is missing {key}")
+        except Exception as e:
+            print(f"❌ Failed to parse created member data: {str(e)}")
+    
+    # Test updating a team member
+    if created_member_id:
+        print(f"\n✏️ Testing PUT /api/admin/team/{created_member_id}")
+        
+        update_data = {
+            "name": "Обновленный Преподаватель",
+            "bio": "Обновленная биография"
+        }
+        
+        update_success, update_response = tester.run_test(
+            "Update Team Member",
+            "PUT",
+            f"admin/team/{created_member_id}",
+            200,
+            data=update_data
+        )
+        
+        if update_success:
+            try:
+                updated_member = update_response.json()
+                print(f"✅ Updated team member successfully")
+                
+                # Check if updated member has the correct data
+                for key, value in update_data.items():
+                    if key in updated_member and updated_member[key] == value:
+                        print(f"✅ Updated member has correct {key}")
+                    elif key in updated_member:
+                        print(f"❌ Updated member has incorrect {key}: expected {value}, got {updated_member[key]}")
+                    else:
+                        print(f"❌ Updated member is missing {key}")
+            except Exception as e:
+                print(f"❌ Failed to parse updated member data: {str(e)}")
+    
+        # Test deleting a team member
+        print(f"\n❌ Testing DELETE /api/admin/team/{created_member_id}")
+        
+        delete_success, delete_response = tester.run_test(
+            "Delete Team Member",
+            "DELETE",
+            f"admin/team/{created_member_id}",
+            200
+        )
+        
+        if delete_success:
+            print(f"✅ Deleted team member successfully")
+            
+            # Verify the member is deleted by trying to get it
+            verify_delete_success, verify_delete_response = tester.run_test(
+                "Verify Team Member Deletion",
+                "GET",
+                f"admin/team/{created_member_id}",
+                404
+            )
+            
+            if verify_delete_success:
+                print(f"✅ Verified team member deletion")
+            else:
+                print(f"❌ Failed to verify team member deletion")
+    
+    # Overall result
+    overall_success = public_team_success and admin_team_success
+    if created_member_id:
+        overall_success = overall_success and create_success and update_success and delete_success
+    
+    return overall_success
+
+def test_qa_endpoints():
+    """Test the Q&A endpoints"""
+    print("\n=== Testing Q&A Endpoints ===")
+    tester = IslamAppAPITester()
+    
+    # Login as admin for admin endpoints
+    print("\n🔑 Testing admin login with credentials: admin@uroki-islama.ru/admin123")
+    if not tester.test_unified_login("admin@uroki-islama.ru", "admin123", "admin"):
+        print("❌ Admin login failed, stopping Q&A admin tests")
+        return False
+    
+    # Test creating a new question
+    print(f"\n➕ Testing POST /api/admin/qa/questions")
+    
+    question_data = {
+        "title": "Тестовый вопрос",
+        "question_text": "Это тестовый вопрос?",
+        "answer_text": "Это тестовый ответ.",
+        "category": "general",
+        "tags": ["тест"],
+        "is_featured": False,
+        "imam_name": "Имам Тестовый"
+    }
+    
+    create_success, create_response = tester.run_test(
+        "Create Q&A Question",
+        "POST",
+        "admin/qa/questions",
+        200,
+        data=question_data
+    )
+    
+    created_question_id = None
+    
+    if create_success:
+        try:
+            created_question = create_response.json()
+            created_question_id = created_question.get('id')
+            print(f"✅ Created question with ID: {created_question_id}")
+            
+            # Check if created question has the correct data
+            for key, value in question_data.items():
+                if key in created_question and created_question[key] == value:
+                    print(f"✅ Created question has correct {key}")
+                elif key in created_question:
+                    print(f"❌ Created question has incorrect {key}: expected {value}, got {created_question[key]}")
+                else:
+                    print(f"❌ Created question is missing {key}")
+        except Exception as e:
+            print(f"❌ Failed to parse created question data: {str(e)}")
+    
+    # Test updating a question
+    if created_question_id:
+        print(f"\n✏️ Testing PUT /api/admin/qa/questions/{created_question_id}")
+        
+        update_data = {
+            "title": "Обновленный тестовый вопрос",
+            "answer_text": "Обновленный тестовый ответ."
+        }
+        
+        update_success, update_response = tester.run_test(
+            "Update Q&A Question",
+            "PUT",
+            f"admin/qa/questions/{created_question_id}",
+            200,
+            data=update_data
+        )
+        
+        if update_success:
+            try:
+                updated_question = update_response.json()
+                print(f"✅ Updated question successfully")
+                
+                # Check if updated question has the correct data
+                for key, value in update_data.items():
+                    if key in updated_question and updated_question[key] == value:
+                        print(f"✅ Updated question has correct {key}")
+                    elif key in updated_question:
+                        print(f"❌ Updated question has incorrect {key}: expected {value}, got {updated_question[key]}")
+                    else:
+                        print(f"❌ Updated question is missing {key}")
+            except Exception as e:
+                print(f"❌ Failed to parse updated question data: {str(e)}")
+    
+        # Test deleting a question
+        print(f"\n❌ Testing DELETE /api/admin/qa/questions/{created_question_id}")
+        
+        delete_success, delete_response = tester.run_test(
+            "Delete Q&A Question",
+            "DELETE",
+            f"admin/qa/questions/{created_question_id}",
+            200
+        )
+        
+        if delete_success:
+            print(f"✅ Deleted question successfully")
+            
+            # Verify the question is deleted by trying to get it
+            verify_delete_success, verify_delete_response = tester.run_test(
+                "Verify Question Deletion",
+                "GET",
+                f"qa/questions/{created_question_id}",
+                404
+            )
+            
+            if verify_delete_success:
+                print(f"✅ Verified question deletion")
+            else:
+                print(f"❌ Failed to verify question deletion")
+    
+    # Overall result
+    overall_success = True
+    if created_question_id:
+        overall_success = create_success and update_success and delete_success
+    
+    return overall_success
+
 def main():
     # Run the specific tests for the Namaz lesson
     namaz_success = test_namaz_lesson()
@@ -1127,6 +1405,12 @@ def main():
     # Test course API endpoints
     course_api_success = test_course_api_endpoints()
     
+    # Test team management endpoints
+    team_endpoints_success = test_team_endpoints()
+    
+    # Test Q&A endpoints
+    qa_endpoints_success = test_qa_endpoints()
+    
     # Overall result
     print(f"\n=== Overall Test Results ===")
     print(f"Namaz Lesson Tests: {'✅ PASSED' if namaz_success else '❌ FAILED'}")
@@ -1134,10 +1418,12 @@ def main():
     print(f"Random Question Selection API: {'✅ PASSED' if random_question_success else '❌ FAILED'}")
     print(f"Answer Shuffling System: {'✅ PASSED' if answer_shuffling_success else '❌ FAILED'}")
     print(f"Course API Endpoints: {'✅ PASSED' if course_api_success else '❌ FAILED'}")
+    print(f"Team Management Endpoints: {'✅ PASSED' if team_endpoints_success else '❌ FAILED'}")
+    print(f"Q&A Endpoints: {'✅ PASSED' if qa_endpoints_success else '❌ FAILED'}")
     
     overall_success = (namaz_success and admin_lesson_view_success and 
                       random_question_success and answer_shuffling_success and
-                      course_api_success)
+                      course_api_success and team_endpoints_success and qa_endpoints_success)
     
     print(f"\n=== Overall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'} ===")
     
