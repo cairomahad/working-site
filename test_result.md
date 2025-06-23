@@ -269,6 +269,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Verified that file upload is working. The lesson has a text attachment (namaz_konspekt.txt) that was successfully uploaded and is accessible."
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive testing of file upload functionality completed. Successfully uploaded PDF files using the /api/admin/upload-enhanced endpoint. The API correctly handles file uploads, generates unique filenames, and returns proper file URLs."
 
   - task: "Admin Lesson View API"
     implemented: true
