@@ -180,6 +180,48 @@ const AboutPage = () => {
           </div>
         </div>
 
+        {/* Navigation Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Исследуйте нашу платформу</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a
+              href="/lessons"
+              className="block p-6 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl hover:from-teal-100 hover:to-teal-200 transition-all duration-300 text-center group"
+            >
+              <div className="text-3xl mb-3">📚</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Уроки</h3>
+              <p className="text-sm text-gray-600">Изучайте основы ислама</p>
+            </a>
+            
+            <a
+              href="/qa"
+              className="block p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 text-center group"
+            >
+              <div className="text-3xl mb-3">❓</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Вопросы и ответы</h3>
+              <p className="text-sm text-gray-600">Ответы имама на ваши вопросы</p>
+            </a>
+            
+            <a
+              href="/leaderboard"
+              className="block p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl hover:from-yellow-100 hover:to-yellow-200 transition-all duration-300 text-center group"
+            >
+              <div className="text-3xl mb-3">🏆</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Лидерборд</h3>
+              <p className="text-sm text-gray-600">Соревнуйтесь с другими</p>
+            </a>
+            
+            <a
+              href="/"
+              className="block p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-300 text-center group"
+            >
+              <div className="text-3xl mb-3">🏠</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Главная</h3>
+              <p className="text-sm text-gray-600">Вернуться на главную</p>
+            </a>
+          </div>
+        </div>
+
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Связаться с нами</h2>
           <p className="text-gray-700 mb-4">
