@@ -262,7 +262,7 @@ backend:
         comment: "Verified that file upload is working. The lesson has a text attachment (namaz_konspekt.txt) that was successfully uploaded and is accessible."
 
   - task: "Admin Lesson View API"
-    implemented: false
+    implemented: true
     working: false
     file: "server.py"
     stuck_count: 1
@@ -272,6 +272,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "The GET /api/admin/lessons/{lesson_id} endpoint returns a 405 Method Not Allowed error. This endpoint needs to be implemented."
+      - working: false
+        agent: "testing"
+        comment: "The GET /api/admin/lessons/{lesson_id} endpoint is now implemented but returns a 404 Not Found error. The lesson with ID 9a7c2518-da14-49f6-ad25-7d89b152dc65 doesn't exist in the database."
         
   - task: "Team Management API"
     implemented: true
