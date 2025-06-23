@@ -1051,6 +1051,232 @@ async def get_applications(current_admin: dict = Depends(get_current_admin)):
     applications = await db.applications.find().sort("created_at", -1).to_list(1000)
     return [Application(**app) for app in applications]
 
+# ==================== Q&A ENDPOINTS ====================
+
+@api_router.get("/qa/questions", response_model=List[QAQuestion])
+async def get_qa_questions(
+    category: Optional[QACategory] = None,
+    featured: Optional[bool] = None,
+    search: Optional[str] = None,
+    limit: int = 20,
+    skip: int = 0
+):
+    """Получить список вопросов и ответов"""
+    query = {}
+    
+    if category:
+        query["category"] = category
+    if featured is not None:
+        query["is_featured"] = featured
+    if search:
+        query["$or"] = [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"question_text": {"$regex": search, "$options": "i"}},
+            {"tags": {"$in": [search]}},
+        ]
+    
+    questions = await db.qa_questions.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return [QAQuestion(**q) for q in questions]
+
+@api_router.get("/qa/questions/{question_id}", response_model=QAQuestion)
+async def get_qa_question(question_id: str):
+    """Получить конкретный вопрос по ID"""
+    question = await db.qa_questions.find_one({"id": question_id})
+    if not question:
+        raise HTTPException(status_code=404, detail="Вопрос не найден")
+    
+    # Увеличить счетчик просмотров
+    await db.qa_questions.update_one(
+        {"id": question_id},
+        {"$inc": {"views_count": 1}}
+    )
+    question["views_count"] += 1
+    
+    return QAQuestion(**question)
+
+@api_router.get("/qa/questions/slug/{slug}", response_model=QAQuestion)
+async def get_qa_question_by_slug(slug: str):
+    """Получить вопрос по slug"""
+    question = await db.qa_questions.find_one({"slug": slug})
+    if not question:
+        raise HTTPException(status_code=404, detail="Вопрос не найден")
+    
+    # Увеличить счетчик просмотров
+    await db.qa_questions.update_one(
+        {"slug": slug},
+        {"$inc": {"views_count": 1}}
+    )
+    question["views_count"] += 1
+    
+    return QAQuestion(**question)
+
+@api_router.get("/qa/categories")
+async def get_qa_categories():
+    """Получить все категории с количеством вопросов"""
+    pipeline = [
+        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}
+    ]
+    
+    category_counts = await db.qa_questions.aggregate(pipeline).to_list(100)
+    
+    # Добавить русские названия категорий
+    category_names = {
+        "aqidah": "Вероучение",
+        "ibadah": "Поклонение", 
+        "muamalat": "Взаимоотношения",
+        "akhlaq": "Нравственность",
+        "fiqh": "Фикх",
+        "hadith": "Хадисы",
+        "quran": "Коран",
+        "seerah": "Жизнеописание Пророка",
+        "general": "Общие вопросы"
+    }
+    
+    categories = []
+    for cat in category_counts:
+        categories.append({
+            "id": cat["_id"],
+            "name": category_names.get(cat["_id"], cat["_id"].title()),
+            "count": cat["count"]
+        })
+    
+    return categories
+
+@api_router.get("/qa/featured", response_model=List[QAQuestion])
+async def get_featured_qa_questions(limit: int = 5):
+    """Получить рекомендуемые вопросы"""
+    questions = await db.qa_questions.find({"is_featured": True}).sort("views_count", -1).limit(limit).to_list(limit)
+    return [QAQuestion(**q) for q in questions]
+
+@api_router.get("/qa/popular", response_model=List[QAQuestion])
+async def get_popular_qa_questions(limit: int = 10):
+    """Получить популярные вопросы"""
+    questions = await db.qa_questions.find().sort("views_count", -1).limit(limit).to_list(limit)
+    return [QAQuestion(**q) for q in questions]
+
+@api_router.get("/qa/recent", response_model=List[QAQuestion])
+async def get_recent_qa_questions(limit: int = 10):
+    """Получить последние вопросы"""
+    questions = await db.qa_questions.find().sort("created_at", -1).limit(limit).to_list(limit)
+    return [QAQuestion(**q) for q in questions]
+
+@api_router.get("/qa/stats", response_model=QAStats)
+async def get_qa_stats():
+    """Получить статистику Q&A"""
+    total_questions = await db.qa_questions.count_documents({})
+    featured_count = await db.qa_questions.count_documents({"is_featured": True})
+    
+    # Группировка по категориям
+    pipeline = [{"$group": {"_id": "$category", "count": {"$sum": 1}}}]
+    category_stats = await db.qa_questions.aggregate(pipeline).to_list(100)
+    questions_by_category = {cat["_id"]: cat["count"] for cat in category_stats}
+    
+    # Общее количество просмотров
+    views_pipeline = [{"$group": {"_id": None, "total_views": {"$sum": "$views_count"}}}]
+    views_result = await db.qa_questions.aggregate(views_pipeline).to_list(1)
+    total_views = views_result[0]["total_views"] if views_result else 0
+    
+    # Самые просматриваемые вопросы
+    most_viewed = await db.qa_questions.find().sort("views_count", -1).limit(5).to_list(5)
+    most_viewed_questions = [{"id": q["id"], "title": q["title"], "views": q["views_count"]} for q in most_viewed]
+    
+    # Последние вопросы
+    recent = await db.qa_questions.find().sort("created_at", -1).limit(5).to_list(5)
+    recent_questions = [{"id": q["id"], "title": q["title"], "created_at": q["created_at"]} for q in recent]
+    
+    return QAStats(
+        total_questions=total_questions,
+        questions_by_category=questions_by_category,
+        featured_count=featured_count,
+        total_views=total_views,
+        most_viewed_questions=most_viewed_questions,
+        recent_questions=recent_questions
+    )
+
+# ==================== ADMIN Q&A ENDPOINTS ====================
+
+@api_router.post("/admin/qa/questions", response_model=QAQuestion)
+async def create_qa_question(
+    question_data: QAQuestionCreate,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Создать новый вопрос и ответ (только админы)"""
+    question_dict = question_data.dict()
+    question_dict["id"] = str(uuid.uuid4())
+    question_dict["created_at"] = datetime.utcnow()
+    question_dict["updated_at"] = datetime.utcnow()
+    
+    if not question_dict.get("slug"):
+        question_dict["slug"] = create_slug(question_dict["title"])
+    
+    # Проверить уникальность slug
+    existing = await db.qa_questions.find_one({"slug": question_dict["slug"]})
+    if existing:
+        question_dict["slug"] += f"-{question_dict['id'][:8]}"
+    
+    question_obj = QAQuestion(**question_dict)
+    await db.qa_questions.insert_one(question_obj.dict())
+    return question_obj
+
+@api_router.put("/admin/qa/questions/{question_id}", response_model=QAQuestion)
+async def update_qa_question(
+    question_id: str,
+    question_data: QAQuestionUpdate,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Обновить вопрос и ответ (только админы)"""
+    existing = await db.qa_questions.find_one({"id": question_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Вопрос не найден")
+    
+    update_data = {k: v for k, v in question_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow()
+    
+    if "title" in update_data and not update_data.get("slug"):
+        update_data["slug"] = create_slug(update_data["title"])
+    
+    await db.qa_questions.update_one({"id": question_id}, {"$set": update_data})
+    
+    updated_question = await db.qa_questions.find_one({"id": question_id})
+    return QAQuestion(**updated_question)
+
+@api_router.delete("/admin/qa/questions/{question_id}")
+async def delete_qa_question(
+    question_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Удалить вопрос (только админы)"""
+    result = await db.qa_questions.delete_one({"id": question_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Вопрос не найден")
+    
+    return {"message": "Вопрос успешно удален"}
+
+@api_router.get("/admin/qa/questions", response_model=List[QAQuestion])
+async def get_admin_qa_questions(
+    current_admin: dict = Depends(get_current_admin),
+    category: Optional[QACategory] = None,
+    search: Optional[str] = None,
+    limit: int = 50,
+    skip: int = 0
+):
+    """Получить все вопросы для админа"""
+    query = {}
+    
+    if category:
+        query["category"] = category
+    if search:
+        query["$or"] = [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"question_text": {"$regex": search, "$options": "i"}},
+            {"answer_text": {"$regex": search, "$options": "i"}},
+            {"tags": {"$in": [search]}},
+        ]
+    
+    questions = await db.qa_questions.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return [QAQuestion(**q) for q in questions]
+
 # Include the router in the main app
 app.include_router(api_router)
 
