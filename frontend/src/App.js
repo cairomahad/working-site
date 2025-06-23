@@ -267,6 +267,10 @@ const AppRouter = () => {
       <Route path="/lessons" element={<LessonsPageRouter />} />
       <Route path="/lessons/:courseSlug" element={<CourseLessonsRouter />} />
       <Route path="/lessons/:courseSlug/:lessonSlug" element={<LessonDetailRouter />} />
+      <Route path="/qa" element={<QAMainPageRouter />} />
+      <Route path="/qa/category/:categoryId" element={<QACategoryPageRouter />} />
+      <Route path="/qa/question/:slug" element={<QAQuestionPageRouter />} />
+      <Route path="/qa/search" element={<QASearchPageRouter />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/test/:testId" element={<TestRouter />} />
