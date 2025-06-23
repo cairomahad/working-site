@@ -323,10 +323,10 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Remove Imam Consultation Panel"
     - "Random Question Selection API"
     - "Answer Shuffling System"
     - "Admin Lesson View API"
-    - "Q&A API Endpoints"
   stuck_tasks:
     - "Random Question Selection API"
     - "Answer Shuffling System"
