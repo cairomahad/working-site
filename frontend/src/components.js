@@ -151,6 +151,12 @@ export const Header = () => {
                 Уроки
               </Link>
               <Link 
+                to="/qa"
+                className={`${isCurrentPage('/qa') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+              >
+                Вопросы и Ответы
+              </Link>
+              <Link 
                 to="/leaderboard"
                 className={`${isCurrentPage('/leaderboard') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
               >
