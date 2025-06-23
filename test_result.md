@@ -295,6 +295,9 @@ backend:
         comment: "All Q&A API endpoints are working correctly. GET /api/qa/questions returns a list of questions, GET /api/qa/questions/{id} and GET /api/qa/questions/slug/{slug} return specific questions and increment view counters. GET /api/qa/categories, /api/qa/featured, /api/qa/popular, /api/qa/recent, and /api/qa/stats all return expected data. Search and filtering work correctly. Admin endpoints (POST, PUT, DELETE) also work as expected with proper authentication."
       - working: true
         agent: "testing"
+        comment: "Re-tested Q&A admin endpoints (POST, PUT /api/admin/qa/questions) - no issues found. The Q&A admin panel should be working correctly without session drops."
+      - working: true
+        agent: "testing"
         comment: "Tested POST /api/admin/qa/questions and PUT /api/admin/qa/questions/{question_id} endpoints. Both are working correctly. Created a test question with the provided data and successfully updated it. The endpoints do not cause any issues with the admin panel."
 
 frontend:
