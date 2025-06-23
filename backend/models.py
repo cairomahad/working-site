@@ -492,3 +492,36 @@ class QAStats(BaseModel):
     total_views: int
     most_viewed_questions: List[Dict[str, Any]]
     recent_questions: List[Dict[str, Any]]
+
+# Team Management Models
+class TeamMember(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    subject: str  # специализация (Этика, Основы веры, и т.д.)
+    image_url: Optional[str] = None
+    image_base64: Optional[str] = None  # base64 encoded image
+    bio: Optional[str] = None
+    email: Optional[str] = None
+    order: int = 1  # порядок отображения
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TeamMemberCreate(BaseModel):
+    name: str
+    subject: str
+    image_url: Optional[str] = None
+    image_base64: Optional[str] = None
+    bio: Optional[str] = None
+    email: Optional[str] = None
+    order: Optional[int] = 1
+
+class TeamMemberUpdate(BaseModel):
+    name: Optional[str] = None
+    subject: Optional[str] = None
+    image_url: Optional[str] = None
+    image_base64: Optional[str] = None
+    bio: Optional[str] = None
+    email: Optional[str] = None
+    order: Optional[int] = None
+    is_active: Optional[bool] = None
