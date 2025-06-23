@@ -230,6 +230,21 @@ backend:
         agent: "testing"
         comment: "The GET /api/admin/lessons/{lesson_id} endpoint returns a 405 Method Not Allowed error. This endpoint needs to be implemented."
         
+  - task: "Team Management API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing Team Management API endpoints."
+      - working: true
+        agent: "testing"
+        comment: "All Team Management API endpoints are working correctly. GET /api/team returns a list of public team members, GET /api/admin/team returns all team members for admin view. POST /api/admin/team successfully creates a new team member with the provided data. PUT /api/admin/team/{member_id} correctly updates a team member, and DELETE /api/admin/team/{member_id} successfully deletes a team member."
+
   - task: "Q&A API Endpoints"
     implemented: true
     working: true
@@ -244,6 +259,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "All Q&A API endpoints are working correctly. GET /api/qa/questions returns a list of questions, GET /api/qa/questions/{id} and GET /api/qa/questions/slug/{slug} return specific questions and increment view counters. GET /api/qa/categories, /api/qa/featured, /api/qa/popular, /api/qa/recent, and /api/qa/stats all return expected data. Search and filtering work correctly. Admin endpoints (POST, PUT, DELETE) also work as expected with proper authentication."
+      - working: true
+        agent: "testing"
+        comment: "Tested POST /api/admin/qa/questions and PUT /api/admin/qa/questions/{question_id} endpoints. Both are working correctly. Created a test question with the provided data and successfully updated it. The endpoints do not cause any issues with the admin panel."
 
 frontend:
   - task: "Remove Imam Consultation Panel"
