@@ -246,6 +246,21 @@ backend:
         comment: "All Q&A API endpoints are working correctly. GET /api/qa/questions returns a list of questions, GET /api/qa/questions/{id} and GET /api/qa/questions/slug/{slug} return specific questions and increment view counters. GET /api/qa/categories, /api/qa/featured, /api/qa/popular, /api/qa/recent, and /api/qa/stats all return expected data. Search and filtering work correctly. Admin endpoints (POST, PUT, DELETE) also work as expected with proper authentication."
 
 frontend:
+  - task: "Remove Imam Consultation Panel"
+    implemented: true
+    working: true
+    file: "LessonsPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "User requested removal of 'Консультация имама' panel to provide more space for courses viewing"
+      - working: true
+        agent: "main"
+        comment: "Successfully removed the left sidebar consultation panel and expanded main content to use full width. Changed max-width from 4xl to 6xl for better space utilization."
+
   - task: "Admin Test Import Interface"
     implemented: true
     working: true
