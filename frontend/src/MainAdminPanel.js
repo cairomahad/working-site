@@ -232,6 +232,7 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
     { id: 'courses', name: 'Курсы', icon: '📚' },
     { id: 'lessons', name: 'Уроки', icon: '📖' },
     { id: 'tests', name: 'Тесты', icon: '📝' },
+    { id: 'qa', name: 'Вопросы и Ответы', icon: '❓' },
     { id: 'students', name: 'Ученики', icon: '👥' },
     { id: 'teachers', name: 'Преподаватели', icon: '👨‍🏫' },
     { id: 'applications', name: 'Заявки', icon: '📋' },
