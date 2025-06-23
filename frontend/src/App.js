@@ -105,20 +105,30 @@ const HomePage = ({ setCurrentPage }) => {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { name: "Али Евтеев", subject: "Этика", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face" },
-              { name: "Абдуль-Басит Микушкин", subject: "Основы веры", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" },
-              { name: "Алексей Котенев", subject: "Практика веры", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face" },
-              { name: "Микаиль Ганиев", subject: "История", image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face" }
-            ].map((teacher, index) => (
-              <div key={index} className="text-center">
-                <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4">
-                  <img src={teacher.image} alt={teacher.name} className="w-full h-full object-cover" />
+            {loadingTeam ? (
+              // Loading state
+              [1,2,3,4].map((i) => (
+                <div key={i} className="text-center animate-pulse">
+                  <div className="w-32 h-32 rounded-full bg-gray-300 mx-auto mb-4"></div>
+                  <div className="h-4 bg-gray-300 rounded w-24 mx-auto mb-2"></div>
+                  <div className="h-3 bg-gray-300 rounded w-16 mx-auto"></div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">{teacher.name}</h3>
-                <p className="text-teal-600 font-medium">{teacher.subject}</p>
-              </div>
-            ))}
+              ))
+            ) : (
+              teamMembers.map((member, index) => (
+                <div key={member.id || index} className="text-center">
+                  <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4">
+                    <img 
+                      src={member.image_base64 || member.image_url || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face`} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+                  <p className="text-teal-600 font-medium">{member.subject}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
