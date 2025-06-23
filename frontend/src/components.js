@@ -607,7 +607,6 @@ export const Leaderboard = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">🏆 Лидерборд</h1>
           <p className="text-lg text-gray-600">Топ-10 лучших учеников</p>
-
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
