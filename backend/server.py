@@ -20,6 +20,7 @@ import json
 import csv
 import random
 import io
+import re
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
