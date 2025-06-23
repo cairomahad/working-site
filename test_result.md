@@ -220,6 +220,21 @@ backend:
       - working: false
         agent: "testing"
         comment: "The GET /api/admin/lessons/{lesson_id} endpoint returns a 405 Method Not Allowed error. This endpoint needs to be implemented."
+        
+  - task: "Q&A API Endpoints"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing Q&A API endpoints for the Imam Q&A system."
+      - working: true
+        agent: "testing"
+        comment: "All Q&A API endpoints are working correctly. GET /api/qa/questions returns a list of questions, GET /api/qa/questions/{id} and GET /api/qa/questions/slug/{slug} return specific questions and increment view counters. GET /api/qa/categories, /api/qa/featured, /api/qa/popular, /api/qa/recent, and /api/qa/stats all return expected data. Search and filtering work correctly. Admin endpoints (POST, PUT, DELETE) also work as expected with proper authentication."
 
 frontend:
   - task: "Admin Test Import Interface"
