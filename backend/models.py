@@ -427,25 +427,68 @@ class LevelStats(BaseModel):
     total_lessons: int
     enrolled_students: int
     completion_rate: float
-    points: int = 1
-    category: Optional[str] = None  # For grouping questions
-    difficulty: Optional[str] = None  # easy, medium, hard
-    is_active: bool = True
 
-class CourseStats(BaseModel):
-    course_id: str
-    course_title: str
-    level: CourseLevel
-    enrolled_students: int
-    completed_students: int
-    lessons_count: int
-    tests_count: int
-    average_score: float
-    completion_rate: float
+# Q&A Models for Imam Questions and Answers
+class QACategory(str, Enum):
+    AQIDAH = "aqidah"  # Вероучение
+    IBADAH = "ibadah"  # Поклонение
+    MUAMALAT = "muamalat"  # Взаимоотношения
+    AKHLAQ = "akhlaq"  # Нравственность
+    FIQH = "fiqh"  # Фикх
+    HADITH = "hadith"  # Хадисы
+    QURAN = "quran"  # Коран
+    SEERAH = "seerah"  # Жизнеописание Пророка
+    GENERAL = "general"  # Общие вопросы
 
-class LevelStats(BaseModel):
-    level: CourseLevel
-    courses_count: int
-    total_lessons: int
-    enrolled_students: int
-    completion_rate: float
+class QAQuestion(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str  # Заголовок вопроса
+    question_text: str  # Полный текст вопроса
+    answer_text: str  # Ответ имама
+    category: QACategory
+    tags: List[str] = []  # Теги для поиска
+    slug: Optional[str] = None
+    is_featured: bool = False  # Рекомендуемые вопросы
+    views_count: int = 0
+    likes_count: int = 0
+    imam_name: str = "Имам"  # Имя отвечающего имама
+    references: List[str] = []  # Ссылки на источники (Коран, Хадисы)
+    related_questions: List[str] = []  # ID связанных вопросов
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.slug:
+            self.slug = create_slug(self.title)
+
+class QAQuestionCreate(BaseModel):
+    title: str
+    question_text: str
+    answer_text: str
+    category: QACategory
+    tags: List[str] = []
+    slug: Optional[str] = None
+    is_featured: bool = False
+    imam_name: str = "Имам"
+    references: List[str] = []
+    related_questions: List[str] = []
+
+class QAQuestionUpdate(BaseModel):
+    title: Optional[str] = None
+    question_text: Optional[str] = None
+    answer_text: Optional[str] = None
+    category: Optional[QACategory] = None
+    tags: Optional[List[str]] = None
+    is_featured: Optional[bool] = None
+    imam_name: Optional[str] = None
+    references: Optional[List[str]] = None
+    related_questions: Optional[List[str]] = None
+
+class QAStats(BaseModel):
+    total_questions: int
+    questions_by_category: Dict[str, int]
+    featured_count: int
+    total_views: int
+    most_viewed_questions: List[Dict[str, Any]]
+    recent_questions: List[Dict[str, Any]]
