@@ -199,10 +199,21 @@ export const LessonsPage = () => {
                 return (
                   <div
                     key={course.id}
-                    className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300 cursor-pointer group"
+                    className={`bg-white rounded-lg border transition-all duration-300 cursor-pointer group ${
+                      config.isPremium 
+                        ? 'border-amber-300 hover:border-amber-400 hover:shadow-amber-100 hover:shadow-lg' 
+                        : 'border-gray-200 hover:shadow-md'
+                    }`}
                     onClick={() => handleCourseClick(course)}
                   >
-                    <div className="p-6">
+                    {/* Premium Badge */}
+                    {config.isPremium && (
+                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                        ⭐ ПРЕМИУМ
+                      </div>
+                    )}
+                    
+                    <div className={`p-6 ${config.isPremium ? 'bg-gradient-to-br from-amber-50 to-yellow-50' : ''}`}>
                       <div className="flex items-start space-x-6">
                         {/* Course Icon */}
                         <div className="flex-shrink-0">
