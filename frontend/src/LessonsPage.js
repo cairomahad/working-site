@@ -31,8 +31,41 @@ export const LessonsPage = () => {
     setLoading(false);
   };
 
-  const handleCourseClick = (course) => {
-    navigate(`/lessons/${course.slug || course.id}`);
+  const handleCourseClick = async (course) => {
+    // Проверяем, является ли курс премиум (например, "Культура Ислама")
+    if (course.title === "Культура Ислама") {
+      // Проверяем доступ пользователя к этому курсу
+      if (currentUser && currentUser.email) {
+        try {
+          const response = await axios.get(`${API}/student/${currentUser.email}/courses`);
+          const hasAccess = response.data.some(userCourse => userCourse.id === course.id);
+          
+          if (hasAccess) {
+            // У пользователя есть доступ, переходим к курсу
+            navigate(`/lessons/${course.slug || course.id}`);
+          } else {
+            // Нет доступа, показываем окно промокода
+            setSelectedPremiumCourse(course);
+            setUserEmail(currentUser.email);
+            setShowPromocodeEntry(true);
+          }
+        } catch (error) {
+          console.error('Ошибка проверки доступа:', error);
+          // Показываем окно промокода при ошибке
+          setSelectedPremiumCourse(course);
+          setUserEmail(currentUser?.email || '');
+          setShowPromocodeEntry(true);
+        }
+      } else {
+        // Пользователь не авторизован, просим ввести email для промокода
+        setSelectedPremiumCourse(course);
+        setUserEmail('');
+        setShowPromocodeEntry(true);
+      }
+    } else {
+      // Обычный курс, открываем без проверки
+      navigate(`/lessons/${course.slug || course.id}`);
+    }
   };
 
   // Course configurations
