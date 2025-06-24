@@ -11,6 +11,9 @@ const API = `${BACKEND_URL}/api`;
 export const LessonsPage = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showPromocodeEntry, setShowPromocodeEntry] = useState(false);
+  const [selectedPremiumCourse, setSelectedPremiumCourse] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
