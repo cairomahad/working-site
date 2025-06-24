@@ -167,24 +167,6 @@ export const LessonsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Progress Notification for Non-registered Users */}
-      {!currentUser && (
-        <div className="bg-gradient-to-r from-teal-400 to-teal-500 text-white py-4">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-center">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">!</span>
-                </div>
-                <p className="text-sm md:text-base">
-                  Вы смогли бы сохранять и отслеживать прогресс после регистрации, а в конце обучения получить сертификат!
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Content - Full Width */}
       <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
