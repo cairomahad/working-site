@@ -199,7 +199,7 @@ export const LessonsPage = () => {
                 return (
                   <div
                     key={course.id}
-                    className={`bg-white rounded-lg border transition-all duration-300 cursor-pointer group ${
+                    className={`relative bg-white rounded-lg border transition-all duration-300 cursor-pointer group ${
                       config.isPremium 
                         ? 'border-amber-300 hover:border-amber-400 hover:shadow-amber-100 hover:shadow-lg' 
                         : 'border-gray-200 hover:shadow-md'
