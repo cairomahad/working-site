@@ -432,13 +432,6 @@ export const AuthModal = ({ onClose }) => {
             {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
           </button>
         </div>
-        
-        {/* Demo credentials hint */}
-        <div className="mt-4 p-3 bg-gray-50 rounded text-xs text-gray-600">
-          <div className="font-medium mb-1">💡 Тестовые данные:</div>
-          <div><strong>Админ:</strong> miftahylum@gmail.com / 197724</div>
-          <div><strong>Студент:</strong> Любой email / Любой пароль</div>
-        </div>
       </div>
     </div>
   );
