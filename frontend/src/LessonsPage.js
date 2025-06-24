@@ -58,10 +58,10 @@ export const LessonsPage = () => {
           setShowPremiumInfo(true);
         }
       } else {
-        // Пользователь не авторизован, просим ввести email для промокода
+        // Пользователь не авторизован, показываем информацию о курсе
         setSelectedPremiumCourse(course);
         setUserEmail('');
-        setShowPromocodeEntry(true);
+        setShowPremiumInfo(true);
       }
     } else {
       // Обычный курс, открываем без проверки
