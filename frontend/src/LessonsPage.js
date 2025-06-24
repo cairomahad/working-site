@@ -45,10 +45,10 @@ export const LessonsPage = () => {
             // У пользователя есть доступ, переходим к курсу
             navigate(`/lessons/${course.slug || course.id}`);
           } else {
-            // Нет доступа, показываем окно промокода
+            // Нет доступа, показываем информацию о премиум курсе
             setSelectedPremiumCourse(course);
             setUserEmail(currentUser.email);
-            setShowPromocodeEntry(true);
+            setShowPremiumInfo(true);
           }
         } catch (error) {
           console.error('Ошибка проверки доступа:', error);
