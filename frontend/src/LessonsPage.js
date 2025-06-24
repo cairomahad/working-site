@@ -314,6 +314,118 @@ export const LessonsPage = () => {
         </div>
       </div>
 
+      {/* Premium Course Info Modal */}
+      {showPremiumInfo && selectedPremiumCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-amber-400 to-amber-500 p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <span className="text-3xl mr-3">⭐</span>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Премиум курс</h2>
+                    <p className="text-amber-100">{selectedPremiumCourse.title}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    setShowPremiumInfo(false);
+                    setSelectedPremiumCourse(null);
+                  }}
+                  className="text-white hover:text-amber-200 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <img 
+                  src={selectedPremiumCourse.image_url || "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&h=400&fit=crop"} 
+                  alt={selectedPremiumCourse.title}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <h3 className="text-xl font-bold text-gray-800 mb-2">{selectedPremiumCourse.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{selectedPremiumCourse.description}</p>
+              </div>
+
+              {/* Course Details */}
+              <div className="bg-amber-50 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-amber-800 mb-3">🎓 Что включено в курс:</h4>
+                <div className="space-y-2 text-sm text-amber-700">
+                  <div className="flex items-center">
+                    <span className="mr-2">📚</span>
+                    <span>3 углубленных урока по исламской культуре</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="mr-2">🎥</span>
+                    <span>Видеоматериалы и интерактивный контент</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="mr-2">⏱️</span>
+                    <span>Примерно {selectedPremiumCourse.estimated_duration_hours} часов изучения</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="mr-2">📜</span>
+                    <span>Сертификат по завершению</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="mr-2">💝</span>
+                    <span>Пожизненный доступ к материалам</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Price Info */}
+              <div className="bg-white border-2 border-amber-200 rounded-lg p-4 mb-6">
+                <div className="text-center">
+                  <h4 className="font-bold text-gray-800 mb-2">💎 Доступ по промокоду</h4>
+                  <div className="text-2xl font-bold text-amber-600 mb-1">4900 ₽</div>
+                  <p className="text-gray-600 text-sm">Полный доступ ко всем курсам платформы</p>
+                  <p className="text-amber-600 font-semibold mt-1">Промокод: ШАМИЛЬ</p>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setShowPremiumInfo(false);
+                    setShowPromocodeEntry(true);
+                  }}
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-200"
+                >
+                  🎫 У меня есть промокод
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // Показать контактную информацию или переход к покупке
+                    alert('Для покупки промокода свяжитесь с нами по email: admin@uroki-islama.ru');
+                  }}
+                  className="w-full bg-white text-amber-600 py-3 px-6 rounded-lg font-semibold border-2 border-amber-200 hover:bg-amber-50 transition-all duration-200"
+                >
+                  💰 Купить промокод
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowPremiumInfo(false);
+                    setSelectedPremiumCourse(null);
+                  }}
+                  className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200"
+                >
+                  Закрыть
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Promocode Modal */}
       {showPromocodeEntry && selectedPremiumCourse && (
         <PromocodeEntry
