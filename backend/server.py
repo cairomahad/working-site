@@ -1351,6 +1351,183 @@ async def get_admin_qa_questions(
     questions = await db.qa_questions.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return [QAQuestion(**q) for q in questions]
 
+# ==================== PROMOCODE ENDPOINTS ====================
+
+@api_router.post("/promocodes/validate")
+async def validate_promocode(validation: PromocodeValidation):
+    """Проверить и использовать промокод"""
+    promocode = await db.promocodes.find_one({
+        "code": validation.code.upper(),
+        "is_active": True
+    })
+    
+    if not promocode:
+        raise HTTPException(status_code=404, detail="Промокод не найден или неактивен")
+    
+    # Проверяем срок действия
+    if promocode.get("expires_at") and datetime.utcnow() > promocode["expires_at"]:
+        raise HTTPException(status_code=400, detail="Срок действия промокода истек")
+    
+    # Проверяем лимит использований
+    if promocode.get("max_uses") and promocode["used_count"] >= promocode["max_uses"]:
+        raise HTTPException(status_code=400, detail="Промокод исчерпан")
+    
+    # Проверяем, не использовал ли уже этот студент данный промокод
+    existing_usage = await db.promocode_usage.find_one({
+        "promocode_code": validation.code.upper(),
+        "student_email": validation.student_email
+    })
+    
+    if existing_usage:
+        raise HTTPException(status_code=400, detail="Вы уже использовали этот промокод")
+    
+    # Определяем курсы для доступа
+    course_ids = []
+    if promocode["promocode_type"] == "all_courses":
+        # Получаем все опубликованные курсы
+        courses = await db.courses.find({"status": "published"}).to_list(1000)
+        course_ids = [course["id"] for course in courses]
+    elif promocode["promocode_type"] == "single_course":
+        course_ids = promocode.get("course_ids", [])
+    
+    # Создаем запись об использовании
+    usage = PromocodeUsage(
+        promocode_id=promocode["id"],
+        promocode_code=validation.code.upper(),
+        student_id=validation.student_email,  # Используем email как ID студента
+        student_email=validation.student_email,
+        course_ids=course_ids
+    )
+    
+    await db.promocode_usage.insert_one(usage.dict())
+    
+    # Увеличиваем счетчик использований
+    await db.promocodes.update_one(
+        {"id": promocode["id"]},
+        {"$inc": {"used_count": 1}}
+    )
+    
+    # Получаем информацию о курсах
+    courses_info = []
+    if course_ids:
+        courses = await db.courses.find({"id": {"$in": course_ids}}).to_list(1000)
+        courses_info = [{"id": c["id"], "title": c["title"], "description": c["description"]} for c in courses]
+    
+    return {
+        "success": True,
+        "message": "Промокод успешно активирован!",
+        "promocode": {
+            "code": promocode["code"],
+            "description": promocode["description"],
+            "type": promocode["promocode_type"]
+        },
+        "courses": courses_info,
+        "access_granted": len(course_ids) > 0
+    }
+
+@api_router.get("/promocodes/info/{code}")
+async def get_promocode_info(code: str):
+    """Получить информацию о промокоде без активации"""
+    promocode = await db.promocodes.find_one({
+        "code": code.upper(),
+        "is_active": True
+    })
+    
+    if not promocode:
+        raise HTTPException(status_code=404, detail="Промокод не найден")
+    
+    # Проверяем срок действия
+    if promocode.get("expires_at") and datetime.utcnow() > promocode["expires_at"]:
+        raise HTTPException(status_code=400, detail="Срок действия промокода истек")
+    
+    # Получаем информацию о курсах
+    courses_info = []
+    if promocode["promocode_type"] == "all_courses":
+        courses = await db.courses.find({"status": "published"}).to_list(1000)
+        courses_info = [{"id": c["id"], "title": c["title"]} for c in courses]
+    elif promocode.get("course_ids"):
+        courses = await db.courses.find({"id": {"$in": promocode["course_ids"]}}).to_list(1000)
+        courses_info = [{"id": c["id"], "title": c["title"]} for c in courses]
+    
+    return {
+        "code": promocode["code"],
+        "description": promocode["description"],
+        "type": promocode["promocode_type"],
+        "price_rub": promocode.get("price_rub"),
+        "discount_percent": promocode.get("discount_percent"),
+        "courses": courses_info,
+        "remaining_uses": promocode.get("max_uses", float('inf')) - promocode["used_count"] if promocode.get("max_uses") else None,
+        "expires_at": promocode.get("expires_at")
+    }
+
+@api_router.get("/student/{student_email}/courses")
+async def get_student_courses(student_email: str):
+    """Получить курсы, доступные студенту через промокоды"""
+    # Найти все использования промокодов студентом
+    usages = await db.promocode_usage.find({"student_email": student_email}).to_list(1000)
+    
+    # Собрать все ID курсов
+    all_course_ids = []
+    for usage in usages:
+        all_course_ids.extend(usage.get("course_ids", []))
+    
+    # Убрать дубликаты
+    unique_course_ids = list(set(all_course_ids))
+    
+    if not unique_course_ids:
+        return []
+    
+    # Получить информацию о курсах
+    courses = await db.courses.find({"id": {"$in": unique_course_ids}}).to_list(1000)
+    return [Course(**course) for course in courses]
+
+# ==================== ADMIN PROMOCODE ENDPOINTS ====================
+
+@api_router.get("/admin/promocodes", response_model=List[Promocode])
+async def get_admin_promocodes(current_admin: dict = Depends(get_current_admin)):
+    """Получить все промокоды для админа"""
+    promocodes = await db.promocodes.find().sort("created_at", -1).to_list(1000)
+    return [Promocode(**p) for p in promocodes]
+
+@api_router.post("/admin/promocodes", response_model=Promocode)
+async def create_promocode(
+    promocode_data: PromocodeCreate,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Создать новый промокод"""
+    # Проверяем, не существует ли уже такой код
+    existing = await db.promocodes.find_one({"code": promocode_data.code.upper()})
+    if existing:
+        raise HTTPException(status_code=400, detail="Промокод с таким кодом уже существует")
+    
+    promocode_dict = promocode_data.dict()
+    promocode_dict["code"] = promocode_dict["code"].upper()
+    promocode_dict["created_by"] = current_admin["id"]
+    
+    promocode_obj = Promocode(**promocode_dict)
+    await db.promocodes.insert_one(promocode_obj.dict())
+    return promocode_obj
+
+@api_router.delete("/admin/promocodes/{promocode_id}")
+async def delete_promocode(
+    promocode_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Удалить промокод"""
+    result = await db.promocodes.delete_one({"id": promocode_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Промокод не найден")
+    return {"message": "Промокод успешно удален"}
+
+@api_router.get("/admin/promocodes/{promocode_id}/usage")
+async def get_promocode_usage(
+    promocode_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Получить статистику использования промокода"""
+    usages = await db.promocode_usage.find({"promocode_id": promocode_id}).to_list(1000)
+    return usages
+
 # Include the router in the main app
 app.include_router(api_router)
 
