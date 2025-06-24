@@ -22,6 +22,8 @@ import { QAMainPage, QACategoryPage, QAQuestionPage, QASearchPage, AskQuestionFo
 const HomePage = ({ setCurrentPage }) => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
+  const [showPromocodeEntry, setShowPromocodeEntry] = useState(false);
+  const [showAdminContact, setShowAdminContact] = useState(false);
 
   useEffect(() => {
     fetchTeamMembers();
