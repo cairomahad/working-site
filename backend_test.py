@@ -1975,14 +1975,14 @@ def test_admin_auth_and_course_deployment():
 
 def main():
     print("\n=== ISLAMIC EDUCATIONAL PLATFORM BACKEND API TESTING ===")
-    print("Testing admin authentication and course deployment functionality")
+    print("Testing 'Культура Ислама' course and promocode system")
     
     # Dictionary to track test results
     test_results = {}
     
-    # Test admin authentication and course deployment workflow
-    admin_auth_and_deployment_success = test_admin_auth_and_course_deployment()
-    test_results["Admin Authentication and Course Deployment"] = admin_auth_and_deployment_success
+    # Test "Культура Ислама" course and promocode system
+    islam_culture_success = test_islam_culture_course_and_promocodes()
+    test_results["'Культура Ислама' Course and Promocode System"] = islam_culture_success
     
     # Overall result
     print(f"\n=== Overall Test Results ===")
