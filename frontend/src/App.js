@@ -173,6 +173,42 @@ const HomePage = ({ setCurrentPage }) => {
           </div>
         </div>
       </section>
+
+      {/* Promocode Modals */}
+      {showPromocodeEntry && (
+        <PromocodeEntry
+          onSuccess={(data) => {
+            setShowPromocodeEntry(false);
+            setShowPromocodeSuccess(true);
+            setPromocodeData(data);
+          }}
+          onClose={() => setShowPromocodeEntry(false)}
+        />
+      )}
+
+      {showPromocodeSuccess && (
+        <PromocodeSuccess
+          data={promocodeData}
+          onClose={() => setShowPromocodeSuccess(false)}
+          onViewCourses={() => {
+            setShowPromocodeSuccess(false);
+            setShowStudentCourses(true);
+          }}
+        />
+      )}
+
+      {showAdminContact && (
+        <AdminContactDialog
+          onClose={() => setShowAdminContact(false)}
+        />
+      )}
+
+      {showStudentCourses && (
+        <StudentCourses
+          studentEmail={promocodeData?.student_email || ''}
+          onBack={() => setShowStudentCourses(false)}
+        />
+      )}
     </div>
   );
 };
