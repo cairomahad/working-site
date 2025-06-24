@@ -525,3 +525,47 @@ class TeamMemberUpdate(BaseModel):
     email: Optional[str] = None
     order: Optional[int] = None
     is_active: Optional[bool] = None
+
+# Promocode Models
+class PromocodeType(str, Enum):
+    ALL_COURSES = "all_courses"
+    SINGLE_COURSE = "single_course"
+    DISCOUNT = "discount"
+
+class Promocode(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    code: str  # Промокод (например, "Шамиль")
+    promocode_type: PromocodeType
+    description: str
+    price_rub: Optional[int] = None  # Цена в рублях для покупки промокода
+    discount_percent: Optional[int] = None  # Процент скидки
+    course_ids: List[str] = []  # Список курсов, к которым дает доступ
+    max_uses: Optional[int] = None  # Максимальное количество использований
+    used_count: int = 0  # Количество использований
+    is_active: bool = True
+    expires_at: Optional[datetime] = None  # Дата истечения
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str  # ID админа, создавшего промокод
+
+class PromocodeCreate(BaseModel):
+    code: str
+    promocode_type: PromocodeType
+    description: str
+    price_rub: Optional[int] = None
+    discount_percent: Optional[int] = None
+    course_ids: List[str] = []
+    max_uses: Optional[int] = None
+    expires_at: Optional[datetime] = None
+
+class PromocodeUsage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    promocode_id: str
+    promocode_code: str
+    student_id: str
+    student_email: str
+    course_ids: List[str] = []  # Курсы, к которым получен доступ
+    used_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PromocodeValidation(BaseModel):
+    code: str
+    student_email: str
