@@ -503,3 +503,5 @@ agent_communication:
     message: "Completed comprehensive backend testing. Found several issues: 1) Admin Lesson View API returns 404 Not Found for lesson ID 9a7c2518-da14-49f6-ad25-7d89b152dc65, 2) Random Question Selection API and Answer Shuffling System cannot be tested because the test with ID 42665711-d8a7-41ae-80e8-a14eaf526ad2 doesn't exist, 3) The course with ID 947f1ddb-5e52-4605-810a-9db25d94ba79 and lesson with ID 9a7c2518-da14-49f6-ad25-7d89b152dc65 don't exist. Team Management API and Q&A API are working correctly. File upload functionality is also working properly."
   - agent: "main"
     message: "ПРОВЕРКА САЙТА НА БАГИ: Начинаю полную проверку всех компонентов приложения. Обнаружены потенциальные проблемы: отсутствует функция create_slug в server.py (используется в models.py), эндпоинт GET /api/admin/lessons/{lesson_id} не реализован, есть известные проблемы с тестами без вопросов. Провожу комплексное тестирование."
+  - agent: "main"
+    message: "НОВАЯ ЗАДАЧА: Тестирование развертывания курсов с тестами с админскими данными admin@uroki-islama.ru / admin123. Проверяем админскую функциональность создания курсов, уроков и тестов."
