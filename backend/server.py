@@ -1610,6 +1610,25 @@ async def startup_event():
         
         logger.info("Default team members created")
 
+    # Create default promocode if none exist
+    promocode_count = await db.promocodes.count_documents({})
+    if promocode_count == 0:
+        # Get the admin ID for the promocode creator
+        admin = await db.admins.find_one({"email": "admin@uroki-islama.ru"})
+        admin_id = admin["id"] if admin else "system"
+        
+        default_promocode = Promocode(
+            code="ШАМИЛЬ",
+            promocode_type=PromocodeType.ALL_COURSES,
+            description="Полный доступ ко всем курсам платформы \"Уроки Ислама\"",
+            price_rub=4900,
+            max_uses=None,  # Неограниченное количество использований
+            created_by=admin_id
+        )
+        
+        await db.promocodes.insert_one(default_promocode.dict())
+        logger.info("Default promocode created: ШАМИЛЬ")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
