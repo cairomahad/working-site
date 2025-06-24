@@ -431,12 +431,16 @@ export const LessonsPage = () => {
         <PromocodeEntry
           onSuccess={(data) => {
             setShowPromocodeEntry(false);
+            setSelectedPremiumCourse(null);
             // После успешной активации промокода переходим к курсу
-            navigate(`/lessons/${selectedPremiumCourse.slug || selectedPremiumCourse.id}`);
+            if (selectedPremiumCourse) {
+              navigate(`/lessons/${selectedPremiumCourse.slug || selectedPremiumCourse.id}`);
+            }
           }}
           onClose={() => {
             setShowPromocodeEntry(false);
-            setSelectedPremiumCourse(null);
+            // Возвращаемся к информационному окну
+            setShowPremiumInfo(true);
           }}
         />
       )}
