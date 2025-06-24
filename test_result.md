@@ -355,7 +355,7 @@ frontend:
     file: "LessonsPage.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -363,6 +363,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "Successfully integrated promocode access control with premium course info modal and promocode entry system. Course displays with premium badge and triggers promocode flow when accessed."
+      - working: true
+        agent: "testing"
+        comment: "Verified that the promocode system works correctly. The promocode 'ШАМИЛЬ' can be validated and grants access to the premium course 'Культура Ислама'. After activation, students can access the course content."
 
   - task: "Team Management Admin Interface"
     implemented: true
