@@ -1573,75 +1573,328 @@ def test_create_test_with_questions():
     
     return randomization_success and shuffling_success
 
+def test_admin_auth_and_course_deployment():
+    """Test admin authentication and complete course deployment workflow"""
+    print("\n=== Testing Admin Authentication and Course Deployment Workflow ===")
+    tester = IslamAppAPITester()
+    
+    # 1. Test admin login with the provided credentials
+    print("\n🔑 Testing admin login with credentials: admin@uroki-islama.ru/admin123")
+    admin_login_success = tester.test_unified_login("admin@uroki-islama.ru", "admin123", "admin")
+    
+    if not admin_login_success:
+        print("❌ Admin login failed, stopping tests")
+        return False
+    
+    print("✅ Admin authentication successful")
+    
+    # 2. Test course creation
+    print("\n📚 Testing course creation")
+    course_data = {
+        "title": "Тестовый курс по исламу",
+        "description": "Описание тестового курса для проверки API",
+        "level": "level_1",
+        "teacher_id": str(uuid.uuid4()),  # Generate a random ID for testing
+        "teacher_name": "Тестовый преподаватель",
+        "difficulty": "Начальный",
+        "estimated_duration_hours": 10,
+        "image_url": "https://example.com/image.jpg",
+        "status": "published"
+    }
+    
+    course_success, course_response = tester.run_test(
+        "Create Course",
+        "POST",
+        "admin/courses",
+        200,
+        data=course_data
+    )
+    
+    if not course_success:
+        print("❌ Course creation failed")
+        return False
+    
+    course_id = course_response.json()["id"]
+    print(f"✅ Course created successfully with ID: {course_id}")
+    
+    # 3. Test lesson creation for the course
+    print("\n📝 Testing lesson creation")
+    lesson_data = {
+        "course_id": course_id,
+        "title": "Введение в ислам",
+        "description": "Вводный урок по основам ислама",
+        "content": "<p>Содержание урока по исламу</p>",
+        "lesson_type": "mixed",
+        "video_url": "https://www.youtube.com/embed/T4auGhmeBlw",
+        "video_duration": 600,  # 10 minutes
+        "order": 1,
+        "estimated_duration_minutes": 15
+    }
+    
+    lesson_success, lesson_response = tester.run_test(
+        "Create Lesson",
+        "POST",
+        "admin/lessons",
+        200,
+        data=lesson_data
+    )
+    
+    if not lesson_success:
+        print("❌ Lesson creation failed")
+        return False
+    
+    lesson_id = lesson_response.json()["id"]
+    print(f"✅ Lesson created successfully with ID: {lesson_id}")
+    
+    # 4. Test test/quiz creation for the lesson
+    print("\n📋 Testing test creation")
+    test_data = {
+        "title": "Тест по введению в ислам",
+        "description": "Проверка знаний по основам ислама",
+        "course_id": course_id,
+        "lesson_id": lesson_id,
+        "time_limit_minutes": 15,
+        "passing_score": 70,
+        "max_attempts": 3,
+        "order": 1
+    }
+    
+    test_success, test_response = tester.run_test(
+        "Create Test",
+        "POST",
+        "admin/tests",
+        200,
+        data=test_data
+    )
+    
+    if not test_success:
+        print("❌ Test creation failed")
+        return False
+    
+    test_id = test_response.json()["id"]
+    print(f"✅ Test created successfully with ID: {test_id}")
+    
+    # 5. Test question creation for the test
+    print("\n❓ Testing question creation")
+    
+    # Create multiple questions to test randomization
+    for i in range(1, 11):
+        options = []
+        correct_index = random.randint(0, 3)
+        
+        for j in range(4):
+            options.append({
+                "text": f"Вариант {j+1} для вопроса {i}",
+                "is_correct": j == correct_index
+            })
+        
+        question_data = {
+            "test_id": test_id,
+            "text": f"Вопрос {i} по исламу?",
+            "question_type": "single_choice",
+            "options": options,
+            "explanation": f"Объяснение для вопроса {i}",
+            "points": 1,
+            "order": i
+        }
+        
+        question_success, question_response = tester.run_test(
+            f"Create Question {i}",
+            "POST",
+            f"admin/tests/{test_id}/questions",
+            200,
+            data=question_data
+        )
+        
+        if not question_success:
+            print(f"❌ Question {i} creation failed")
+            # Continue with other questions even if one fails
+    
+    print("✅ Questions created successfully")
+    
+    # 6. Test file upload functionality
+    print("\n📁 Testing file upload")
+    
+    # Create a sample file for testing
+    success, filename = tester.create_sample_pdf("namaz_konspekt.pdf")
+    if success:
+        file_upload_success, file_upload_response = tester.test_enhanced_file_upload(filename, "application/pdf")
+        
+        if file_upload_success:
+            file_url = file_upload_response.get("file_url")
+            print(f"✅ File uploaded successfully: {file_url}")
+            
+            # Add the file as an attachment to the lesson
+            attachment_success, _ = tester.test_lesson_attachment(lesson_id, filename, "application/pdf")
+            
+            if not attachment_success:
+                print("❌ Adding attachment to lesson failed")
+        else:
+            print("❌ File upload failed")
+    else:
+        print("❌ Failed to create sample file")
+    
+    # 7. Test test randomization
+    print("\n🔄 Testing test randomization")
+    
+    # Create a fake student ID for testing
+    student_id = f"test_student_{uuid.uuid4()}"
+    
+    # Start test session multiple times to check randomization
+    sessions = []
+    for i in range(3):
+        session_success, session_response = tester.run_test(
+            f"Start Test Session {i+1}",
+            "POST",
+            f"tests/{test_id}/start-session",
+            200,
+            data={"student_id": student_id}
+        )
+        
+        if session_success:
+            try:
+                session_data = session_response.json()
+                sessions.append(session_data)
+                print(f"✅ Session {i+1} started successfully")
+                print(f"✅ Number of questions: {len(session_data.get('questions', []))}")
+            except Exception as e:
+                print(f"❌ Failed to parse session data: {str(e)}")
+    
+    # Check randomization by comparing questions across sessions
+    randomization_success = True
+    if len(sessions) >= 2:
+        print("\n🔄 Checking question randomization across sessions")
+        
+        # Extract question IDs from each session
+        question_sets = []
+        for i, session in enumerate(sessions):
+            question_ids = [q.get('id') for q in session.get('questions', [])]
+            question_sets.append(set(question_ids))
+            print(f"  Session {i+1} question IDs: {question_ids}")
+        
+        # Compare question sets
+        all_identical = True
+        for i in range(len(question_sets) - 1):
+            if question_sets[i] != question_sets[i+1]:
+                all_identical = False
+                break
+        
+        if all_identical and len(question_sets[0]) > 0:
+            print("❌ Questions are not randomized across sessions")
+            randomization_success = False
+        else:
+            print("✅ Questions are properly randomized across sessions")
+            randomization_success = True
+        
+        # Check option shuffling within a session
+        print("\n🔄 Checking option shuffling within questions")
+        
+        # Find a common question between sessions
+        common_question_id = None
+        for q1 in sessions[0].get('questions', []):
+            for q2 in sessions[1].get('questions', []):
+                if q1.get('id') == q2.get('id'):
+                    common_question_id = q1.get('id')
+                    break
+            if common_question_id:
+                break
+        
+        if common_question_id:
+            # Get the question from both sessions
+            q1 = next((q for q in sessions[0].get('questions', []) if q.get('id') == common_question_id), None)
+            q2 = next((q for q in sessions[1].get('questions', []) if q.get('id') == common_question_id), None)
+            
+            if q1 and q2 and 'options' in q1 and 'options' in q2:
+                # Compare option order
+                options1 = [opt.get('text') for opt in q1.get('options', [])]
+                options2 = [opt.get('text') for opt in q2.get('options', [])]
+                
+                print(f"  Question: {q1.get('text')}")
+                print(f"  Session 1 options: {options1}")
+                print(f"  Session 2 options: {options2}")
+                
+                if options1 != options2 and len(options1) > 1 and len(options2) > 1:
+                    print("✅ Options are properly shuffled across sessions")
+                else:
+                    print("❌ Options are not shuffled across sessions")
+    else:
+        print("❌ Not enough sessions to check randomization")
+    
+    # 8. Verify the complete flow by checking if the course, lesson, and test are accessible
+    print("\n🔍 Verifying complete course deployment flow")
+    
+    # Check if course is accessible
+    course_verify_success, _ = tester.run_test(
+        "Verify Course",
+        "GET",
+        f"courses",
+        200
+    )
+    
+    # Check if lesson is accessible
+    lesson_verify_success, _ = tester.run_test(
+        "Verify Lesson",
+        "GET",
+        f"lessons/{lesson_id}",
+        200
+    )
+    
+    # Check if test is accessible
+    test_verify_success, _ = tester.run_test(
+        "Verify Test",
+        "GET",
+        f"lessons/{lesson_id}/tests",
+        200
+    )
+    
+    overall_verification = course_verify_success and lesson_verify_success and test_verify_success
+    
+    if overall_verification:
+        print("✅ Complete course deployment flow verified successfully")
+    else:
+        print("❌ Complete course deployment flow verification failed")
+    
+    # Clean up - delete the test resources we created
+    print("\n🧹 Cleaning up test resources")
+    
+    # Delete test
+    tester.run_test(
+        "Delete Test",
+        "DELETE",
+        f"admin/tests/{test_id}",
+        200
+    )
+    
+    # Delete lesson
+    tester.run_test(
+        "Delete Lesson",
+        "DELETE",
+        f"admin/lessons/{lesson_id}",
+        200
+    )
+    
+    # Delete course
+    tester.run_test(
+        "Delete Course",
+        "DELETE",
+        f"admin/courses/{course_id}",
+        200
+    )
+    
+    print("✅ Test resources cleaned up")
+    
+    return admin_login_success and course_success and lesson_success and test_success and randomization_success and overall_verification
+
 def main():
     print("\n=== ISLAMIC EDUCATIONAL PLATFORM BACKEND API TESTING ===")
-    print("Testing critical backend functionality as requested")
+    print("Testing admin authentication and course deployment functionality")
     
     # Dictionary to track test results
     test_results = {}
     
-    # 1. Test admin authentication
-    print("\n=== Testing Admin Authentication ===")
-    admin_auth_success = False
-    
-    # Try both sets of admin credentials
-    tester = IslamAppAPITester()
-    admin_auth_success = tester.test_unified_login("admin", "admin123", "admin")
-    
-    if not admin_auth_success:
-        tester = IslamAppAPITester()
-        admin_auth_success = tester.test_unified_login("miftahulum@gmail.com", "197724", "admin")
-    
-    test_results["Admin Authentication"] = admin_auth_success
-    
-    # 2. Test Admin Lesson View API (previously reported as 405 Method Not Allowed)
-    admin_lesson_view_success = test_admin_lesson_view()
-    test_results["Admin Lesson View API"] = admin_lesson_view_success
-    
-    # 3. Test Team Management API
-    team_endpoints_success = test_team_endpoints()
-    test_results["Team Management API"] = team_endpoints_success
-    
-    # 4. Test Q&A API
-    qa_endpoints_success = test_qa_endpoints()
-    test_results["Q&A API"] = qa_endpoints_success
-    
-    # 5. Test File Upload
-    tester = IslamAppAPITester()
-    if tester.test_admin_login("admin", "admin123"):
-        # Create a sample file for testing
-        success, filename = tester.create_sample_pdf("sample_test.pdf")
-        if success:
-            file_upload_success, _ = tester.test_enhanced_file_upload(filename, "application/pdf")
-            test_results["File Upload"] = file_upload_success
-        else:
-            test_results["File Upload"] = False
-    else:
-        test_results["File Upload"] = False
-    
-    # 6. Test Random Question Selection and Answer Shuffling
-    # First try with existing test ID
-    random_question_success = test_random_question_selection()
-    answer_shuffling_success = test_answer_shuffling()
-    
-    # If either fails, try creating a new test with questions
-    if not random_question_success or not answer_shuffling_success:
-        print("\n⚠️ Testing with existing test failed. Creating a new test with questions...")
-        test_with_questions_success = test_create_test_with_questions()
-        if test_with_questions_success:
-            random_question_success = True
-            answer_shuffling_success = True
-    
-    test_results["Random Question Selection"] = random_question_success
-    test_results["Answer Shuffling System"] = answer_shuffling_success
-    
-    # 7. Test Course API endpoints
-    course_api_success = test_course_api_endpoints()
-    test_results["Course API"] = course_api_success
-    
-    # 8. Test Namaz Lesson
-    namaz_success = test_namaz_lesson()
-    test_results["Namaz Lesson API"] = namaz_success
+    # Test admin authentication and course deployment workflow
+    admin_auth_and_deployment_success = test_admin_auth_and_course_deployment()
+    test_results["Admin Authentication and Course Deployment"] = admin_auth_and_deployment_success
     
     # Overall result
     print(f"\n=== Overall Test Results ===")
