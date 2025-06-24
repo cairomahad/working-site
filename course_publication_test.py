@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 
 class CoursePublicationTester:
-    def __init__(self, base_url="https://9143e15a-45f3-4af5-b149-f48e19521958.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://62a80dd6-b1cd-4cc6-86fa-4334c123ebc0.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

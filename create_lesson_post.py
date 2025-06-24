@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://9143e15a-45f3-4af5-b149-f48e19521958.preview.emergentagent.com/api"
+BASE_URL = "https://62a80dd6-b1cd-4cc6-86fa-4334c123ebc0.preview.emergentagent.com/api"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin123"
 
