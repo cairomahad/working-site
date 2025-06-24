@@ -1604,20 +1604,29 @@ def test_islam_culture_course_and_promocodes():
         print("✅ Admin authentication successful")
         
         # Test admin access to the course
-        print(f"\n👑 Testing GET /api/admin/courses/{course_id}")
-        admin_course_success, admin_course_response = tester.run_test(
-            f"Admin View of Course {course_id}",
+        print(f"\n👑 Testing GET /api/admin/courses")
+        admin_course_success, admin_courses_response = tester.run_test(
+            f"Admin View of Courses",
             "GET",
-            f"admin/courses/{course_id}",
+            f"admin/courses",
             200
         )
         
         if admin_course_success:
             try:
-                admin_course_data = admin_course_response.json()
-                print(f"✅ Admin can view the course: {admin_course_data.get('title')}")
+                admin_courses_data = admin_courses_response.json()
+                course_found = False
+                for course in admin_courses_data:
+                    if course.get('id') == course_id:
+                        course_found = True
+                        print(f"✅ Admin can view the course: {course.get('title')}")
+                        break
+                
+                if not course_found:
+                    print(f"❌ Course with ID {course_id} not found in admin courses")
+                    admin_course_success = False
             except Exception as e:
-                print(f"❌ Failed to parse admin course data: {str(e)}")
+                print(f"❌ Failed to parse admin courses data: {str(e)}")
                 admin_course_success = False
         
         # Test admin access to lessons
