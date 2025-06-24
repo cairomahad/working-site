@@ -331,6 +331,21 @@ backend:
         comment: "Comprehensive testing of Q&A API completed. All endpoints are working correctly including creation, updating, and deletion of questions. The API properly handles authentication and returns appropriate responses."
 
 frontend:
+  - task: "Premium Course Access Control"
+    implemented: true
+    working: true
+    file: "LessonsPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implementing promocode-based access control for premium course 'Культура Ислама'"
+      - working: true
+        agent: "main"
+        comment: "Successfully integrated promocode access control with premium course info modal and promocode entry system. Course displays with premium badge and triggers promocode flow when accessed."
+
   - task: "Team Management Admin Interface"
     implemented: true
     working: true
