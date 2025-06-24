@@ -153,6 +153,25 @@ const HomePage = ({ setCurrentPage }) => {
           </div>
         </div>
       </section>
+
+      {/* Promocode Section */}
+      <section className="bg-white py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Получите полный доступ</h2>
+            <p className="text-lg text-gray-600">Изучайте ислам с нашими профессиональными курсами</p>
+          </div>
+          
+          <div className="flex justify-center">
+            <div className="w-full max-w-lg">
+              <PromocodePromo 
+                onOpenEntry={() => setShowPromocodeEntry(true)}
+                onContactAdmin={() => setShowAdminContact(true)}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
