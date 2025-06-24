@@ -306,6 +306,21 @@ backend:
         agent: "testing"
         comment: "All Team Management API endpoints are working correctly. GET /api/team returns a list of public team members, GET /api/admin/team returns all team members for admin view. POST /api/admin/team successfully creates a new team member with the provided data. PUT /api/admin/team/{member_id} correctly updates a team member, and DELETE /api/admin/team/{member_id} successfully deletes a team member."
 
+  - task: "Premium Course Creation"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Creating premium course 'Культура Ислама' with 3 lessons and promocode protection"
+      - working: true
+        agent: "main"
+        comment: "Successfully created premium course 'Культура Ислама' with 3 detailed lessons: 'История исламской культуры', 'Исламская архитектура и искусство', 'Исламская философия и наука'. Each lesson contains comprehensive content and video materials."
+
   - task: "Q&A API Endpoints"
     implemented: true
     working: true
