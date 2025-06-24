@@ -52,10 +52,10 @@ export const LessonsPage = () => {
           }
         } catch (error) {
           console.error('Ошибка проверки доступа:', error);
-          // Показываем окно промокода при ошибке
+          // Показываем информацию о премиум курсе при ошибке
           setSelectedPremiumCourse(course);
           setUserEmail(currentUser?.email || '');
-          setShowPromocodeEntry(true);
+          setShowPremiumInfo(true);
         }
       } else {
         // Пользователь не авторизован, просим ввести email для промокода
