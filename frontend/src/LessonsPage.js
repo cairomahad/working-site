@@ -312,6 +312,21 @@ export const LessonsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Promocode Modal */}
+      {showPromocodeEntry && selectedPremiumCourse && (
+        <PromocodeEntry
+          onSuccess={(data) => {
+            setShowPromocodeEntry(false);
+            // После успешной активации промокода переходим к курсу
+            navigate(`/lessons/${selectedPremiumCourse.slug || selectedPremiumCourse.id}`);
+          }}
+          onClose={() => {
+            setShowPromocodeEntry(false);
+            setSelectedPremiumCourse(null);
+          }}
+        />
+      )}
     </div>
   );
 };
