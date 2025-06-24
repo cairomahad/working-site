@@ -24,7 +24,10 @@ const HomePage = ({ setCurrentPage }) => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loadingTeam, setLoadingTeam] = useState(true);
   const [showPromocodeEntry, setShowPromocodeEntry] = useState(false);
+  const [showPromocodeSuccess, setShowPromocodeSuccess] = useState(false);
   const [showAdminContact, setShowAdminContact] = useState(false);
+  const [showStudentCourses, setShowStudentCourses] = useState(false);
+  const [promocodeData, setPromocodeData] = useState(null);
 
   useEffect(() => {
     fetchTeamMembers();
