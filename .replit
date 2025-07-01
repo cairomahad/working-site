@@ -35,6 +35,35 @@ args = "cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 3000 --
 task = "shell.exec"
 args = "cd frontend && npm start"
 
+[[workflows.workflow]]
+name = "Build Android APK"
+author = 44482828
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx cap add android"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx cap copy android"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx cap sync android"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"Теперь откройте Android Studio для финальной сборки APK\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"Используйте: npx cap open android\""
+
 [[ports]]
 localPort = 3000
 externalPort = 80

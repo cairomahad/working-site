@@ -1,0 +1,13 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Imamat1/23chasov",
+  "author": "Hfv М <44482828-miftahylum@users.noreply.replit.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/cli": "^7.4.0",
+    "@capacitor/core": "^7.4.0"
+  }
+}
