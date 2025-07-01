@@ -7,10 +7,11 @@ channel = "stable-24_05"
 packages = ["cargo", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "rustc"]
 
 [deployment]
-run = ["sh", "-c", "uvicorn backend.server:app --host 0.0.0.0 --port 3000"]
+run = ["sh", "-c", "cd backend && uvicorn server:app --host 0.0.0.0 --port 3000"]
+build = ["sh", "-c", "cd frontend && npm run build"]
 
 [workflows]
-runButton = "Start Server"
+runButton = "Full Stack"
 
 [[workflows.workflow]]
 name = "Start Server"
@@ -20,3 +21,16 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 3000 --reload"
+
+[[workflows.workflow]]
+name = "Full Stack"
+author = 44482828
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 3000 --reload"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm start"
