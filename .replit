@@ -34,3 +34,7 @@ args = "cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 3000 --
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd frontend && npm start"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
