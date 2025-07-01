@@ -1,8 +1,21 @@
+
 modules = ["nodejs-20", "python-3.12", "web", "bash"]
-run = "uvicorn undefined:app --host 0.0.0.0 --port 3000"
+run = "uvicorn backend.server:app --host 0.0.0.0 --port 3000"
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "uvicorn undefined:app --host 0.0.0.0 --port 3000"]
+run = ["sh", "-c", "uvicorn backend.server:app --host 0.0.0.0 --port 3000"]
+
+[workflows]
+runButton = "Start Server"
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 44482828
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && uvicorn server:app --host 0.0.0.0 --port 3000 --reload"
