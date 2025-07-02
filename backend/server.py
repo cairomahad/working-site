@@ -13,7 +13,10 @@ from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
 import asyncio
-from backend.models import *
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from models import *
 import shutil
 import aiofiles
 import json
