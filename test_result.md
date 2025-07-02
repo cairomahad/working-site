@@ -324,6 +324,21 @@ backend:
         agent: "testing"
         comment: "Verified that the premium course 'Культура Ислама' (ID: bd12b3a4-7355-4b9d-8d37-90288916b917) is correctly created and accessible. All 3 lessons are properly configured with content and video URLs."
 
+  - task: "MongoDB Connection Testing"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing MongoDB connection after switching from Atlas to local database."
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested MongoDB connection. The backend server is connecting to the local MongoDB database without any issues. All API endpoints are working correctly. The default admin user (admin@uroki-islama.ru/admin123) is automatically created at startup. Default team members are also created. The database is empty as expected, with dashboard showing zeros for all counts."
+        
   - task: "Q&A API Endpoints"
     implemented: true
     working: true
