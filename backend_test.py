@@ -1982,16 +1982,70 @@ def test_admin_auth_and_course_deployment():
     
     return admin_login_success and course_success and lesson_success and test_success and randomization_success and overall_verification
 
+def test_mongodb_connection():
+    """Test MongoDB connection after switching from Atlas to local database"""
+    print("\n=== Testing MongoDB Connection ===")
+    tester = IslamAppAPITester()
+    
+    # Test the root API endpoint which should connect to MongoDB
+    print("\n🔍 Testing basic API connection")
+    root_success = tester.test_root_endpoint()
+    
+    # Test admin dashboard which requires MongoDB connection
+    print("\n📊 Testing dashboard stats (requires MongoDB connection)")
+    
+    # Login as admin first
+    admin_login_success = tester.test_unified_login("admin@uroki-islama.ru", "admin123", "admin")
+    
+    if not admin_login_success:
+        print("❌ Admin login failed, cannot test dashboard")
+        return False
+    
+    dashboard_success = tester.test_dashboard()
+    
+    # Test public courses endpoint
+    print("\n📚 Testing public courses endpoint")
+    courses_success, _ = tester.run_test(
+        "Get Public Courses",
+        "GET",
+        "courses",
+        200
+    )
+    
+    # Test team endpoint
+    print("\n👥 Testing team endpoint")
+    team_success, _ = tester.run_test(
+        "Get Team Members",
+        "GET",
+        "team",
+        200
+    )
+    
+    # Test Q&A questions endpoint
+    print("\n❓ Testing Q&A questions endpoint")
+    qa_success, _ = tester.run_test(
+        "Get Q&A Questions",
+        "GET",
+        "qa/questions",
+        200
+    )
+    
+    # Overall result
+    overall_success = root_success and dashboard_success and courses_success and team_success and qa_success
+    
+    print(f"\n📊 MongoDB Connection Tests: {tester.tests_passed}/{tester.tests_run} passed")
+    return overall_success
+
 def main():
     print("\n=== ISLAMIC EDUCATIONAL PLATFORM BACKEND API TESTING ===")
-    print("Testing 'Культура Ислама' course and promocode system")
+    print("Testing MongoDB connection and API endpoints after switching from Atlas to local database")
     
     # Dictionary to track test results
     test_results = {}
     
-    # Test "Культура Ислама" course and promocode system
-    islam_culture_success = test_islam_culture_course_and_promocodes()
-    test_results["'Культура Ислама' Course and Promocode System"] = islam_culture_success
+    # Test MongoDB connection and basic API endpoints
+    mongodb_success = test_mongodb_connection()
+    test_results["MongoDB Connection and Basic API Endpoints"] = mongodb_success
     
     # Overall result
     print(f"\n=== Overall Test Results ===")
