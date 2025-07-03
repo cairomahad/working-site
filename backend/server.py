@@ -265,16 +265,16 @@ async def get_current_admin_info(current_admin: dict = Depends(get_current_admin
 # Dashboard Routes
 @api_router.get("/admin/dashboard", response_model=DashboardStats)
 async def get_dashboard_stats(current_admin: dict = Depends(get_current_admin)):
-    total_students = await db.students.count_documents({})
-    total_courses = await db.courses.count_documents({})
-    total_lessons = await db.lessons.count_documents({})
-    total_tests = await db.tests.count_documents({})
-    total_teachers = await db.teachers.count_documents({})
-    active_students = await db.students.count_documents({"is_active": True})
-    pending_applications = await db.applications.count_documents({"status": ApplicationStatus.PENDING})
+    total_students = await supabase_client.count_records("students")
+    total_courses = await supabase_client.count_records("courses")
+    total_lessons = await supabase_client.count_records("lessons")
+    total_tests = await supabase_client.count_records("tests")
+    total_teachers = await supabase_client.count_records("teachers")
+    active_students = await supabase_client.count_records("students", {"is_active": True})
+    pending_applications = await supabase_client.count_records("applications", {"status": ApplicationStatus.PENDING})
     
     today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-    completed_tests_today = await db.test_attempts.count_documents({
+    completed_tests_today = await supabase_client.count_records("test_attempts", {
         "completed_at": {"$gte": today}
     })
     
