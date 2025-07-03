@@ -312,7 +312,7 @@ logger = logging.getLogger(__name__)
 @app.on_event("startup")
 async def startup_event():
     """Initialize default data"""
-    admin_count = await supabase_client.count_records("admins")
+    admin_count = await supabase_client.count_records("admin_users")
     if admin_count == 0:
         # Create default admin
         default_admin = AdminUser(
@@ -323,7 +323,7 @@ async def startup_event():
         )
         admin_dict = default_admin.dict()
         admin_dict["hashed_password"] = get_password_hash("admin123")
-        await supabase_client.create_record("admins", admin_dict)
+        await supabase_client.create_record("admin_users", admin_dict)
         logger.info("Default admin user created: admin/admin123")
         
         # Create second admin with frontend credentials
@@ -335,7 +335,7 @@ async def startup_event():
         )
         second_admin_dict = second_admin.dict()
         second_admin_dict["hashed_password"] = get_password_hash("197724")
-        await supabase_client.create_record("admins", second_admin_dict)
+        await supabase_client.create_record("admin_users", second_admin_dict)
         logger.info("Second admin user created: miftahulum@gmail.com/197724")
 
     # Create default team members if none exist
