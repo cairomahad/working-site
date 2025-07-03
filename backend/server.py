@@ -293,44 +293,46 @@ async def get_dashboard_stats(current_admin: dict = Depends(get_current_admin)):
 @api_router.get("/courses", response_model=List[Course])
 async def get_public_courses():
     """Public endpoint for published courses"""
-    courses = await db.courses.find({"status": CourseStatus.PUBLISHED}).sort("level", 1).sort("order", 1).to_list(1000)
+    courses = await supabase_client.get_records(
+        "courses", 
+        filters={"status": CourseStatus.PUBLISHED},
+        order_by="level"
+    )
     return [Course(**course) for course in courses]
 
 @api_router.get("/admin/courses", response_model=List[Course])
 async def get_admin_courses(current_admin: dict = Depends(get_current_admin)):
-    courses = await db.courses.find().sort("level", 1).sort("order", 1).to_list(1000)
+    courses = await supabase_client.get_records("courses", order_by="level")
     return [Course(**course) for course in courses]
 
 @api_router.post("/admin/courses", response_model=Course)
 async def create_course(course_data: CourseCreate, current_admin: dict = Depends(get_current_admin)):
     course_dict = course_data.dict()
     course_obj = Course(**course_dict)
-    await db.courses.insert_one(course_obj.dict())
-    return course_obj
+    created_course = await supabase_client.create_record("courses", course_obj.dict())
+    return Course(**created_course)
 
 @api_router.put("/admin/courses/{course_id}", response_model=Course)
 async def update_course(course_id: str, course_data: CourseUpdate, current_admin: dict = Depends(get_current_admin)):
-    course = await db.courses.find_one({"id": course_id})
+    course = await supabase_client.get_record("courses", "id", course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     
     update_data = {k: v for k, v in course_data.dict().items() if v is not None}
     update_data["updated_at"] = datetime.utcnow()
     
-    await db.courses.update_one({"id": course_id}, {"$set": update_data})
-    
-    updated_course = await db.courses.find_one({"id": course_id})
+    updated_course = await supabase_client.update_record("courses", "id", course_id, update_data)
     return Course(**updated_course)
 
 @api_router.delete("/admin/courses/{course_id}")
 async def delete_course(course_id: str, current_admin: dict = Depends(require_admin_role)):
     # Check if course has lessons
-    lessons_count = await db.lessons.count_documents({"course_id": course_id})
+    lessons_count = await supabase_client.count_records("lessons", {"course_id": course_id})
     if lessons_count > 0:
         raise HTTPException(status_code=400, detail="Cannot delete course with existing lessons")
     
-    result = await db.courses.delete_one({"id": course_id})
-    if result.deleted_count == 0:
+    success = await supabase_client.delete_record("courses", "id", course_id)
+    if not success:
         raise HTTPException(status_code=404, detail="Course not found")
     return {"message": "Course deleted successfully"}
 
