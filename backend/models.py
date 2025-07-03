@@ -171,6 +171,7 @@ class QuestionOption(BaseModel):
 
 class Question(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    test_id: str  # ID теста к которому принадлежит вопрос
     text: str
     question_type: QuestionType
     options: List[QuestionOption] = []
