@@ -240,7 +240,7 @@ async def get_public_courses():
     """Public endpoint for published courses"""
     courses = await supabase_client.get_records(
         "courses", 
-        filters={"status": CourseStatus.PUBLISHED},
+        filters={"status": "published"},
         order_by="level"
     )
     return [Course(**course) for course in courses]
