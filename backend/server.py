@@ -140,7 +140,7 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
     except jwt.PyJWTError:
         raise credentials_exception
     
-    admin = await db.admins.find_one({"username": username})
+    admin = await supabase_client.find_one("admins", {"username": username})
     if admin is None:
         raise credentials_exception
     return admin
