@@ -156,11 +156,11 @@ async def unified_login(login_data: dict):
         raise HTTPException(status_code=400, detail="Email and password required")
     
     # First check if it's an admin by email
-    admin = await supabase_client.find_one("admins", {"email": email})
+    admin = await supabase_client.find_one("admin_users", {"email": email})
     if admin and verify_password(password, admin["hashed_password"]):
         # Update last login
         await supabase_client.update_record(
-            "admins", "email", email,
+            "admin_users", "email", email,
             {"last_login": datetime.utcnow()}
         )
         
