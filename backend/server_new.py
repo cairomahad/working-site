@@ -130,7 +130,7 @@ async def get_status_checks():
 # Admin Authentication Routes
 @api_router.post("/admin/login", response_model=Token)
 async def admin_login(admin_data: AdminLogin):
-    admin = await supabase_client.find_one("admins", {"username": admin_data.username})
+    admin = await supabase_client.find_one("admin_users", {"username": admin_data.username})
     if not admin or not verify_password(admin_data.password, admin["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -139,7 +139,7 @@ async def admin_login(admin_data: AdminLogin):
         )
     
     await supabase_client.update_record(
-        "admins", "username", admin_data.username,
+        "admin_users", "username", admin_data.username,
         {"last_login": datetime.utcnow()}
     )
     
