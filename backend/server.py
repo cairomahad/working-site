@@ -173,7 +173,7 @@ async def get_status_checks():
 # Admin Authentication Routes
 @api_router.post("/admin/login", response_model=Token)
 async def admin_login(admin_data: AdminLogin):
-    admin = await db.admins.find_one({"username": admin_data.username})
+    admin = await supabase_client.find_one("admins", {"username": admin_data.username})
     if not admin or not verify_password(admin_data.password, admin["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -181,9 +181,9 @@ async def admin_login(admin_data: AdminLogin):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    await db.admins.update_one(
-        {"username": admin_data.username},
-        {"$set": {"last_login": datetime.utcnow()}}
+    await supabase_client.update_record(
+        "admins", "username", admin_data.username,
+        {"last_login": datetime.utcnow()}
     )
     
     access_token = create_access_token(data={"sub": admin["username"]})
@@ -199,12 +199,12 @@ async def unified_login(login_data: dict):
         raise HTTPException(status_code=400, detail="Email and password required")
     
     # First check if it's an admin by email
-    admin = await db.admins.find_one({"email": email})
+    admin = await supabase_client.find_one("admins", {"email": email})
     if admin and verify_password(password, admin["hashed_password"]):
         # Update last login
-        await db.admins.update_one(
-            {"email": email},
-            {"$set": {"last_login": datetime.utcnow()}}
+        await supabase_client.update_record(
+            "admins", "email", email,
+            {"last_login": datetime.utcnow()}
         )
         
         access_token = create_access_token(data={"sub": admin["username"], "type": "admin"})
@@ -221,14 +221,11 @@ async def unified_login(login_data: dict):
         }
     
     # If not admin, check regular users (Firebase users)
-    # For now, we'll implement a simple check
-    # In a real scenario, you'd verify with Firebase
-    
     # Check if user exists in our students database
-    student = await db.students.find_one({"email": email})
+    student = await supabase_client.find_one("students", {"email": email})
     if not student:
         # Create new student record for Firebase users
-        student = {
+        student_data = {
             "id": str(uuid.uuid4()),
             "name": email.split("@")[0].title(),  # Simple name from email
             "email": email,
@@ -239,16 +236,15 @@ async def unified_login(login_data: dict):
             "completed_courses": [],
             "current_level": CourseLevel.LEVEL_1
         }
-        await db.students.insert_one(student)
+        student = await supabase_client.create_record("students", student_data)
     else:
         # Update last activity
-        await db.students.update_one(
-            {"email": email},
-            {"$set": {"last_activity": datetime.utcnow()}}
+        await supabase_client.update_record(
+            "students", "email", email,
+            {"last_activity": datetime.utcnow()}
         )
     
     # For regular users, we'll return a simple token
-    # In production, you'd verify with Firebase here
     access_token = create_access_token(data={"sub": email, "type": "user"})
     return {
         "access_token": access_token,
