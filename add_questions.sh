@@ -2,7 +2,7 @@
 
 TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1MDY5MzkyOX0.LFoP2nGb0MxOcHvbcjspOZve292A90JdigTyNvPqEcs"
 TEST_ID="5af02309-e8a1-4bfd-b575-c37faa30e3fd"
-URL="https://a08cbb94-1826-4025-a5cc-f1fb92f38ca3.preview.emergentagent.com"
+URL="https://5a652ce2-a436-47a9-a488-ed6cbe37087f.preview.emergentagent.com"
 
 # Вопрос 3
 curl -X POST "$URL/api/admin/tests/$TEST_ID/questions" \
