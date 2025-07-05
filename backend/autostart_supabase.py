@@ -63,6 +63,7 @@ async def create_quality_courses():
             "tests_count": 3,
             "order": 1,
             "status": "published",
+            "teacher_id": str(uuid.uuid4()),
             "teacher_name": "Имам Али Евтеев",
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat()
@@ -80,6 +81,7 @@ async def create_quality_courses():
             "tests_count": 2,
             "order": 2,
             "status": "published",
+            "teacher_id": str(uuid.uuid4()),
             "teacher_name": "Устаз Абдуль-Басит",
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat()
@@ -97,6 +99,7 @@ async def create_quality_courses():
             "tests_count": 4,
             "order": 3,
             "status": "published",
+            "teacher_id": str(uuid.uuid4()),
             "teacher_name": "Хафиз Микаиль",
             "created_at": datetime.utcnow().isoformat(),
             "updated_at": datetime.utcnow().isoformat()
