@@ -3,13 +3,13 @@
 echo "🚀 Настройка проекта 'Уроки Ислама' для Replit..."
 
 # Получаем URL Replit
-if [ -n "$REPL_SLUG" ] && [ -n "$REPL_OWNER" ]; then
-    REPLIT_URL="https://$REPL_SLUG.$REPL_OWNER.repl.co"
+if [ -n "$REPL_SLUG" ] && [ -n "$REPL_ID" ] && [ -n "$REPL_OWNER" ]; then
+    REPLIT_URL="https://${REPL_SLUG}-${REPL_ID}.${REPL_OWNER}.repl.co"
 elif [ -n "$REPLIT_DEV_DOMAIN" ]; then
     REPLIT_URL="https://$REPLIT_DEV_DOMAIN"
 else
-    # Fallback для локального развертывания
-    REPLIT_URL="http://localhost:3000"
+    # Fallback для других случаев
+    REPLIT_URL="https://$(hostname)"
 fi
 
 echo "📡 Обнаружен URL: $REPLIT_URL"
@@ -43,71 +43,40 @@ cd ..
 # Устанавливаем зависимости frontend
 echo "📦 Установка зависимостей frontend..."
 cd frontend
-yarn install
+npm install
 cd ..
 
 # Инициализируем базу данных
 echo "🗄️  Инициализация базы данных..."
 python init_database.py
 
-# Создаем supervisor конфигурацию
-echo "⚙️  Настройка supervisor..."
-mkdir -p /tmp/supervisor/conf.d
-cat > /tmp/supervisor/supervisord.conf << EOF
-[unix_http_server]
-file=/tmp/supervisor.sock
-
-[supervisord]
-logfile=/tmp/supervisord.log
-logfile_maxbytes=50MB
-logfile_backups=10
-loglevel=info
-pidfile=/tmp/supervisord.pid
-nodaemon=false
-minfds=1024
-minprocs=200
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-[supervisorctl]
-serverurl=unix:///tmp/supervisor.sock
-
-[program:backend]
-command=python server.py
-directory=/app/backend
-autostart=true
-autorestart=true
-stdout_logfile=/tmp/backend.out.log
-stderr_logfile=/tmp/backend.err.log
-environment=PYTHONPATH="/app/backend"
-
-[program:frontend]
-command=yarn start
-directory=/app/frontend
-autostart=true
-autorestart=true
-stdout_logfile=/tmp/frontend.out.log
-stderr_logfile=/tmp/frontend.err.log
-environment=CI=true
-EOF
-
-# Запускаем supervisor
+# Запускаем сервисы
 echo "🚀 Запуск сервисов..."
-supervisord -c /tmp/supervisor/supervisord.conf
 
-# Ждем запуска сервисов
-sleep 5
+# Запускаем backend в фоне
+cd backend
+python server.py &
+BACKEND_PID=$!
+cd ..
 
-# Проверяем статус
-echo "📊 Статус сервисов:"
-supervisorctl -c /tmp/supervisor/supervisord.conf status
+# Ждем немного для запуска backend
+sleep 3
+
+# Запускаем frontend в фоне
+cd frontend
+npm start &
+FRONTEND_PID=$!
+cd ..
 
 echo ""
-echo "🎉 Проект настроен и запущен!"
+echo "🎉 Проект запущен!"
 echo "📍 URL приложения: $REPLIT_URL"
 echo "👤 Админ: admin@uroki-islama.ru / admin123"
 echo "🔍 Для проверки API: $REPLIT_URL/api/"
+echo ""
+echo "🔄 Сервисы:"
+echo "   Backend PID: $BACKEND_PID"
+echo "   Frontend PID: $FRONTEND_PID"
 
-# Держим скрипт активным
-tail -f /tmp/backend.out.log /tmp/frontend.out.log
+# Ждем завершения процессов
+wait
