@@ -1,69 +1,24 @@
-
-modules = ["nodejs-20", "python-3.12", "web", "bash"]
-run = "uvicorn backend.server:app --host 0.0.0.0 --port 3000"
+run = "bash setup-replit.sh"
+entrypoint = "setup-replit.sh"
 
 [nix]
-channel = "stable-24_05"
-packages = ["cargo", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "rustc"]
+channel = "stable-22_11"
+
+[env]
+PYTHONPATH = "${REPL_HOME}/backend:${PYTHONPATH}"
+PATH = "${REPL_HOME}/backend:${PATH}"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", "setup-replit.sh"]
 
 [deployment]
-run = ["sh", "-c", "cd backend && uvicorn server:app --host 0.0.0.0 --port 3000"]
-build = ["sh", "-c", "cd frontend && npm run build"]
-
-[workflows]
-runButton = "Full Stack"
-
-[[workflows.workflow]]
-name = "Start Server"
-author = 44482828
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 3000 --reload"
-
-[[workflows.workflow]]
-name = "Full Stack"
-author = 44482828
-mode = "parallel"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 3000 --reload"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend && npm start"
-
-[[workflows.workflow]]
-name = "Build Android APK"
-author = 44482828
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend && npm run build"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx cap add android"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx cap copy android"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx cap sync android"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Теперь откройте Android Studio для финальной сборки APK\""
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Используйте: npx cap open android\""
+run = ["bash", "setup-replit.sh"]
+deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[[ports]]
+localPort = 8001
+externalPort = 8001
