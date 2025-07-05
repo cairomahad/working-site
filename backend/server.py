@@ -521,7 +521,7 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize default data"""
+    """Initialize default data and ensure quality content"""
     client_type = "PostgreSQL" if USE_POSTGRES and POSTGRES_AVAILABLE else "Supabase"
     logger.info(f"Starting application with {client_type} integration...")
     
@@ -533,6 +533,28 @@ async def startup_event():
         # Check existing team members
         team_count = await db_client.count_records("team_members")
         logger.info(f"Found {team_count} team members in database")
+        
+        # Check courses
+        course_count = await db_client.count_records("courses", {"status": "published"})
+        logger.info(f"Found {course_count} published courses in database")
+        
+        # Run autostart to ensure quality data (only for Supabase)
+        if not USE_POSTGRES:
+            logger.info("Running Supabase autostart to ensure quality data...")
+            try:
+                import subprocess
+                import sys
+                result = subprocess.run([
+                    sys.executable, 
+                    str(ROOT_DIR / "autostart_supabase.py")
+                ], capture_output=True, text=True, timeout=30)
+                
+                if result.returncode == 0:
+                    logger.info("✅ Supabase autostart completed successfully")
+                else:
+                    logger.warning(f"⚠️ Supabase autostart issues: {result.stderr}")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not run autostart: {e}")
         
         logger.info(f"Application startup completed with {client_type} integration")
     except Exception as e:
