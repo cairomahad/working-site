@@ -74,7 +74,7 @@ async def create_quality_courses():
             "description": "Подробное изучение правил очищения (тахара) и совершения молитвы (салят) согласно исламским традициям.",
             "slug": "ochischenie-i-molitva",
             "image_url": "https://images.unsplash.com/photo-1586592670929-4c1b7cbe65f3?w=500&h=300&fit=crop",
-            "level": "beginner",
+            "level": "level_1",
             "difficulty": "easy",
             "estimated_duration_hours": 24,
             "lessons_count": 6,
