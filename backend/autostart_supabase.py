@@ -47,9 +47,11 @@ async def ensure_quality_courses():
 async def create_quality_courses():
     """Создание качественных курсов"""
     
+    import uuid
+    
     quality_courses = [
         {
-            "id": "course-basics-001",
+            "id": str(uuid.uuid4()),
             "title": "Основы Ислама",
             "description": "Базовый курс для изучения основ исламской веры, включающий изучение столпов ислама, веры и основных обрядов.",
             "slug": "osnovy-islama",
@@ -64,7 +66,7 @@ async def create_quality_courses():
             "updated_at": datetime.utcnow().isoformat()
         },
         {
-            "id": "course-prayer-002",
+            "id": str(uuid.uuid4()),
             "title": "Очищение и молитва",
             "description": "Подробное изучение правил очищения (тахара) и совершения молитвы (салят) согласно исламским традициям.",
             "slug": "ochischenie-i-molitva",
@@ -79,7 +81,7 @@ async def create_quality_courses():
             "updated_at": datetime.utcnow().isoformat()
         },
         {
-            "id": "course-quran-003",
+            "id": str(uuid.uuid4()),
             "title": "Изучение Корана",
             "description": "Курс посвящен изучению Священного Корана: его истории, структуре, основным сурам и принципам чтения.",
             "slug": "izuchenie-korana",
@@ -96,12 +98,7 @@ async def create_quality_courses():
     ]
     
     for course_data in quality_courses:
-        try:
-            existing = await supabase_client.get_record('courses', 'id', course_data['id'])
-            if existing:
-                print(f"⚠️ Курс '{course_data['title']}' уже существует")
-                continue
-                
+        try:            
             await supabase_client.create_record('courses', course_data)
             print(f"✅ Создан курс: {course_data['title']}")
             
