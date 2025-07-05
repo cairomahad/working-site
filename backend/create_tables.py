@@ -10,7 +10,10 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 async def create_tables():
     """Create all necessary tables for the application"""
     
-    conn = await asyncpg.connect(DATABASE_URL)
+    # Add SSL context for Supabase
+    ssl_context = 'require'  # For Supabase PostgreSQL
+    
+    conn = await asyncpg.connect(DATABASE_URL, ssl=ssl_context)
     
     try:
         # Create tables with proper schema
