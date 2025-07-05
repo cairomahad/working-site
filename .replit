@@ -1,19 +1,13 @@
 run = "bash setup-replit.sh"
-entrypoint = "setup-replit.sh"
 
 [nix]
 channel = "stable-22_11"
 
 [env]
-PYTHONPATH = "${REPL_HOME}/backend:${PYTHONPATH}"
-PATH = "${REPL_HOME}/backend:${PATH}"
-
-[gitHubImport]
-requiredFiles = [".replit", "replit.nix", "setup-replit.sh"]
+PYTHONPATH = "/home/runner/${REPL_SLUG}/backend"
 
 [deployment]
 run = ["bash", "setup-replit.sh"]
-deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 3000
