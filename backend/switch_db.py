@@ -56,7 +56,7 @@ def switch_database(mode):
         print("📊 Connection: https://kykzqxoxgcwqurnceslu.supabase.co")
     
     print("\n🚀 Для проверки:")
-    print("curl https://561b1b4a-a4d8-4768-b024-a3cc957445cf.preview.emergentagent.com/api/")
+    print("curl https://33830676-7a55-4b65-ad37-9708e4aa4119.preview.emergentagent.com/api/")
 
 def main():
     if len(sys.argv) != 2:
