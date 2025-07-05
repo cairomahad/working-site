@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 
 class IslamAppAPITester:
-    def __init__(self, base_url="https://5a652ce2-a436-47a9-a488-ed6cbe37087f.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://5cf10be4-9143-4164-854d-5f44a7d7664c.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
