@@ -1,10 +1,9 @@
 { pkgs }: {
   deps = [
+    pkgs.python311
+    pkgs.python311Packages.pip
     pkgs.nodejs-18_x
-    pkgs.python310Full
-    pkgs.python310Packages.pip
     pkgs.yarn
-    pkgs.supervisor
     pkgs.curl
     pkgs.bash
   ];
