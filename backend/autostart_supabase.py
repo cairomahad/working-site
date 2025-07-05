@@ -107,11 +107,12 @@ async def create_quality_courses():
 
 async def ensure_admin_user():
     """Обеспечение наличия админа"""
+    import uuid
     try:
         admin = await supabase_client.get_record('admin_users', 'email', 'admin@uroki-islama.ru')
         if not admin:
             admin_data = {
-                "id": f"admin-{datetime.now().strftime('%Y%m%d')}",
+                "id": str(uuid.uuid4()),
                 "username": "admin",
                 "email": "admin@uroki-islama.ru",
                 "full_name": "Администратор системы",
@@ -131,12 +132,13 @@ async def ensure_admin_user():
 
 async def ensure_team_members():
     """Обеспечение наличия команды"""
+    import uuid
     try:
         team_count = await supabase_client.count_records('team_members')
         if team_count < 3:
             team_members = [
                 {
-                    "id": f"team-member-{datetime.now().strftime('%Y%m%d')}-1",
+                    "id": str(uuid.uuid4()),
                     "name": "Имам Али Евтеев",
                     "subject": "Основы веры и этика",
                     "description": "Имам с 15-летним стажем, специалист по исламской этике и основам веры.",
@@ -147,7 +149,7 @@ async def ensure_team_members():
                     "updated_at": datetime.utcnow().isoformat()
                 },
                 {
-                    "id": f"team-member-{datetime.now().strftime('%Y%m%d')}-2",
+                    "id": str(uuid.uuid4()),
                     "name": "Устаз Абдуль-Басит",
                     "subject": "Коран и хадисы",
                     "description": "Знаток Корана и хадисов, имеет иджазу на преподавание Корана.",
@@ -158,7 +160,7 @@ async def ensure_team_members():
                     "updated_at": datetime.utcnow().isoformat()
                 },
                 {
-                    "id": f"team-member-{datetime.now().strftime('%Y%m%d')}-3",
+                    "id": str(uuid.uuid4()),
                     "name": "Хафиз Микаиль",
                     "subject": "История Ислама",
                     "description": "Историк исламской цивилизации, специалист по раннему периоду Ислама.",
