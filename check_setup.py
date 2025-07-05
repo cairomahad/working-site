@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Скрипт проверки настройки проекта на Replit
 """
@@ -6,7 +7,6 @@
 import asyncio
 import sys
 import os
-import requests
 import subprocess
 
 # Добавляем путь к backend
@@ -123,18 +123,19 @@ def check_urls():
                     backend_url = line.split('=', 1)[1].strip()
                     print(f"🔗 Backend URL: {backend_url}")
                     
-                    # Проверяем API
+                    # Проверяем API через curl (избегаем requests)
                     try:
-                        response = requests.get(f"{backend_url}/api/", timeout=10)
-                        if response.status_code == 200:
+                        result = subprocess.run(['curl', '-s', f"{backend_url}/api/"], 
+                                              capture_output=True, text=True, timeout=10)
+                        if result.returncode == 0:
                             print("✅ API доступен")
                         else:
-                            print(f"⚠️  API вернул статус: {response.status_code}")
+                            print(f"⚠️  API недоступен")
                     except Exception as e:
-                        print(f"❌ API недоступен: {e}")
+                        print(f"❌ Ошибка проверки API: {e}")
                     break
-        else:
-            print("❌ REACT_APP_BACKEND_URL не найден в frontend/.env")
+            else:
+                print("❌ REACT_APP_BACKEND_URL не найден в frontend/.env")
     except Exception as e:
         print(f"❌ Ошибка чтения frontend/.env: {e}")
 
