@@ -1,70 +1,51 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-.idea/
-dist
-# dependencies
+# Dependencies
 node_modules/
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-.vscode
-# testing
-/coverage
-dump.rdb
-chainlit.md
-.chainlit
-# next.js
-/.next/
-/out/
-.ipynb_checkpoints/
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-# .env*.local
-*token.json*
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-*pyc*
-#*.env
-.ac
-agenthub/agents/youtube/db
-*credentials.json*
-
-venv/
-.venv/
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# ===================
-# ADDITIONAL RULES TO PREVENT FILE SIZE VIOLATIONS
-# ===================
-# Archive files (anywhere in the project)
-**/*.zip
-**/*.tar.gz
-**/*.tar
-**/*.tgz
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Build caches and artifacts
+# Logs
+*.log
+logs/
+/tmp/
+
+# Runtime
+.replit
+replit.nix
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads
+uploads/
+*.pdf
+*.docx
+*.txt
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Cache
 .cache/
-*.pack
+.npm/
+.yarn/
 
-# System packages
-*.deb
-
-# Python native libraries
-*.dylib
-
-# Android SDK
-android-sdk/
+# Temporary files
+temp/
+tmp/
