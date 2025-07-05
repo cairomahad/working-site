@@ -56,7 +56,7 @@ async def create_quality_courses():
             "description": "Базовый курс для изучения основ исламской веры, включающий изучение столпов ислама, веры и основных обрядов.",
             "slug": "osnovy-islama",
             "image_url": "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=500&h=300&fit=crop",
-            "level": "beginner",
+            "level": "level_1",
             "difficulty": "easy",
             "estimated_duration_hours": 32,
             "lessons_count": 8,
