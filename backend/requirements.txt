@@ -19,3 +19,4 @@ typing-extensions>=4.12.2
 deprecation>=2.1.0
 realtime>=2.5.3
 websockets>=15.0.1
+storage3>=0.12.0
