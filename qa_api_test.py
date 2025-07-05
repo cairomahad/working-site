@@ -6,7 +6,7 @@ import random
 from datetime import datetime
 
 class QAAPITester:
-    def __init__(self, base_url="https://5cf10be4-9143-4164-854d-5f44a7d7664c.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://561b1b4a-a4d8-4768-b024-a3cc957445cf.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
