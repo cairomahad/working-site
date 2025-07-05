@@ -92,7 +92,7 @@ async def create_quality_courses():
             "description": "Курс посвящен изучению Священного Корана: его истории, структуре, основным сурам и принципам чтения.",
             "slug": "izuchenie-korana",
             "image_url": "https://images.unsplash.com/photo-1606813074854-ad1df3b8e00a?w=500&h=300&fit=crop",
-            "level": "intermediate",
+            "level": "level_2",
             "difficulty": "medium",
             "estimated_duration_hours": 48,
             "lessons_count": 12,
