@@ -17,6 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build:mobile": "npm run build && npx cap copy && npx cap sync",
     "android:dev": "npm run build:mobile && npx cap open android",
     "android:build": "npm run build:mobile && npx cap build android"
