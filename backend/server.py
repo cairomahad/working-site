@@ -537,6 +537,52 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
         raise HTTPException(status_code=404, detail="Teacher not found")
     return {"message": "Teacher deleted successfully"}
 
+# ====================================================================
+# FILE UPLOAD ENDPOINTS
+# ====================================================================
+
+@api_router.post("/admin/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    folder: str = "general",
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Upload file and return URL"""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    
+    file_url = await save_uploaded_file(file, folder)
+    return {"file_url": file_url, "filename": file.filename}
+
+@api_router.post("/admin/upload-enhanced")
+async def upload_enhanced_file(
+    file: UploadFile = File(...),
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Enhanced file upload with chunked reading for large files"""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    
+    # Generate unique filename
+    file_extension = Path(file.filename).suffix
+    unique_filename = f"{uuid.uuid4()}{file_extension}"
+    file_path = UPLOAD_DIR / unique_filename
+    
+    # Save file with chunked reading
+    async with aiofiles.open(file_path, 'wb') as f:
+        while chunk := await file.read(1024 * 1024):  # 1MB chunks
+            await f.write(chunk)
+    
+    file_url = f"/uploads/{unique_filename}"
+    file_size = file_path.stat().st_size
+    
+    return {
+        "file_url": file_url,
+        "filename": file.filename,
+        "size": file_size,
+        "type": file.content_type
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 
