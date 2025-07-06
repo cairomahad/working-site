@@ -405,13 +405,22 @@ async def get_admin_lesson(lesson_id: str, current_admin: dict = Depends(get_cur
 async def create_lesson(lesson_data: LessonCreate, current_admin: dict = Depends(get_current_admin)):
     lesson_dict = lesson_data.dict()
     
+    # Check if course exists
+    course = await db_client.get_record("courses", "id", lesson_dict["course_id"])
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    
     # Convert YouTube URL to embed format
     if lesson_dict.get("video_url"):
         lesson_dict["video_url"] = convert_to_embed_url(lesson_dict["video_url"])
     
-    lesson_obj = Lesson(**lesson_dict)
-    created_lesson = await db_client.create_record("lessons", lesson_obj.dict())
-    return Lesson(**created_lesson)
+    try:
+        lesson_obj = Lesson(**lesson_dict)
+        created_lesson = await db_client.create_record("lessons", lesson_obj.dict())
+        return Lesson(**created_lesson)
+    except Exception as e:
+        logger.error(f"Error creating lesson: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create lesson")
 
 @api_router.put("/admin/lessons/{lesson_id}", response_model=Lesson)
 async def update_lesson(lesson_id: str, lesson_data: LessonUpdate, current_admin: dict = Depends(get_current_admin)):
