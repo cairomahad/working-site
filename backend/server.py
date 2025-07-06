@@ -494,6 +494,49 @@ async def delete_team_member(member_id: str, current_admin: dict = Depends(requi
         raise HTTPException(status_code=404, detail="Team member not found")
     return {"message": "Team member deleted successfully"}
 
+# ====================================================================
+# TEACHER MANAGEMENT ENDPOINTS
+# ====================================================================
+
+@api_router.get("/admin/teachers", response_model=List[Teacher])
+async def get_admin_teachers(current_admin: dict = Depends(get_current_admin)):
+    """Get all teachers for admin"""
+    teachers = await db_client.get_records("teachers", order_by="name")
+    return [Teacher(**teacher) for teacher in teachers]
+
+@api_router.post("/admin/teachers", response_model=Teacher)
+async def create_teacher(teacher_data: TeacherCreate, current_admin: dict = Depends(get_current_admin)):
+    """Create new teacher"""
+    teacher_dict = teacher_data.dict()
+    teacher_obj = Teacher(**teacher_dict)
+    created_teacher = await db_client.create_record("teachers", teacher_obj.dict())
+    return Teacher(**created_teacher)
+
+@api_router.put("/admin/teachers/{teacher_id}", response_model=Teacher)
+async def update_teacher(
+    teacher_id: str, 
+    teacher_data: TeacherCreate, 
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Update teacher"""
+    teacher = await db_client.get_record("teachers", "id", teacher_id)
+    if not teacher:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    
+    update_data = {k: v for k, v in teacher_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow().isoformat()
+    
+    updated_teacher = await db_client.update_record("teachers", "id", teacher_id, update_data)
+    return Teacher(**updated_teacher)
+
+@api_router.delete("/admin/teachers/{teacher_id}")
+async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_admin_role)):
+    """Delete teacher"""
+    success = await db_client.delete_record("teachers", "id", teacher_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Teacher not found")
+    return {"message": "Teacher deleted successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
