@@ -1132,7 +1132,7 @@ async def get_featured_qa_questions(limit: int = 5):
     """Get featured Q&A questions"""
     questions = await db_client.get_records(
         "qa_questions",
-        filters={"is_featured": True, "is_published": True},
+        filters={"is_featured": True},
         order_by="-created_at",
         limit=limit
     )
