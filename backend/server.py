@@ -1047,7 +1047,7 @@ async def get_qa_questions(
     search: Optional[str] = None
 ):
     """Get Q&A questions for public view"""
-    filters = {"is_published": True}
+    filters = {}
     if category:
         filters["category"] = category
     if search:
