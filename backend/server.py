@@ -654,6 +654,96 @@ async def delete_test(test_id: str, current_admin: dict = Depends(get_current_ad
         raise HTTPException(status_code=404, detail="Test not found")
     return {"message": "Test deleted successfully"}
 
+@api_router.post("/admin/tests/import")
+async def import_test_data(
+    file: UploadFile = File(...),
+    course_id: str = Form(...),
+    lesson_id: Optional[str] = Form(None),
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Import test questions from JSON or CSV file"""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    
+    content = await file.read()
+    
+    try:
+        if file.filename.endswith('.json'):
+            data = json.loads(content.decode('utf-8'))
+        elif file.filename.endswith('.csv'):
+            # Parse CSV (simplified)
+            csv_content = content.decode('utf-8')
+            reader = csv.DictReader(io.StringIO(csv_content))
+            data = {"questions": list(reader)}
+        else:
+            raise HTTPException(status_code=400, detail="Only JSON and CSV files are supported")
+        
+        # Create test
+        test_data = {
+            "title": data.get("title", f"Imported Test - {file.filename}"),
+            "description": data.get("description", ""),
+            "course_id": course_id,
+            "lesson_id": lesson_id,
+            "time_limit_minutes": data.get("time_limit_minutes", 30),
+            "passing_score": data.get("passing_score", 70),
+            "max_attempts": data.get("max_attempts", 3)
+        }
+        
+        # Generate test ID first
+        test_id = str(uuid.uuid4())
+        test_data['id'] = test_id
+        
+        # Create test without questions first
+        test_obj = Test(**test_data, questions=[])
+        test_for_db = test_obj.dict()
+        test_for_db.pop('questions', None)  # Remove questions field from DB insert
+        
+        created_test = await db_client.create_record("tests", test_for_db)
+        
+        # Import questions
+        questions_imported = 0
+        for i, q_data in enumerate(data.get("questions", [])):
+            # Create options as QuestionOption objects
+            options = []
+            for opt_idx, opt_text in enumerate(q_data.get("options", [])):
+                is_correct = False
+                # Check multiple possible fields for correct answer
+                correct_idx = q_data.get("correct_option_index") or q_data.get("correct_answer") or q_data.get("correct", 0)
+                if opt_idx == correct_idx:
+                    is_correct = True
+                    
+                options.append(QuestionOption(
+                    text=opt_text,
+                    is_correct=is_correct
+                ))
+            
+            question = Question(
+                test_id=test_id,
+                text=q_data.get("question", q_data.get("text", "")),
+                question_type=QuestionType.SINGLE_CHOICE,  # Default type
+                options=options,
+                explanation=q_data.get("explanation", ""),
+                points=q_data.get("points", 1),
+                order=i + 1
+            )
+            
+            # Try to create question in DB
+            try:
+                question_for_db = question.dict()
+                await db_client.create_record("questions", question_for_db)
+                questions_imported += 1
+            except Exception as e:
+                logger.warning(f"Failed to create question {i+1}: {str(e)}")
+        
+        return {
+            "message": f"Successfully imported test with {questions_imported} questions",
+            "test_id": created_test["id"],
+            "questions_count": questions_imported
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error processing file: {str(e)}")
+
 @api_router.get("/lessons/{lesson_id}/tests", response_model=List[Test])
 async def get_lesson_tests(lesson_id: str):
     """Get all tests for a specific lesson"""
