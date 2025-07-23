@@ -232,6 +232,7 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
   const menuItems = [
     { id: 'dashboard', name: 'Главная', icon: '📊' },
     { id: 'upload', name: 'Загрузка материалов', icon: '⬆️' },
+    { id: 'tables', name: 'Редактор таблиц', icon: '🗃️' },
     { id: 'courses', name: 'Курсы', icon: '📚' },
     { id: 'lessons', name: 'Уроки', icon: '📖' },
     { id: 'tests', name: 'Тесты', icon: '📝' },
