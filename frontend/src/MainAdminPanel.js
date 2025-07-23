@@ -307,6 +307,8 @@ const MainAdminPanel = () => {
         return <AdminDashboard />;
       case 'upload':
         return <MaterialUploadPanel />;
+      case 'tables':
+        return <UniversalTableEditor />;
       case 'courses':
         return <EnhancedCourseManagement />;
       case 'lessons':
