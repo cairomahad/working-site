@@ -672,6 +672,28 @@ async def start_test_session(test_id: str, student_data: dict):
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
     
+    # Create anonymous student if not provided
+    student_id = student_data.get("student_id")
+    if not student_id:
+        # Create anonymous student
+        anon_student_id = str(uuid.uuid4())
+        anon_student_data = {
+            "id": anon_student_id,
+            "name": f"Анонимный студент {anon_student_id[:8]}",
+            "email": f"anon_{anon_student_id[:8]}@example.com",
+            "total_score": 0,
+            "is_active": True,
+            "created_at": datetime.utcnow().isoformat(),
+            "completed_courses": [],
+            "current_level": "level_1"
+        }
+        try:
+            await db_client.create_record("students", anon_student_data)
+            student_id = anon_student_id
+        except:
+            # If student creation fails, use existing student
+            student_id = "fa6ddfcd-41b5-4d44-a867-52e88d35a99c"
+    
     # Get all questions for this test
     all_questions = await db_client.get_records(
         "questions", 
@@ -718,7 +740,7 @@ async def start_test_session(test_id: str, student_data: dict):
     # Create test session
     session_data = {
         "id": str(uuid.uuid4()),
-        "student_id": str(uuid.uuid4()),  # Generate UUID for anonymous student
+        "student_id": student_id,
         "test_id": test_id,
         "course_id": test["course_id"],
         "lesson_id": test.get("lesson_id"),
