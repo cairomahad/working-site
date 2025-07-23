@@ -1694,14 +1694,13 @@ def test_final_verification():
     # Create multiple test sessions to verify randomization and shuffling
     sessions = []
     for i in range(3):
-        student_id = str(uuid.uuid4())  # Generate proper UUID
-        
+        # Don't provide student_id so it creates anonymous student
         session_success, session_response = tester.run_test(
             f"Start Test Session {i+1}",
             "POST",
             f"tests/{test_id}/start-session",
             200,
-            data={"student_id": student_id}
+            data={}  # Empty data to trigger anonymous student creation
         )
         
         if session_success:
