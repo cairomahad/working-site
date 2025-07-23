@@ -1144,7 +1144,7 @@ async def get_popular_qa_questions(limit: int = 10):
     questions = await db_client.get_records(
         "qa_questions",
         filters={"is_published": True},
-        order_by="-view_count",
+        order_by="-views_count",
         limit=limit
     )
     return [QAQuestion(**question) for question in questions]
