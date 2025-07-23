@@ -662,6 +662,136 @@ async def get_lesson_tests(lesson_id: str):
     return [Test(**test) for test in tests]
 
 # ====================================================================
+# TEST SESSION ENDPOINTS (Random Questions & Answer Shuffling)
+# ====================================================================
+
+@api_router.post("/tests/{test_id}/start-session")
+async def start_test_session(test_id: str, student_data: dict):
+    """Start a new test session with random question selection and shuffled answers"""
+    test = await db_client.get_record("tests", "id", test_id)
+    if not test:
+        raise HTTPException(status_code=404, detail="Test not found")
+    
+    # Get all questions for this test
+    all_questions = await db_client.get_records(
+        "questions", 
+        filters={"test_id": test_id}
+    )
+    
+    if not all_questions:
+        raise HTTPException(status_code=400, detail="Test has no questions")
+    
+    # Select random questions (limit to 10 or all available if less)
+    max_questions = min(10, len(all_questions))
+    selected_questions = random.sample(all_questions, max_questions)
+    
+    # Shuffle answer options for each question using Fisher-Yates algorithm
+    shuffled_options = {}
+    for question in selected_questions:
+        if question.get("options"):
+            option_indices = list(range(len(question["options"])))
+            # Fisher-Yates shuffle
+            for i in range(len(option_indices) - 1, 0, -1):
+                j = random.randint(0, i)
+                option_indices[i], option_indices[j] = option_indices[j], option_indices[i]
+            shuffled_options[question["id"]] = option_indices
+    
+    # Create test session
+    session_data = {
+        "id": str(uuid.uuid4()),
+        "student_id": student_data.get("student_id", "anonymous"),
+        "test_id": test_id,
+        "course_id": test["course_id"],
+        "lesson_id": test.get("lesson_id"),
+        "selected_questions": [q["id"] for q in selected_questions],
+        "shuffled_options": shuffled_options,
+        "answers": {},
+        "score": 0,
+        "total_points": sum(q.get("points", 1) for q in selected_questions),
+        "is_completed": False,
+        "started_at": datetime.utcnow().isoformat()
+    }
+    
+    created_session = await db_client.create_record("test_sessions", session_data)
+    
+    # Return session with shuffled questions
+    shuffled_questions = []
+    for question in selected_questions:
+        q_dict = dict(question)
+        if question["id"] in shuffled_options and q_dict.get("options"):
+            # Reorder options based on shuffled indices
+            indices = shuffled_options[question["id"]]
+            original_options = q_dict["options"]
+            q_dict["options"] = [original_options[i] for i in indices]
+        shuffled_questions.append(q_dict)
+    
+    return {
+        "session_id": created_session["id"],
+        "test": test,
+        "questions": shuffled_questions,
+        "time_limit_minutes": test.get("time_limit_minutes"),
+        "total_points": session_data["total_points"]
+    }
+
+@api_router.post("/test-sessions/{session_id}/submit")
+async def submit_test_session(session_id: str, answers: dict):
+    """Submit test answers and calculate score"""
+    session = await db_client.get_record("test_sessions", "id", session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Test session not found")
+    
+    if session["is_completed"]:
+        raise HTTPException(status_code=400, detail="Test session already completed")
+    
+    # Get questions for scoring
+    questions = await db_client.get_records(
+        "questions", 
+        filters={"test_id": session["test_id"]}
+    )
+    
+    # Calculate score
+    score = 0
+    total_points = 0
+    correct_answers = {}
+    
+    for question in questions:
+        if question["id"] in session["selected_questions"]:
+            points = question.get("points", 1)
+            total_points += points
+            correct_answers[question["id"]] = question.get("correct_answer")
+            
+            if question["id"] in answers:
+                student_answer = answers[question["id"]]
+                if student_answer == question.get("correct_answer"):
+                    score += points
+    
+    # Calculate percentage
+    percentage = (score / total_points * 100) if total_points > 0 else 0
+    is_passed = percentage >= session.get("passing_score", 70)
+    
+    # Update session
+    update_data = {
+        "answers": answers,
+        "score": score,
+        "total_points": total_points,
+        "percentage": percentage,
+        "is_passed": is_passed,
+        "is_completed": True,
+        "completed_at": datetime.utcnow().isoformat()
+    }
+    
+    await db_client.update_record("test_sessions", "id", session_id, update_data)
+    
+    return {
+        "session_id": session_id,
+        "score": score,
+        "total_points": total_points,
+        "percentage": percentage,
+        "is_passed": is_passed,
+        "correct_answers": correct_answers
+    }
+
+# ====================================================================
 # LEADERBOARD ENDPOINTS
 # ====================================================================
 
