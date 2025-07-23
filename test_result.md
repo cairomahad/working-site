@@ -534,20 +534,11 @@ test_plan:
   current_focus:
     - "Team Management Admin Interface"
     - "Dynamic Team Display"
-    - "About Page Navigation" 
-    - "Random Question Selection API"
-    - "Answer Shuffling System"
-    - "Admin Lesson View API"
-  stuck_tasks:
-    - "Random Question Selection API"
-    - "Answer Shuffling System"
-    - "Admin Lesson View API"
+    - "About Page Navigation"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
-  missing_data:
-    - "Course with ID 947f1ddb-5e52-4605-810a-9db25d94ba79 doesn't exist"
-    - "Lesson with ID 9a7c2518-da14-49f6-ad25-7d89b152dc65 doesn't exist"
-    - "Test with ID 42665711-d8a7-41ae-80e8-a14eaf526ad2 doesn't exist"
+  missing_data: []
 
 agent_communication:
   - agent: "main"
