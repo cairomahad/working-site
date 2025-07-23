@@ -1143,7 +1143,7 @@ async def get_popular_qa_questions(limit: int = 10):
     """Get most popular Q&A questions"""
     questions = await db_client.get_records(
         "qa_questions",
-        filters={"is_published": True},
+        filters={},
         order_by="-views_count",
         limit=limit
     )
