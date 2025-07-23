@@ -1065,7 +1065,7 @@ async def get_qa_questions(
         try:
             await db_client.update_record(
                 "qa_questions", "id", question["id"],
-                {"view_count": question.get("view_count", 0) + 1}
+                {"views_count": question.get("views_count", 0) + 1}
             )
         except:
             pass  # Don't fail if view count update fails
