@@ -7,6 +7,9 @@ from starlette.middleware.cors import CORSMiddleware
 import os
 import logging
 from pathlib import Path
+
+# Setup logging
+logger = logging.getLogger(__name__)
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timedelta
