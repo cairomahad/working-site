@@ -597,8 +597,8 @@ async def create_test(test_data: TestCreate, current_admin: dict = Depends(get_c
                 is_correct=False  # Will be set based on correct index
             ))
         
-        # Set correct answer
-        correct_index = q.get('correct', 0)
+        # Set correct answer (check both 'correct' and 'correct_answer' fields)
+        correct_index = q.get('correct_answer') or q.get('correct', 0)
         if 0 <= correct_index < len(options):
             options[correct_index].is_correct = True
         
