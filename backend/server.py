@@ -568,6 +568,26 @@ async def get_test(test_id: str):
 async def create_test(test_data: TestCreate, current_admin: dict = Depends(get_current_admin)):
     """Create new test"""
     test_dict = test_data.dict()
+    
+    # Process questions if provided
+    questions = []
+    if test_dict.get('questions'):
+        for i, q in enumerate(test_dict['questions']):
+            question = Question(
+                id=str(uuid.uuid4()),
+                text=q.get('question', ''),
+                options=q.get('options', []),
+                correct=q.get('correct', 0),
+                explanation=q.get('explanation', ''),
+                points=q.get('points', 1),
+                order=i + 1
+            )
+            questions.append(question)
+    
+    # Remove raw questions data and add processed questions
+    test_dict.pop('questions', None)
+    test_dict['questions'] = [q.dict() for q in questions]
+    
     test_obj = Test(**test_dict)
     created_test = await db_client.create_record("tests", test_obj.dict())
     return Test(**created_test)
