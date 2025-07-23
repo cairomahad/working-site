@@ -473,7 +473,6 @@ class QAQuestionCreate(BaseModel):
     slug: Optional[str] = None
     is_featured: bool = False
     imam_name: str = "Имам"
-    references: List[str] = []
     related_questions: List[str] = []
 
 class QAQuestionUpdate(BaseModel):
@@ -484,7 +483,6 @@ class QAQuestionUpdate(BaseModel):
     tags: Optional[List[str]] = None
     is_featured: Optional[bool] = None
     imam_name: Optional[str] = None
-    references: Optional[List[str]] = None
     related_questions: Optional[List[str]] = None
 
 class QAStats(BaseModel):
