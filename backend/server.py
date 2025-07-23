@@ -547,6 +547,67 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
     return {"message": "Teacher deleted successfully"}
 
 # ====================================================================
+# TEST MANAGEMENT ENDPOINTS
+# ====================================================================
+
+@api_router.get("/admin/tests", response_model=List[Test])
+async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
+    """Get all tests for admin"""
+    tests = await db_client.get_records("tests", order_by="created_at")
+    return [Test(**test) for test in tests]
+
+@api_router.get("/tests/{test_id}", response_model=Test)
+async def get_test(test_id: str):
+    """Get test by ID"""
+    test = await db_client.get_record("tests", "id", test_id)
+    if not test:
+        raise HTTPException(status_code=404, detail="Test not found")
+    return Test(**test)
+
+@api_router.post("/admin/tests", response_model=Test)
+async def create_test(test_data: TestCreate, current_admin: dict = Depends(get_current_admin)):
+    """Create new test"""
+    test_dict = test_data.dict()
+    test_obj = Test(**test_dict)
+    created_test = await db_client.create_record("tests", test_obj.dict())
+    return Test(**created_test)
+
+@api_router.put("/admin/tests/{test_id}", response_model=Test)
+async def update_test(
+    test_id: str, 
+    test_data: TestUpdate, 
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Update test"""
+    test = await db_client.get_record("tests", "id", test_id)
+    if not test:
+        raise HTTPException(status_code=404, detail="Test not found")
+    
+    update_data = {k: v for k, v in test_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow().isoformat()
+    
+    updated_test = await db_client.update_record("tests", "id", test_id, update_data)
+    return Test(**updated_test)
+
+@api_router.delete("/admin/tests/{test_id}")
+async def delete_test(test_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete test"""
+    success = await db_client.delete_record("tests", "id", test_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Test not found")
+    return {"message": "Test deleted successfully"}
+
+@api_router.get("/lessons/{lesson_id}/tests", response_model=List[Test])
+async def get_lesson_tests(lesson_id: str):
+    """Get all tests for a specific lesson"""
+    tests = await db_client.get_records(
+        "tests", 
+        filters={"lesson_id": lesson_id, "is_published": True},
+        order_by="order"
+    )
+    return [Test(**test) for test in tests]
+
+# ====================================================================
 # FILE UPLOAD ENDPOINTS
 # ====================================================================
 
