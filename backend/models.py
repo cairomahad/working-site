@@ -200,6 +200,7 @@ class TestCreate(BaseModel):
     description: Optional[str] = None
     course_id: str
     lesson_id: Optional[str] = None
+    questions: List[Dict[str, Any]] = []  # Accept raw question data
     time_limit_minutes: Optional[int] = None
     passing_score: int = 70
     max_attempts: int = 3
