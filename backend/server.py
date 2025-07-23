@@ -1154,7 +1154,7 @@ async def get_recent_qa_questions(limit: int = 10):
     """Get most recent Q&A questions"""
     questions = await db_client.get_records(
         "qa_questions",
-        filters={"is_published": True},
+        filters={},
         order_by="-created_at",
         limit=limit
     )
