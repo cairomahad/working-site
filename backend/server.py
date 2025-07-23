@@ -1036,6 +1036,217 @@ async def upload_enhanced_file(
         "type": file.content_type
     }
 
+# ====================================================================
+# Q&A MANAGEMENT ENDPOINTS (Imam Questions and Answers)
+# ====================================================================
+
+@api_router.get("/qa/questions", response_model=List[QAQuestion])
+async def get_qa_questions(
+    limit: int = 20,
+    category: Optional[str] = None,
+    search: Optional[str] = None
+):
+    """Get Q&A questions for public view"""
+    filters = {"is_published": True}
+    if category:
+        filters["category"] = category
+    if search:
+        filters["title"] = {"$regex": search}
+    
+    questions = await db_client.get_records(
+        "qa_questions",
+        filters=filters,
+        order_by="-created_at",
+        limit=limit
+    )
+    
+    # Increment view counts
+    for question in questions:
+        try:
+            await db_client.update_record(
+                "qa_questions", "id", question["id"],
+                {"view_count": question.get("view_count", 0) + 1}
+            )
+        except:
+            pass  # Don't fail if view count update fails
+    
+    return [QAQuestion(**question) for question in questions]
+
+@api_router.get("/qa/questions/{question_id}", response_model=QAQuestion)
+async def get_qa_question(question_id: str):
+    """Get single Q&A question by ID"""
+    question = await db_client.get_record("qa_questions", "id", question_id)
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    
+    # Increment view count
+    try:
+        await db_client.update_record(
+            "qa_questions", "id", question_id,
+            {"view_count": question.get("view_count", 0) + 1}
+        )
+    except:
+        pass
+    
+    return QAQuestion(**question)
+
+@api_router.get("/qa/questions/slug/{slug}", response_model=QAQuestion)
+async def get_qa_question_by_slug(slug: str):
+    """Get Q&A question by slug"""
+    question = await db_client.find_one("qa_questions", {"slug": slug})
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    
+    # Increment view count
+    try:
+        await db_client.update_record(
+            "qa_questions", "id", question["id"],
+            {"view_count": question.get("view_count", 0) + 1}
+        )
+    except:
+        pass
+    
+    return QAQuestion(**question)
+
+@api_router.get("/qa/categories")
+async def get_qa_categories():
+    """Get list of Q&A categories"""
+    try:
+        # Get categories with question counts
+        questions = await db_client.get_records("qa_questions", {"is_published": True})
+        categories = {}
+        
+        for question in questions:
+            category = question.get("category", "general")
+            if category not in categories:
+                categories[category] = {"name": category, "count": 0}
+            categories[category]["count"] += 1
+        
+        return list(categories.values())
+    except Exception as e:
+        logger.error(f"Error fetching Q&A categories: {e}")
+        return []
+
+@api_router.get("/qa/featured", response_model=List[QAQuestion])
+async def get_featured_qa_questions(limit: int = 5):
+    """Get featured Q&A questions"""
+    questions = await db_client.get_records(
+        "qa_questions",
+        filters={"is_featured": True, "is_published": True},
+        order_by="-created_at",
+        limit=limit
+    )
+    return [QAQuestion(**question) for question in questions]
+
+@api_router.get("/qa/popular", response_model=List[QAQuestion])
+async def get_popular_qa_questions(limit: int = 10):
+    """Get most popular Q&A questions"""
+    questions = await db_client.get_records(
+        "qa_questions",
+        filters={"is_published": True},
+        order_by="-view_count",
+        limit=limit
+    )
+    return [QAQuestion(**question) for question in questions]
+
+@api_router.get("/qa/recent", response_model=List[QAQuestion])
+async def get_recent_qa_questions(limit: int = 10):
+    """Get most recent Q&A questions"""
+    questions = await db_client.get_records(
+        "qa_questions",
+        filters={"is_published": True},
+        order_by="-created_at",
+        limit=limit
+    )
+    return [QAQuestion(**question) for question in questions]
+
+@api_router.get("/qa/stats", response_model=QAStats)
+async def get_qa_stats():
+    """Get Q&A statistics"""
+    try:
+        total_questions = await db_client.count_records("qa_questions", {"is_published": True})
+        featured_count = await db_client.count_records("qa_questions", {"is_featured": True, "is_published": True})
+        
+        # Get questions by category
+        questions = await db_client.get_records("qa_questions", {"is_published": True})
+        questions_by_category = {}
+        total_views = 0
+        
+        for question in questions:
+            category = question.get("category", "general")
+            if category not in questions_by_category:
+                questions_by_category[category] = 0
+            questions_by_category[category] += 1
+            total_views += question.get("view_count", 0)
+        
+        return QAStats(
+            total_questions=total_questions,
+            questions_by_category=questions_by_category,
+            featured_count=featured_count,
+            total_views=total_views,
+            most_viewed_questions=[]
+        )
+    except Exception as e:
+        logger.error(f"Error fetching Q&A stats: {e}")
+        return QAStats(
+            total_questions=0,
+            questions_by_category={},
+            featured_count=0,
+            total_views=0,
+            most_viewed_questions=[]
+        )
+
+# ====================================================================
+# ADMIN Q&A MANAGEMENT ENDPOINTS
+# ====================================================================
+
+@api_router.get("/admin/qa/questions", response_model=List[QAQuestion])
+async def get_admin_qa_questions(current_admin: dict = Depends(get_current_admin)):
+    """Get all Q&A questions for admin"""
+    questions = await db_client.get_records("qa_questions", order_by="-created_at")
+    return [QAQuestion(**question) for question in questions]
+
+@api_router.post("/admin/qa/questions", response_model=QAQuestion)
+async def create_qa_question(question_data: QAQuestionCreate, current_admin: dict = Depends(get_current_admin)):
+    """Create new Q&A question"""
+    question_dict = question_data.dict()
+    question_obj = QAQuestion(**question_dict)
+    created_question = await db_client.create_record("qa_questions", question_obj.dict())
+    return QAQuestion(**created_question)
+
+@api_router.get("/admin/qa/questions/{question_id}", response_model=QAQuestion)
+async def get_admin_qa_question(question_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Get Q&A question for admin"""
+    question = await db_client.get_record("qa_questions", "id", question_id)
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return QAQuestion(**question)
+
+@api_router.put("/admin/qa/questions/{question_id}", response_model=QAQuestion)
+async def update_qa_question(
+    question_id: str, 
+    question_data: QAQuestionUpdate, 
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Update Q&A question"""
+    question = await db_client.get_record("qa_questions", "id", question_id)
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    
+    update_data = {k: v for k, v in question_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow().isoformat()
+    
+    updated_question = await db_client.update_record("qa_questions", "id", question_id, update_data)
+    return QAQuestion(**updated_question)
+
+@api_router.delete("/admin/qa/questions/{question_id}")
+async def delete_qa_question(question_id: str, current_admin: dict = Depends(require_admin_role)):
+    """Delete Q&A question"""
+    success = await db_client.delete_record("qa_questions", "id", question_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return {"message": "Question deleted successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
