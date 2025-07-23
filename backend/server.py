@@ -1256,6 +1256,180 @@ async def delete_qa_question(question_id: str, current_admin: dict = Depends(req
         raise HTTPException(status_code=404, detail="Question not found")
     return {"message": "Question deleted successfully"}
 
+# UNIVERSAL TABLE MANAGEMENT ENDPOINTS
+@api_router.get("/admin/tables/list")
+async def get_all_tables(current_admin: dict = Depends(get_current_admin)):
+    """Get list of all tables in the database"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        tables = await admin_supabase_client.get_all_tables()
+        return {
+            "success": True,
+            "tables": tables,
+            "message": "Tables retrieved successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error getting tables: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/admin/tables/{table_name}/structure")
+async def get_table_structure(
+    table_name: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Get table structure (columns, types, constraints)"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        structure = await admin_supabase_client.get_table_structure(table_name)
+        return {
+            "success": True,
+            "structure": structure,
+            "message": "Table structure retrieved successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error getting table structure: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/admin/tables/{table_name}/data")
+async def get_table_data(
+    table_name: str,
+    page: int = 1,
+    limit: int = 50,
+    search: Optional[str] = None,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Get table data with pagination and search"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        data = await admin_supabase_client.get_table_data(
+            table_name=table_name,
+            page=page,
+            limit=limit,
+            search=search
+        )
+        return {
+            "success": True,
+            "table_data": data,
+            "message": "Table data retrieved successfully"
+        }
+    except Exception as e:
+        logger.error(f"Error getting table data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/tables/{table_name}/records")
+async def create_table_record(
+    table_name: str,
+    record_data: Dict[str, Any],
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Create a new record in the specified table"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        result = await admin_supabase_client.create_record(table_name, record_data)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "record": result["data"],
+                "message": result["message"]
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error creating record: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/admin/tables/{table_name}/records/{record_id}")
+async def update_table_record(
+    table_name: str,
+    record_id: str,
+    record_data: Dict[str, Any],
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Update a record in the specified table"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        result = await admin_supabase_client.update_record(table_name, record_id, record_data)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "record": result["data"],
+                "message": result["message"]
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error updating record: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/admin/tables/{table_name}/records/{record_id}")
+async def delete_table_record(
+    table_name: str,
+    record_id: str,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Delete a record from the specified table"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        result = await admin_supabase_client.delete_record(table_name, record_id)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "message": result["message"]
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error deleting record: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/tables/{table_name}/query")
+async def execute_custom_query(
+    table_name: str,
+    query_data: Dict[str, str],
+    current_admin: dict = Depends(get_current_admin)
+):
+    """Execute a custom query on the table (use with caution)"""
+    if not ADMIN_SUPABASE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Admin Supabase client not available")
+    
+    try:
+        custom_query = query_data.get("query", "")
+        if not custom_query:
+            raise HTTPException(status_code=400, detail="Query is required")
+        
+        result = await admin_supabase_client.execute_custom_query(custom_query)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "data": result["data"],
+                "message": result["message"]
+            }
+        else:
+            raise HTTPException(status_code=400, detail=result["error"])
+            
+    except Exception as e:
+        logger.error(f"Error executing custom query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
