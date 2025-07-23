@@ -50,6 +50,15 @@ import io
 import re
 import base64
 
+# Import admin supabase client
+try:
+    from admin_supabase_client import admin_supabase_client
+    ADMIN_SUPABASE_AVAILABLE = True
+    print("✅ Admin Supabase client доступен")
+except ImportError:
+    ADMIN_SUPABASE_AVAILABLE = False
+    print("❌ Admin Supabase client недоступен")
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
