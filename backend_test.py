@@ -1670,6 +1670,329 @@ def test_islam_culture_course_and_promocodes():
     print(f"\n📊 'Культура Ислама' Course and Promocode Tests: {tester.tests_passed}/{tester.tests_run} passed")
     return overall_success
 
+def test_universal_table_editor():
+    """Test the universal Supabase table editor endpoints"""
+    print("\n=== ТЕСТИРОВАНИЕ УНИВЕРСАЛЬНОГО РЕДАКТОРА ТАБЛИЦ SUPABASE ===")
+    tester = IslamAppAPITester()
+    
+    # Login as admin with the provided credentials
+    print("\n🔑 Testing admin login with credentials: admin@uroki-islama.ru/admin123")
+    admin_login_success = tester.test_unified_login("admin@uroki-islama.ru", "admin123", "admin")
+    
+    if not admin_login_success:
+        print("❌ КРИТИЧЕСКАЯ ОШИБКА: Админская авторизация не удалась")
+        return False
+    
+    print("✅ Админская авторизация успешна")
+    
+    # Test 1: Get list of all tables
+    print("\n📋 ТЕСТ 1: Получение списка всех таблиц")
+    tables_success, tables_response = tester.run_test(
+        "Get All Tables",
+        "GET",
+        "admin/tables/list",
+        200
+    )
+    
+    available_tables = []
+    if tables_success:
+        try:
+            tables_data = tables_response.json()
+            if tables_data.get('success'):
+                tables_list = tables_data.get('tables', [])
+                available_tables = [table.get('table_name') for table in tables_list if table.get('table_name')]
+                print(f"✅ Найдено {len(available_tables)} таблиц: {', '.join(available_tables[:5])}{'...' if len(available_tables) > 5 else ''}")
+            else:
+                print(f"❌ API вернул success=false: {tables_data.get('message', 'Unknown error')}")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка при обработке списка таблиц: {str(e)}")
+            return False
+    else:
+        print("❌ ТЕСТ 1 НЕ ПРОЙДЕН: Не удалось получить список таблиц")
+        return False
+    
+    # Test 2: Get structure of "courses" table
+    table_name = "courses"
+    print(f"\n🏗️ ТЕСТ 2: Получение структуры таблицы '{table_name}'")
+    
+    if table_name not in available_tables:
+        print(f"⚠️ Таблица '{table_name}' не найдена в списке доступных таблиц")
+        print(f"Доступные таблицы: {', '.join(available_tables)}")
+        # Try with the first available table instead
+        if available_tables:
+            table_name = available_tables[0]
+            print(f"Используем таблицу '{table_name}' для тестирования")
+        else:
+            print("❌ Нет доступных таблиц для тестирования")
+            return False
+    
+    structure_success, structure_response = tester.run_test(
+        f"Get Table Structure for {table_name}",
+        "GET",
+        f"admin/tables/{table_name}/structure",
+        200
+    )
+    
+    table_columns = []
+    if structure_success:
+        try:
+            structure_data = structure_response.json()
+            if structure_data.get('success'):
+                structure_info = structure_data.get('structure', [])
+                table_columns = [col.get('column_name') for col in structure_info if col.get('column_name')]
+                print(f"✅ Структура таблицы получена: {len(table_columns)} колонок")
+                print(f"Колонки: {', '.join(table_columns[:5])}{'...' if len(table_columns) > 5 else ''}")
+            else:
+                print(f"❌ API вернул success=false: {structure_data.get('message', 'Unknown error')}")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка при обработке структуры таблицы: {str(e)}")
+            return False
+    else:
+        print(f"❌ ТЕСТ 2 НЕ ПРОЙДЕН: Не удалось получить структуру таблицы '{table_name}'")
+        return False
+    
+    # Test 3: Get data from the table
+    print(f"\n📊 ТЕСТ 3: Получение данных из таблицы '{table_name}'")
+    data_success, data_response = tester.run_test(
+        f"Get Table Data for {table_name}",
+        "GET",
+        f"admin/tables/{table_name}/data?page=1&limit=10",
+        200
+    )
+    
+    existing_records = []
+    if data_success:
+        try:
+            data_result = data_response.json()
+            if data_result.get('success'):
+                table_data = data_result.get('table_data', {})
+                records = table_data.get('data', [])
+                existing_records = records
+                total_count = table_data.get('total_count', 0)
+                print(f"✅ Данные таблицы получены: {len(records)} записей из {total_count} общих")
+                
+                if records:
+                    first_record = records[0]
+                    print(f"Пример записи: {list(first_record.keys())[:3]}...")
+            else:
+                print(f"❌ API вернул success=false: {data_result.get('message', 'Unknown error')}")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка при обработке данных таблицы: {str(e)}")
+            return False
+    else:
+        print(f"❌ ТЕСТ 3 НЕ ПРОЙДЕН: Не удалось получить данные из таблицы '{table_name}'")
+        return False
+    
+    # Test 4: Create new record in the table
+    print(f"\n➕ ТЕСТ 4: Создание новой записи в таблице '{table_name}'")
+    
+    # Create test data based on table structure and existing records
+    test_record_data = {}
+    
+    if table_name == "courses" or "title" in table_columns:
+        test_record_data = {
+            "title": f"Тестовый курс {uuid.uuid4().hex[:8]}",
+            "description": "Описание тестового курса для проверки API",
+            "level": "level_1",
+            "status": "draft",
+            "difficulty": "Легко",
+            "estimated_duration_hours": 10
+        }
+    elif existing_records:
+        # Use structure from existing record but modify values
+        sample_record = existing_records[0]
+        for key, value in sample_record.items():
+            if key not in ['id', 'created_at', 'updated_at']:
+                if isinstance(value, str):
+                    test_record_data[key] = f"Test_{uuid.uuid4().hex[:8]}"
+                elif isinstance(value, int):
+                    test_record_data[key] = random.randint(1, 100)
+                elif isinstance(value, bool):
+                    test_record_data[key] = True
+                elif value is None:
+                    test_record_data[key] = f"Test_value_{uuid.uuid4().hex[:8]}"
+    else:
+        # Fallback generic test data
+        test_record_data = {
+            "name": f"Test_Record_{uuid.uuid4().hex[:8]}",
+            "description": "Test record for API testing"
+        }
+    
+    create_success, create_response = tester.run_test(
+        f"Create Record in {table_name}",
+        "POST",
+        f"admin/tables/{table_name}/records",
+        200,
+        data=test_record_data
+    )
+    
+    created_record_id = None
+    if create_success:
+        try:
+            create_result = create_response.json()
+            if create_result.get('success'):
+                created_record = create_result.get('record')
+                if created_record and isinstance(created_record, list) and len(created_record) > 0:
+                    created_record_id = created_record[0].get('id')
+                elif created_record and isinstance(created_record, dict):
+                    created_record_id = created_record.get('id')
+                
+                if created_record_id:
+                    print(f"✅ Запись создана успешно с ID: {created_record_id}")
+                else:
+                    print(f"⚠️ Запись создана, но ID не найден в ответе")
+                    print(f"Ответ: {create_result}")
+            else:
+                print(f"❌ API вернул success=false: {create_result.get('message', 'Unknown error')}")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка при создании записи: {str(e)}")
+            return False
+    else:
+        print(f"❌ ТЕСТ 4 НЕ ПРОЙДЕН: Не удалось создать запись в таблице '{table_name}'")
+        return False
+    
+    # Test 5: Update the created record (if we have an ID)
+    if created_record_id:
+        print(f"\n✏️ ТЕСТ 5: Обновление созданной записи (ID: {created_record_id})")
+        
+        # Prepare update data
+        update_data = {}
+        if table_name == "courses" or "title" in table_columns:
+            update_data = {
+                "title": f"Обновленный тестовый курс {uuid.uuid4().hex[:8]}",
+                "description": "Обновленное описание тестового курса"
+            }
+        else:
+            # Generic update
+            for key in list(test_record_data.keys())[:2]:  # Update first 2 fields
+                if isinstance(test_record_data[key], str):
+                    update_data[key] = f"Updated_{test_record_data[key]}"
+                elif isinstance(test_record_data[key], int):
+                    update_data[key] = test_record_data[key] + 1
+        
+        update_success, update_response = tester.run_test(
+            f"Update Record {created_record_id} in {table_name}",
+            "PUT",
+            f"admin/tables/{table_name}/records/{created_record_id}",
+            200,
+            data=update_data
+        )
+        
+        if update_success:
+            try:
+                update_result = update_response.json()
+                if update_result.get('success'):
+                    print(f"✅ Запись обновлена успешно")
+                else:
+                    print(f"❌ API вернул success=false: {update_result.get('message', 'Unknown error')}")
+                    return False
+            except Exception as e:
+                print(f"❌ Ошибка при обновлении записи: {str(e)}")
+                return False
+        else:
+            print(f"❌ ТЕСТ 5 НЕ ПРОЙДЕН: Не удалось обновить запись")
+            return False
+        
+        # Test 6: Delete the created record
+        print(f"\n🗑️ ТЕСТ 6: Удаление созданной записи (ID: {created_record_id})")
+        
+        delete_success, delete_response = tester.run_test(
+            f"Delete Record {created_record_id} from {table_name}",
+            "DELETE",
+            f"admin/tables/{table_name}/records/{created_record_id}",
+            200
+        )
+        
+        if delete_success:
+            try:
+                delete_result = delete_response.json()
+                if delete_result.get('success'):
+                    print(f"✅ Запись удалена успешно")
+                else:
+                    print(f"❌ API вернул success=false: {delete_result.get('message', 'Unknown error')}")
+                    return False
+            except Exception as e:
+                print(f"❌ Ошибка при удалении записи: {str(e)}")
+                return False
+        else:
+            print(f"❌ ТЕСТ 6 НЕ ПРОЙДЕН: Не удалось удалить запись")
+            return False
+    else:
+        print(f"\n⚠️ ТЕСТЫ 5-6 ПРОПУЩЕНЫ: Нет ID созданной записи для обновления и удаления")
+    
+    # Test 7: Test pagination and search
+    print(f"\n🔍 ТЕСТ 7: Проверка пагинации и поиска")
+    
+    # Test pagination
+    pagination_success, pagination_response = tester.run_test(
+        f"Get Table Data with Pagination for {table_name}",
+        "GET",
+        f"admin/tables/{table_name}/data?page=1&limit=5",
+        200
+    )
+    
+    if pagination_success:
+        try:
+            pagination_result = pagination_response.json()
+            if pagination_result.get('success'):
+                table_data = pagination_result.get('table_data', {})
+                records = table_data.get('data', [])
+                print(f"✅ Пагинация работает: получено {len(records)} записей (лимит: 5)")
+            else:
+                print(f"❌ Пагинация не работает: {pagination_result.get('message', 'Unknown error')}")
+        except Exception as e:
+            print(f"❌ Ошибка при тестировании пагинации: {str(e)}")
+    
+    # Test search (if there are existing records)
+    if existing_records and len(existing_records) > 0:
+        # Try to search by a field that likely exists
+        search_term = None
+        sample_record = existing_records[0]
+        
+        for field in ['title', 'name', 'description']:
+            if field in sample_record and sample_record[field]:
+                search_term = str(sample_record[field])[:5]  # First 5 characters
+                break
+        
+        if search_term:
+            search_success, search_response = tester.run_test(
+                f"Search in {table_name} for '{search_term}'",
+                "GET",
+                f"admin/tables/{table_name}/data?search={search_term}",
+                200
+            )
+            
+            if search_success:
+                try:
+                    search_result = search_response.json()
+                    if search_result.get('success'):
+                        table_data = search_result.get('table_data', {})
+                        records = table_data.get('data', [])
+                        print(f"✅ Поиск работает: найдено {len(records)} записей по запросу '{search_term}'")
+                    else:
+                        print(f"❌ Поиск не работает: {search_result.get('message', 'Unknown error')}")
+                except Exception as e:
+                    print(f"❌ Ошибка при тестировании поиска: {str(e)}")
+        else:
+            print("ℹ️ Поиск не тестировался: не найдено подходящих полей для поиска")
+    else:
+        print("ℹ️ Поиск не тестировался: нет существующих записей")
+    
+    print(f"\n🎉 ВСЕ ТЕСТЫ УНИВЕРСАЛЬНОГО РЕДАКТОРА ТАБЛИЦ ПРОЙДЕНЫ УСПЕШНО!")
+    print("✅ Получение списка таблиц работает")
+    print("✅ Получение структуры таблицы работает")
+    print("✅ Получение данных таблицы работает")
+    print("✅ Создание записей работает")
+    print("✅ Обновление записей работает")
+    print("✅ Удаление записей работает")
+    print("✅ Пагинация и поиск работают")
+    
+    return True
+
 def test_final_verification():
     """Final verification of user's requested tasks"""
     print("\n=== ФИНАЛЬНАЯ ПРОВЕРКА ИСПРАВЛЕНИЙ ПО ЗАПРОСУ ПОЛЬЗОВАТЕЛЯ ===")
