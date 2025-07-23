@@ -1164,11 +1164,11 @@ async def get_recent_qa_questions(limit: int = 10):
 async def get_qa_stats():
     """Get Q&A statistics"""
     try:
-        total_questions = await db_client.count_records("qa_questions", {"is_published": True})
-        featured_count = await db_client.count_records("qa_questions", {"is_featured": True, "is_published": True})
+        total_questions = await db_client.count_records("qa_questions")
+        featured_count = await db_client.count_records("qa_questions", {"is_featured": True})
         
         # Get questions by category
-        questions = await db_client.get_records("qa_questions", {"is_published": True})
+        questions = await db_client.get_records("qa_questions")
         questions_by_category = {}
         total_views = 0
         
