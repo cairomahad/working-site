@@ -1799,7 +1799,9 @@ def test_universal_table_editor():
             "level": "level_1",
             "status": "draft",
             "difficulty": "Легко",
-            "estimated_duration_hours": 10
+            "estimated_duration_hours": 10,
+            "teacher_id": str(uuid.uuid4()),
+            "teacher_name": "Тестовый преподаватель"
         }
     elif existing_records:
         # Use structure from existing record but modify values
