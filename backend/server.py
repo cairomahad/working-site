@@ -681,9 +681,28 @@ async def start_test_session(test_id: str, student_data: dict):
     if not all_questions:
         raise HTTPException(status_code=400, detail="Test has no questions")
     
+    # Parse questions and extract options
+    parsed_questions = []
+    for question in all_questions:
+        # Parse text field to extract question and options
+        text_parts = question["text"].split("||")
+        if len(text_parts) > 1:
+            parsed_question = {
+                "id": question["id"],
+                "question_text": text_parts[0],
+                "options": text_parts[1:],
+                "correct_answer": int(question["correct_answer"]),
+                "points": question.get("points", 1),
+                "order": question.get("order", 0)
+            }
+            parsed_questions.append(parsed_question)
+    
+    if not parsed_questions:
+        raise HTTPException(status_code=400, detail="No valid questions found")
+    
     # Select random questions (limit to 10 or all available if less)
-    max_questions = min(10, len(all_questions))
-    selected_questions = random.sample(all_questions, max_questions)
+    max_questions = min(10, len(parsed_questions))
+    selected_questions = random.sample(parsed_questions, max_questions)
     
     # Shuffle answer options for each question using Fisher-Yates algorithm
     shuffled_options = {}
@@ -723,6 +742,10 @@ async def start_test_session(test_id: str, student_data: dict):
             indices = shuffled_options[question["id"]]
             original_options = q_dict["options"]
             q_dict["options"] = [original_options[i] for i in indices]
+            # Update correct answer index to match new order
+            original_correct = question["correct_answer"]
+            new_correct_index = indices.index(original_correct)
+            q_dict["correct_answer"] = new_correct_index
         shuffled_questions.append(q_dict)
     
     return {
