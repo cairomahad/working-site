@@ -568,15 +568,33 @@ export const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Use mock data for now since we're using backend API instead of Firestore
-        setLeaders(mockLeaders);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/leaderboard`);
+        const data = response.data;
+        
+        // Transform data to match component expectations
+        const transformedData = data.map((leader, index) => ({
+          id: leader.student_id,
+          name: leader.name,
+          totalScore: leader.total_score,
+          testCount: leader.test_count,
+          bestScore: leader.best_score,
+          createdAt: new Date(leader.created_at)
+        }));
+        
+        setLeaders(transformedData);
         setLoading(false);
-        setError('Используются демо-данные.');
+        
+        if (transformedData.length === 0) {
+          setError('Пока нет данных о прохождении тестов.');
+        } else {
+          setError(null);
+        }
       } catch (err) {
-        console.error('Failed to setup leaderboard:', err);
+        console.error('Failed to fetch leaderboard:', err);
+        // Fallback to mock data
         setLeaders(mockLeaders);
         setLoading(false);
-        setError('Используются демо-данные.');
+        setError('Не удалось загрузить данные. Показаны демо-данные.');
       }
     };
 
