@@ -569,15 +569,32 @@ async def create_test(test_data: TestCreate, current_admin: dict = Depends(get_c
     """Create new test"""
     test_dict = test_data.dict()
     
+    # Generate test ID first
+    test_id = str(uuid.uuid4())
+    test_dict['id'] = test_id
+    
     # Process questions if provided
     questions = []
     if test_dict.get('questions'):
         for i, q in enumerate(test_dict['questions']):
+            # Create options as QuestionOption objects
+            options = []
+            for opt_text in q.get('options', []):
+                options.append(QuestionOption(
+                    text=opt_text,
+                    is_correct=False  # Will be set based on correct index
+                ))
+            
+            # Set correct answer
+            correct_index = q.get('correct', 0)
+            if 0 <= correct_index < len(options):
+                options[correct_index].is_correct = True
+            
             question = Question(
-                id=str(uuid.uuid4()),
+                test_id=test_id,
                 text=q.get('question', ''),
-                options=q.get('options', []),
-                correct=q.get('correct', 0),
+                question_type=QuestionType.SINGLE_CHOICE,  # Default type
+                options=options,
                 explanation=q.get('explanation', ''),
                 points=q.get('points', 1),
                 order=i + 1
