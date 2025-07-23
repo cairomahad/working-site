@@ -1177,7 +1177,7 @@ async def get_qa_stats():
             if category not in questions_by_category:
                 questions_by_category[category] = 0
             questions_by_category[category] += 1
-            total_views += question.get("view_count", 0)
+            total_views += question.get("views_count", 0)
         
         return QAStats(
             total_questions=total_questions,
