@@ -1113,7 +1113,7 @@ async def get_qa_categories():
     """Get list of Q&A categories"""
     try:
         # Get categories with question counts
-        questions = await db_client.get_records("qa_questions", {"is_published": True})
+        questions = await db_client.get_records("qa_questions")
         categories = {}
         
         for question in questions:
