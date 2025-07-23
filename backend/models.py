@@ -454,7 +454,6 @@ class QAQuestion(BaseModel):
     views_count: int = 0
     likes_count: int = 0
     imam_name: str = "Имам"  # Имя отвечающего имама
-    references: List[str] = []  # Ссылки на источники (Коран, Хадисы)
     related_questions: List[str] = []  # ID связанных вопросов
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
