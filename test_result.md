@@ -264,7 +264,17 @@ backend:
         agent: "main"
         comment: "ИСПРАВЛЕНО! ✅ Система перемешивания ответов работает с алгоритмом Fisher-Yates. ✅ Варианты ответов перемешиваются при каждой новой сессии теста. ✅ Индексы правильных ответов корректно пересчитываются для новых позиций."
 
-  - task: "Enhanced File Upload"
+  - task: "Leaderboard API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ Лидерборд работает корректно. API GET /api/leaderboard доступен и возвращает пустой массив (что нормально при отсутствии завершенных тестов). Готов отображать топ студентов по результатам тестов."
     implemented: true
     working: true
     file: "server.py"
