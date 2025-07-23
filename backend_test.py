@@ -1694,7 +1694,7 @@ def test_final_verification():
     # Create multiple test sessions to verify randomization and shuffling
     sessions = []
     for i in range(3):
-        student_id = f"test_student_{uuid.uuid4()}"
+        student_id = str(uuid.uuid4())  # Generate proper UUID
         
         session_success, session_response = tester.run_test(
             f"Start Test Session {i+1}",
