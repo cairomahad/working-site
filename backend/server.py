@@ -1324,7 +1324,7 @@ async def startup_event():
 
 # UNIVERSAL TABLE MANAGEMENT ENDPOINTS
 @api_router.get("/admin/tables/list")
-async def get_all_tables(current_admin: AdminUser = Depends(get_current_admin)):
+async def get_all_tables(current_admin: dict = Depends(get_current_admin)):
     """Get list of all tables in the database"""
     if not ADMIN_SUPABASE_AVAILABLE:
         raise HTTPException(status_code=503, detail="Admin Supabase client not available")
@@ -1343,7 +1343,7 @@ async def get_all_tables(current_admin: AdminUser = Depends(get_current_admin)):
 @api_router.get("/admin/tables/{table_name}/structure")
 async def get_table_structure(
     table_name: str,
-    current_admin: AdminUser = Depends(get_current_admin)
+    current_admin: dict = Depends(get_current_admin)
 ):
     """Get table structure (columns, types, constraints)"""
     if not ADMIN_SUPABASE_AVAILABLE:
@@ -1366,7 +1366,7 @@ async def get_table_data(
     page: int = 1,
     limit: int = 50,
     search: Optional[str] = None,
-    current_admin: AdminUser = Depends(get_current_admin)
+    current_admin: dict = Depends(get_current_admin)
 ):
     """Get table data with pagination and search"""
     if not ADMIN_SUPABASE_AVAILABLE:
@@ -1392,7 +1392,7 @@ async def get_table_data(
 async def create_table_record(
     table_name: str,
     record_data: Dict[str, Any],
-    current_admin: AdminUser = Depends(get_current_admin)
+    current_admin: dict = Depends(get_current_admin)
 ):
     """Create a new record in the specified table"""
     if not ADMIN_SUPABASE_AVAILABLE:
@@ -1419,7 +1419,7 @@ async def update_table_record(
     table_name: str,
     record_id: str,
     record_data: Dict[str, Any],
-    current_admin: AdminUser = Depends(get_current_admin)
+    current_admin: dict = Depends(get_current_admin)
 ):
     """Update a record in the specified table"""
     if not ADMIN_SUPABASE_AVAILABLE:
@@ -1445,7 +1445,7 @@ async def update_table_record(
 async def delete_table_record(
     table_name: str,
     record_id: str,
-    current_admin: AdminUser = Depends(get_current_admin)
+    current_admin: dict = Depends(get_current_admin)
 ):
     """Delete a record from the specified table"""
     if not ADMIN_SUPABASE_AVAILABLE:
@@ -1470,7 +1470,7 @@ async def delete_table_record(
 async def execute_custom_query(
     table_name: str,
     query_data: Dict[str, str],
-    current_admin: AdminUser = Depends(get_current_admin)
+    current_admin: dict = Depends(get_current_admin)
 ):
     """Execute a custom query on the table (use with caution)"""
     if not ADMIN_SUPABASE_AVAILABLE:
