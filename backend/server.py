@@ -718,7 +718,7 @@ async def start_test_session(test_id: str, student_data: dict):
     # Create test session
     session_data = {
         "id": str(uuid.uuid4()),
-        "student_id": student_data.get("student_id", "anonymous"),
+        "student_id": str(uuid.uuid4()),  # Generate UUID for anonymous student
         "test_id": test_id,
         "course_id": test["course_id"],
         "lesson_id": test.get("lesson_id"),
