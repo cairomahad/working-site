@@ -956,4 +956,231 @@ const EnhancedTeacherModal = ({ teacher, onClose, onSave }) => {
   );
 };
 
+// Lesson Modal Component for Course Management
+const LessonModal = ({ lesson, courseId, courses, onClose, onSave }) => {
+  const [formData, setFormData] = useState({
+    course_id: courseId || lesson?.course_id || '',
+    title: lesson?.title || '',
+    description: lesson?.description || '',
+    content: lesson?.content || '',
+    lesson_type: lesson?.lesson_type || 'text',
+    video_url: lesson?.video_url || '',
+    video_duration: lesson?.video_duration || '',
+    order: lesson?.order || 1,
+    estimated_duration_minutes: lesson?.estimated_duration_minutes || 15,
+    is_published: lesson?.is_published || false
+  });
+  const [loading, setLoading] = useState(false);
+  const { token } = useCompleteAdmin();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (lesson) {
+        await axios.put(`${API}/admin/lessons/${lesson.id}`, formData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        await axios.post(`${API}/admin/lessons`, formData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+      onSave();
+    } catch (error) {
+      console.error('Failed to save lesson:', error);
+      alert('Ошибка сохранения урока');
+    }
+    setLoading(false);
+  };
+
+  // Convert YouTube URL to embed format
+  const convertToEmbedUrl = (url) => {
+    if (!url) return '';
+    
+    // Already an embed URL
+    if (url.includes('youtube.com/embed/')) return url;
+    
+    // Extract video ID from various YouTube URL formats
+    let videoId = '';
+    if (url.includes('youtube.com/watch?v=')) {
+      videoId = url.split('youtube.com/watch?v=')[1].split('&')[0];
+    } else if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1].split('?')[0];
+    }
+    
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+  };
+
+  const handleVideoUrlChange = (e) => {
+    const url = e.target.value;
+    const embedUrl = convertToEmbedUrl(url);
+    setFormData({
+      ...formData,
+      video_url: embedUrl
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div className="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
+        <div className="mt-3">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            {lesson ? 'Редактировать урок' : 'Добавить урок'}
+          </h3>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Курс</label>
+                <select
+                  value={formData.course_id}
+                  onChange={(e) => setFormData({...formData, course_id: e.target.value})}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                  required
+                  disabled={!!courseId} // Disable if courseId is provided
+                >
+                  <option value="">Выберите курс</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Тип урока</label>
+                <select
+                  value={formData.lesson_type}
+                  onChange={(e) => setFormData({...formData, lesson_type: e.target.value})}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                >
+                  <option value="text">Текстовый</option>
+                  <option value="video">Видео</option>
+                  <option value="mixed">Смешанный</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Название урока</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Описание</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                rows="2"
+              />
+            </div>
+
+            {(formData.lesson_type === 'video' || formData.lesson_type === 'mixed') && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">URL видео</label>
+                  <input
+                    type="url"
+                    value={formData.video_url}
+                    onChange={handleVideoUrlChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Поддерживаются YouTube ссылки</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Длительность видео (сек)</label>
+                  <input
+                    type="number"
+                    value={formData.video_duration}
+                    onChange={(e) => setFormData({...formData, video_duration: parseInt(e.target.value) || ''})}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="3600"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Содержание урока</label>
+              <textarea
+                value={formData.content}
+                onChange={(e) => setFormData({...formData, content: e.target.value})}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                rows="6"
+                placeholder="Введите содержание урока в формате HTML или Markdown..."
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Поддерживается HTML разметка</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Порядок</label>
+                <input
+                  type="number"
+                  value={formData.order}
+                  onChange={(e) => setFormData({...formData, order: parseInt(e.target.value)})}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                  min="1"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Время изучения (мин)</label>
+                <input
+                  type="number"
+                  value={formData.estimated_duration_minutes}
+                  onChange={(e) => setFormData({...formData, estimated_duration_minutes: parseInt(e.target.value)})}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                  min="1"
+                  required
+                />
+              </div>
+              <div className="flex items-center">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_published}
+                    onChange={(e) => setFormData({...formData, is_published: e.target.checked})}
+                    className="mr-2 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Опубликовать</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md disabled:opacity-50"
+              >
+                {loading ? 'Сохранение...' : 'Сохранить'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default CompleteAdminProvider;
