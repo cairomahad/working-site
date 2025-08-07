@@ -141,6 +141,11 @@ export const EnhancedCourseManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
+  const [expandedCourse, setExpandedCourse] = useState(null);
+  const [courseLessons, setCourseLessons] = useState({});
+  const [showLessonModal, setShowLessonModal] = useState(false);
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [currentCourseId, setCurrentCourseId] = useState(null);
   const { token } = useCompleteAdmin();
 
   useEffect(() => {
@@ -168,6 +173,24 @@ export const EnhancedCourseManagement = () => {
       setTeachers(response.data);
     } catch (error) {
       console.error('Failed to fetch teachers:', error);
+    }
+  };
+
+  const fetchCourseLessons = async (courseId) => {
+    try {
+      const response = await axios.get(`${API}/admin/courses/${courseId}/lessons`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCourseLessons(prev => ({
+        ...prev,
+        [courseId]: response.data
+      }));
+    } catch (error) {
+      console.error('Failed to fetch lessons:', error);
+      setCourseLessons(prev => ({
+        ...prev,
+        [courseId]: []
+      }));
     }
   };
 
@@ -215,6 +238,52 @@ export const EnhancedCourseManagement = () => {
     }
   };
 
+  const handleToggleExpanded = (courseId) => {
+    if (expandedCourse === courseId) {
+      setExpandedCourse(null);
+    } else {
+      setExpandedCourse(courseId);
+      if (!courseLessons[courseId]) {
+        fetchCourseLessons(courseId);
+      }
+    }
+  };
+
+  const handleCreateLesson = (courseId) => {
+    setCurrentCourseId(courseId);
+    setEditingLesson(null);
+    setShowLessonModal(true);
+  };
+
+  const handleEditLesson = (lesson, courseId) => {
+    setCurrentCourseId(courseId);
+    setEditingLesson(lesson);
+    setShowLessonModal(true);
+  };
+
+  const handleDeleteLesson = async (lessonId, courseId) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот урок?')) {
+      try {
+        await axios.delete(`${API}/admin/lessons/${lessonId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchCourseLessons(courseId);
+        fetchCourses(); // Обновляем счетчики уроков
+      } catch (error) {
+        console.error('Failed to delete lesson:', error);
+        alert('Ошибка удаления урока');
+      }
+    }
+  };
+
+  const handleLessonSave = () => {
+    setShowLessonModal(false);
+    if (currentCourseId) {
+      fetchCourseLessons(currentCourseId);
+      fetchCourses(); // Обновляем счетчики уроков
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center py-12">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
@@ -224,7 +293,7 @@ export const EnhancedCourseManagement = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Управление курсами</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Управление курсами и уроками</h1>
         <button
           onClick={handleCreateCourse}
           className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 flex items-center space-x-2"
@@ -234,73 +303,173 @@ export const EnhancedCourseManagement = () => {
         </button>
       </div>
 
-      {/* Courses Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Courses List */}
+      <div className="space-y-4">
         {courses.map((course) => (
           <div key={course.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="relative h-48">
-              <img
-                src={course.image_url || 'https://via.placeholder.com/400x200?text=Course'}
-                alt={course.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-2 right-2">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  course.status === 'published' ? 'bg-green-100 text-green-800' :
-                  course.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {course.status === 'published' ? 'Опубликован' :
-                   course.status === 'draft' ? 'Черновик' : 'Архив'}
-                </span>
+            <div className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900">{course.title}</h3>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      course.status === 'published' ? 'bg-green-100 text-green-800' :
+                      course.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {course.status === 'published' ? 'Опубликован' :
+                       course.status === 'draft' ? 'Черновик' : 'Архив'}
+                    </span>
+                    <span className="text-xs font-medium text-teal-600">
+                      {course.level === 'level_1' ? '1-й уровень' :
+                       course.level === 'level_2' ? '2-й уровень' : '3-й уровень'}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 mb-3">{course.description}</p>
+                  
+                  <div className="flex items-center space-x-6 text-sm text-gray-500 mb-4">
+                    <span>📖 {course.lessons_count || 0} уроков</span>
+                    <span>📝 {course.tests_count || 0} тестов</span>
+                    <span>⏱️ {course.estimated_duration_hours}ч</span>
+                    <span>👨‍🏫 {course.teacher_name || 'Не назначен'}</span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col space-y-2">
+                  <button
+                    onClick={() => handleEditCourse(course)}
+                    className="bg-teal-100 text-teal-700 py-2 px-4 rounded text-sm hover:bg-teal-200 transition-colors"
+                  >
+                    Редактировать
+                  </button>
+                  <button
+                    onClick={() => handlePublishCourse(course)}
+                    className={`py-2 px-4 rounded text-sm transition-colors ${
+                      course.status === 'published' 
+                        ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' 
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    {course.status === 'published' ? 'Снять с публикации' : 'Опубликовать'}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center mt-4 pt-4 border-t">
+                <button
+                  onClick={() => handleToggleExpanded(course.id)}
+                  className="flex items-center space-x-2 text-teal-600 hover:text-teal-800 font-medium"
+                >
+                  <span>{expandedCourse === course.id ? '📁' : '📂'}</span>
+                  <span>
+                    {expandedCourse === course.id ? 'Скрыть уроки' : 'Показать уроки'}
+                  </span>
+                </button>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleCreateLesson(course.id)}
+                    className="bg-blue-100 text-blue-700 py-2 px-3 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    + Добавить урок
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCourse(course.id)}
+                    className="bg-red-100 text-red-700 py-2 px-3 rounded text-sm hover:bg-red-200 transition-colors"
+                  >
+                    Удалить курс
+                  </button>
+                </div>
               </div>
             </div>
             
-            <div className="p-4">
-              <div className="mb-2">
-                <span className="text-xs font-medium text-teal-600">
-                  {course.level === 'level_1' ? '1-й уровень' :
-                   course.level === 'level_2' ? '2-й уровень' : '3-й уровень'}
-                </span>
+            {/* Lessons Section */}
+            {expandedCourse === course.id && (
+              <div className="border-t bg-gray-50 p-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                  Уроки курса ({courseLessons[course.id]?.length || 0})
+                </h4>
+                
+                {courseLessons[course.id] && courseLessons[course.id].length > 0 ? (
+                  <div className="space-y-3">
+                    {courseLessons[course.id].map((lesson, index) => (
+                      <div key={lesson.id} className="bg-white rounded-lg p-4 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3">
+                              <span className="text-sm font-medium text-gray-500">
+                                #{lesson.order || index + 1}
+                              </span>
+                              <h5 className="font-medium text-gray-900">{lesson.title}</h5>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                lesson.lesson_type === 'video' ? 'bg-blue-100 text-blue-800' :
+                                lesson.lesson_type === 'text' ? 'bg-green-100 text-green-800' :
+                                'bg-purple-100 text-purple-800'
+                              }`}>
+                                {lesson.lesson_type === 'video' ? 'Видео' :
+                                 lesson.lesson_type === 'text' ? 'Текст' : 'Смешанный'}
+                              </span>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                lesson.is_published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                              }`}>
+                                {lesson.is_published ? 'Опубликован' : 'Черновик'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{lesson.description}</p>
+                            <div className="flex items-center space-x-4 text-xs text-gray-500 mt-2">
+                              <span>⏱️ {lesson.estimated_duration_minutes || 15} мин</span>
+                              {lesson.video_url && <span>🎥 Видео</span>}
+                            </div>
+                          </div>
+                          
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleEditLesson(lesson, course.id)}
+                              className="text-teal-600 hover:text-teal-800 text-sm"
+                            >
+                              Редактировать
+                            </button>
+                            <button
+                              onClick={() => handleDeleteLesson(lesson.id, course.id)}
+                              className="text-red-600 hover:text-red-800 text-sm"
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 mb-4">В этом курсе пока нет уроков</p>
+                    <button
+                      onClick={() => handleCreateLesson(course.id)}
+                      className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
+                    >
+                      Создать первый урок
+                    </button>
+                  </div>
+                )}
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{course.title}</h3>
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
-              
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                <span>{course.lessons_count || 0} уроков</span>
-                <span>{course.tests_count || 0} тестов</span>
-                <span>{course.estimated_duration_hours}ч</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => handleEditCourse(course)}
-                  className="bg-teal-100 text-teal-700 py-2 px-3 rounded text-sm hover:bg-teal-200 transition-colors"
-                >
-                  Редактировать
-                </button>
-                <button
-                  onClick={() => handlePublishCourse(course)}
-                  className={`py-2 px-3 rounded text-sm transition-colors ${
-                    course.status === 'published' 
-                      ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' 
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
-                  }`}
-                >
-                  {course.status === 'published' ? 'Снять с публикации' : 'Опубликовать'}
-                </button>
-                <button
-                  onClick={() => handleDeleteCourse(course.id)}
-                  className="bg-red-100 text-red-700 py-2 px-3 rounded text-sm hover:bg-red-200 transition-colors col-span-2"
-                >
-                  Удалить
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         ))}
       </div>
 
+      {courses.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 mb-4">Курсы не найдены</p>
+          <button
+            onClick={handleCreateCourse}
+            className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
+          >
+            Создать первый курс
+          </button>
+        </div>
+      )}
+
+      {/* Course Modal */}
       {showModal && (
         <EnhancedCourseModal
           course={editingCourse}
@@ -310,6 +479,17 @@ export const EnhancedCourseManagement = () => {
             setShowModal(false);
             fetchCourses();
           }}
+        />
+      )}
+
+      {/* Lesson Modal */}
+      {showLessonModal && (
+        <LessonModal
+          lesson={editingLesson}
+          courseId={currentCourseId}
+          courses={courses}
+          onClose={() => setShowLessonModal(false)}
+          onSave={handleLessonSave}
         />
       )}
     </div>
