@@ -75,16 +75,11 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Database client selection
-USE_POSTGRES = os.getenv("USE_POSTGRES", "false").lower() == "true"
-
-if USE_POSTGRES and POSTGRES_AVAILABLE:
-    db_client = postgres_client
-    print("🔗 Используется прямое PostgreSQL подключение")
-elif SUPABASE_AVAILABLE:
+if SUPABASE_AVAILABLE:
     db_client = supabase_client
     print("🔗 Используется Supabase API")
 else:
-    raise Exception("Ни один клиент базы данных не доступен!")
+    raise Exception("Supabase клиент не доступен!")
 
 # Utility functions
 def create_access_token(data: dict):
