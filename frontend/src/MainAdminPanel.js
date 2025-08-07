@@ -140,11 +140,11 @@ const AdminDashboard = () => {
     { title: 'Всего студентов', value: stats?.total_students || 0, icon: '👥', color: 'bg-blue-500' },
     { title: 'Активные студенты', value: stats?.active_students || 0, icon: '✅', color: 'bg-green-500' },
     { title: 'Курсы', value: stats?.total_courses || 0, icon: '📚', color: 'bg-purple-500' },
-    { title: 'Уроки', value: stats?.total_lessons || 0, icon: '📖', color: 'bg-indigo-500' },
     { title: 'Тесты', value: stats?.total_tests || 0, icon: '📝', color: 'bg-yellow-500' },
     { title: 'Преподаватели', value: stats?.total_teachers || 0, icon: '👨‍🏫', color: 'bg-orange-500' },
     { title: 'Новые заявки', value: stats?.pending_applications || 0, icon: '📋', color: 'bg-red-500' },
     { title: 'Тесты сегодня', value: stats?.completed_tests_today || 0, icon: '📊', color: 'bg-teal-500' },
+    { title: 'Всего уроков', value: stats?.total_lessons || 0, icon: '📖', color: 'bg-indigo-500' },
   ];
 
   return (
