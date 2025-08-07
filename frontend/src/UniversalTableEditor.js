@@ -21,7 +21,7 @@ const UniversalTableEditor = () => {
 
   // Get auth token
   const getAuthToken = () => {
-    return localStorage.getItem('admin_token');
+    return localStorage.getItem('userToken');
   };
 
   // Get auth headers
