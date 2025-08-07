@@ -172,8 +172,7 @@ def convert_to_embed_url(url: str) -> str:
 
 @api_router.get("/")
 async def root():
-    client_type = "PostgreSQL" if USE_POSTGRES and POSTGRES_AVAILABLE else "Supabase"
-    return {"message": f"Hello World with {client_type}"}
+    return {"message": "Hello World with Supabase"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
