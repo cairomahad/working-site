@@ -24,15 +24,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from models import *
 
-# Import both clients
-try:
-    from postgres_client import postgres_client
-    POSTGRES_AVAILABLE = True
-    print("✅ PostgreSQL client доступен")
-except ImportError:
-    POSTGRES_AVAILABLE = False
-    print("❌ PostgreSQL client недоступен")
-
+# Import Supabase client
 try:
     from supabase_client import supabase_client
     SUPABASE_AVAILABLE = True
