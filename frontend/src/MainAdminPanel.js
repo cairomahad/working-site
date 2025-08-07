@@ -234,7 +234,6 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
     { id: 'upload', name: 'Загрузка материалов', icon: '⬆️' },
     { id: 'tables', name: 'Редактор таблиц', icon: '🗃️' },
     { id: 'courses', name: 'Курсы', icon: '📚' },
-    { id: 'lessons', name: 'Уроки', icon: '📖' },
     { id: 'tests', name: 'Тесты', icon: '📝' },
     { id: 'qa', name: 'Вопросы и Ответы', icon: '❓' },
     { id: 'team', name: 'Наша команда', icon: '👥' },
