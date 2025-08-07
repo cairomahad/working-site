@@ -310,8 +310,6 @@ const MainAdminPanel = () => {
         return <UniversalTableEditor />;
       case 'courses':
         return <EnhancedCourseManagement />;
-      case 'lessons':
-        return <LessonManagement />;
       case 'tests':
         return <TestManagement />;
       case 'qa':
