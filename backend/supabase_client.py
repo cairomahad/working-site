@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 class SupabaseClient:
     def __init__(self):
         url = os.environ.get('SUPABASE_URL')
-        key = os.environ.get('SUPABASE_ANON_KEY')
+        key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
         
         if not url or not key:
-            raise ValueError("SUPABASE_URL and SUPABASE_ANON_KEY must be set in environment variables")
+            raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment variables")
         
         self.client: Client = create_client(url, key)
         logger.info("Supabase client initialized")
