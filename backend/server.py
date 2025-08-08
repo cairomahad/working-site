@@ -857,12 +857,23 @@ async def submit_test(
         if not user_id or not user_name:
             raise HTTPException(status_code=400, detail="User ID and name are required")
         
-        # Get questions from JSON field or separate table
+        # Get questions from temporary storage, JSON field or separate table
         test_questions = []
-        if test.get("questions"):
+        
+        # Try temporary questions storage first
+        try:
+            questions_storage = await db_client.get_records("test_questions_storage", filters={"test_id": test_id})
+            if questions_storage:
+                test_questions = questions_storage[0].get("questions_data", [])
+                logger.info(f"Using questions from temporary storage: {len(test_questions)}")
+        except Exception as e:
+            logger.info(f"Temporary storage not available: {e}")
+        
+        if not test_questions and test.get("questions"):
             test_questions = test.get("questions", [])
             logger.info(f"Using questions from JSON: {len(test_questions)}")
-        else:
+        
+        if not test_questions:
             # Fallback to separate questions table
             try:
                 questions_records = await db_client.get_records("questions", filters={"test_id": test_id})
