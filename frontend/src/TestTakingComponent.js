@@ -246,7 +246,7 @@ const TestTakingComponent = () => {
           <div className="mt-4">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
               <span>Прогресс: {getAnsweredCount()} из {test.questions.length}</span>
-              <span>🏆 +5 очков за завершение</span>
+              <span>🏆 5 очков за завершение + по 1 за правильный ответ</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
