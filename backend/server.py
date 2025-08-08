@@ -824,8 +824,8 @@ async def submit_test(
 ):
     """Submit test answers and calculate score with points system"""
     try:
-        # Get test
-        test = await db_client.get_record("simple_tests", "id", test_id)
+        # Get test from tests table (not simple_tests!)
+        test = await db_client.get_record("tests", "id", test_id)
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
         
@@ -836,15 +836,45 @@ async def submit_test(
         if not user_id or not user_name:
             raise HTTPException(status_code=400, detail="User ID and name are required")
         
+        # Get questions from JSON field or separate table
+        test_questions = []
+        if test.get("questions_json"):
+            test_questions = test.get("questions_json", [])
+            logger.info(f"Using questions from JSON: {len(test_questions)}")
+        else:
+            # Fallback to separate questions table
+            try:
+                questions_records = await db_client.get_records("questions", filters={"test_id": test_id})
+                for q in questions_records:
+                    question = {
+                        "question": q.get("text", ""),
+                        "options": [opt.get("text", "") for opt in q.get("options", [])],
+                        "correct": 0  # Will be determined from options
+                    }
+                    # Find correct answer
+                    options = q.get("options", [])
+                    for i, opt in enumerate(options):
+                        if opt.get("is_correct", False):
+                            question["correct"] = i
+                            break
+                    test_questions.append(question)
+                logger.info(f"Using questions from separate table: {len(test_questions)}")
+            except Exception as e:
+                logger.warning(f"Could not load questions from separate table: {e}")
+        
         # Calculate score
-        test_questions = test.get("questions", [])
         total_questions = len(test_questions)
         correct_count = 0
+        
+        if total_questions == 0:
+            raise HTTPException(status_code=400, detail="Test has no questions")
         
         for i, question in enumerate(test_questions):
             question_id = f"q{i}"
             user_answer = answers.get(question_id)
             correct_answer = question.get("correct")
+            
+            logger.info(f"Q{i}: user={user_answer}, correct={correct_answer}")
             
             if user_answer is not None and user_answer == correct_answer:
                 correct_count += 1
@@ -852,24 +882,32 @@ async def submit_test(
         percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
         points_earned = 5  # Always 5 points for completing a test
         
-        # Save test result
-        result_data = {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "user_name": user_name,
-            "test_id": test_id,
-            "lesson_id": test["lesson_id"],
-            "score": correct_count,
-            "total_questions": total_questions,
-            "percentage": percentage,
-            "points_earned": points_earned,
-            "completed_at": datetime.utcnow().isoformat()
-        }
+        logger.info(f"Test result: {correct_count}/{total_questions} = {percentage}%, +{points_earned} points")
         
-        await db_client.create_record("test_results", result_data)
+        # Save test result (try to create table if not exists)
+        try:
+            result_data = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "user_name": user_name,
+                "test_id": test_id,
+                "lesson_id": test.get("lesson_id", ""),
+                "score": correct_count,
+                "total_questions": total_questions,
+                "percentage": percentage,
+                "points_earned": points_earned,
+                "completed_at": datetime.utcnow().isoformat()
+            }
+            
+            await db_client.create_record("test_results", result_data)
+        except Exception as e:
+            logger.warning(f"Could not save test result: {e}")
         
-        # Update user score
-        await update_user_score(user_id, user_name, points_earned)
+        # Update user score (try to create table if not exists)
+        try:
+            await update_user_score(user_id, user_name, points_earned)
+        except Exception as e:
+            logger.warning(f"Could not update user score: {e}")
         
         return {
             "score": correct_count,
@@ -881,6 +919,8 @@ async def submit_test(
         
     except Exception as e:
         logger.error(f"Error submitting test: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to submit test: {str(e)}")
 
 async def update_user_score(user_id: str, user_name: str, points_earned: int):
