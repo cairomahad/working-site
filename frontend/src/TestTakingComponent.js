@@ -83,27 +83,6 @@ const TestTakingComponent = () => {
     }));
   };
 
-  const generateUserId = (userName) => {
-    // Create consistent user ID based on username and browser fingerprint
-    if (currentUser?.email) {
-      return currentUser.email;
-    }
-    
-    // For guests, create consistent ID based on username
-    // Using a simple hash function to create consistent ID
-    let hash = 0;
-    const str = userName.toLowerCase().trim();
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    
-    // Add browser fingerprint for uniqueness across different browsers
-    const browserFingerprint = navigator.userAgent.length + screen.width + screen.height;
-    return `guest_${Math.abs(hash)}_${browserFingerprint}`;
-  };
-
   const handleSubmit = async () => {
     if (!userName.trim()) {
       alert('Пожалуйста, введите ваше имя');
@@ -112,7 +91,7 @@ const TestTakingComponent = () => {
 
     setSubmitting(true);
     try {
-      const userId = generateUserId(userName.trim());
+      const userId = generateConsistentUserId(userName.trim());
       
       const submissionData = {
         user_id: userId,
