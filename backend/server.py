@@ -764,24 +764,28 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
         created_test = await db_client.create_record("tests", old_format_data)
         logger.info(f"Created test: {created_test}")
         
-        # Store questions in a temporary storage solution
+        # Store questions in the questions table (simplified format)
         questions = test_dict.get("questions", [])
         if questions:
-            logger.info(f"Will store {len(questions)} questions separately")
-            # Try to create a temporary questions storage
-            try:
-                questions_data = {
-                    "id": str(uuid.uuid4()),
-                    "test_id": test_dict["id"],
-                    "questions_data": questions,
-                    "created_at": datetime.utcnow().isoformat()
-                }
-                await db_client.create_record("test_questions_storage", questions_data)
-                logger.info("Questions stored in separate table")
-            except Exception as e:
-                logger.warning(f"Could not store questions in separate table: {e}")
-                # If we can't store questions separately, include them in test result anyway
-                pass
+            logger.info(f"Will store {len(questions)} questions in questions table")
+            for i, question_data in enumerate(questions):
+                try:
+                    question_record = {
+                        "id": str(uuid.uuid4()),
+                        "test_id": test_dict["id"],
+                        "text": question_data.get("question", ""),
+                        "question_type": "single_choice",
+                        "correct_answer": str(question_data.get("correct", 0)),
+                        "explanation": "",
+                        "points": 1,
+                        "order": i + 1
+                    }
+                    await db_client.create_record("questions", question_record)
+                    logger.info(f"Created question {i+1}")
+                except Exception as e:
+                    logger.warning(f"Could not create question {i+1}: {e}")
+                    # If questions table doesn't work, try to store in a simple way
+                    break
         
         # Return in SimpleTest format
         result = SimpleTest(**{
