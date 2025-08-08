@@ -671,13 +671,24 @@ async def get_test_details(test_id: str):
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
         
-        # Get questions - try JSON field first, then separate table
+        # Get questions - try temporary storage first, then JSON field, then separate table
         questions = []
-        if test.get("questions"):
-            # Load questions from JSON field (new format)
+        
+        # Try temporary questions storage
+        try:
+            questions_storage = await db_client.get_records("test_questions_storage", filters={"test_id": test_id})
+            if questions_storage:
+                questions = questions_storage[0].get("questions_data", [])
+                logger.info(f"Loaded {len(questions)} questions from temporary storage")
+        except Exception as e:
+            logger.info(f"Temporary storage not available: {e}")
+        
+        if not questions and test.get("questions"):
+            # Load questions from JSON field (if exists)
             questions = test.get("questions", [])
             logger.info(f"Loaded {len(questions)} questions from JSON field")
-        else:
+        
+        if not questions:
             # Fallback: try to load from separate questions table (old format)
             try:
                 test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
