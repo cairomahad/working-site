@@ -671,19 +671,26 @@ async def get_test_details(test_id: str):
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
         
-        # Get questions for this test
+        # Get questions - try JSON field first, then separate table
         questions = []
-        try:
-            test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
-            for q in test_questions:
-                question = {
-                    "question": q.get("text", ""),
-                    "options": [opt.get("text", "") for opt in q.get("options", [])],
-                    "correct": 0  # We won't reveal correct answer
-                }
-                questions.append(question)
-        except Exception as e:
-            logger.warning(f"Could not load questions for test {test_id}: {e}")
+        if test.get("questions_json"):
+            # Load questions from JSON field (new format)
+            questions = test.get("questions_json", [])
+            logger.info(f"Loaded {len(questions)} questions from JSON field")
+        else:
+            # Fallback: try to load from separate questions table (old format)
+            try:
+                test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
+                for q in test_questions:
+                    question = {
+                        "question": q.get("text", ""),
+                        "options": [opt.get("text", "") for opt in q.get("options", [])],
+                        "correct": 0  # Don't reveal correct answer to frontend
+                    }
+                    questions.append(question)
+                logger.info(f"Loaded {len(questions)} questions from separate table")
+            except Exception as e:
+                logger.warning(f"Could not load questions from separate table: {e}")
         
         converted_test = {
             "id": test.get("id"),
@@ -697,6 +704,7 @@ async def get_test_details(test_id: str):
             "updated_at": test.get("updated_at")
         }
         
+        logger.info(f"Returning test with {len(questions)} questions")
         return SimpleTest(**converted_test)
         
     except Exception as e:
