@@ -746,7 +746,7 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
             "order": 1,
             "created_at": test_dict["created_at"],
             "updated_at": test_dict["updated_at"],
-            "questions_json": test_dict.get("questions", [])  # Сохраняем вопросы в JSON поле
+            "questions": test_dict.get("questions", [])  # Сохраняем вопросы в JSON поле
         }
         
         logger.info(f"Creating test in old format: {old_format_data}")
