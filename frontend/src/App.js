@@ -18,6 +18,7 @@ import { LessonView, TestTaking } from "./LessonComponents";
 import { LessonsPage, CourseLessonsPage, LessonDetailPage } from "./LessonsPage";
 import { QAMainPage, QACategoryPage, QAQuestionPage, QASearchPage, AskQuestionForm } from "./QAComponents";
 import { PromocodePromo, PromocodeEntry, PromocodeSuccess, AdminContactDialog, StudentCourses } from "./PromocodeComponents";
+import TestTakingComponent from "./TestTakingComponent";
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
