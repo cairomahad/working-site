@@ -662,7 +662,46 @@ async def get_lesson_tests(lesson_id: str):
         logger.error(f"Error getting tests for lesson {lesson_id}: {str(e)}")
         return []
 
-@api_router.post("/admin/tests", response_model=SimpleTest)
+@api_router.get("/tests/{test_id}", response_model=SimpleTest)
+async def get_test_details(test_id: str):
+    """Get test details with questions for taking test"""
+    try:
+        # Get test from tests table
+        test = await db_client.get_record("tests", "id", test_id)
+        if not test:
+            raise HTTPException(status_code=404, detail="Test not found")
+        
+        # Get questions for this test
+        questions = []
+        try:
+            test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
+            for q in test_questions:
+                question = {
+                    "question": q.get("text", ""),
+                    "options": [opt.get("text", "") for opt in q.get("options", [])],
+                    "correct": 0  # We won't reveal correct answer
+                }
+                questions.append(question)
+        except Exception as e:
+            logger.warning(f"Could not load questions for test {test_id}: {e}")
+        
+        converted_test = {
+            "id": test.get("id"),
+            "lesson_id": test.get("lesson_id") or "",
+            "title": test.get("title") or "",
+            "description": test.get("description") or "",
+            "questions": questions,
+            "time_limit_minutes": test.get("time_limit_minutes", 10),
+            "is_published": test.get("is_published", True),
+            "created_at": test.get("created_at"),
+            "updated_at": test.get("updated_at")
+        }
+        
+        return SimpleTest(**converted_test)
+        
+    except Exception as e:
+        logger.error(f"Error getting test details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get test: {str(e)}")
 async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = Depends(get_current_admin)):
     """Create new test for a lesson"""
     try:
