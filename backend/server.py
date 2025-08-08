@@ -1002,7 +1002,8 @@ async def submit_test(
             "total_questions": total_questions,
             "percentage": percentage,
             "points_earned": points_earned,
-            "message": f"Тест завершен! Получено {points_earned} очков.",
+            "message": message,
+            "is_retake": has_taken_before,
             "correct_answers": [
                 {
                     "question": q.get("question", ""),
