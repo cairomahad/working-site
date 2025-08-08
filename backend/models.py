@@ -110,47 +110,29 @@ class CourseUpdate(BaseModel):
     order: Optional[int] = None
     prerequisites: Optional[List[str]] = None
 
-# Lesson Models
-class LessonAttachment(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    filename: str
-    file_url: str
-    file_type: str  # pdf, doc, image, etc.
-    file_size: int  # in bytes
-
+# NEW Lesson Models - Simplified and Clean
 class Lesson(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     course_id: str
     title: str
     slug: Optional[str] = None
-    description: Optional[str] = None
-    content: str  # HTML content
-    lesson_type: LessonType
+    description: Optional[str] = ""
+    content: str = ""
+    lesson_type: LessonType = LessonType.TEXT
     video_url: Optional[str] = None
-    video_duration: Optional[int] = None  # in seconds
-    attachment_url: Optional[str] = None  # Single attachment URL
-    order: int
+    order: int = 1
     is_published: bool = True
-    estimated_duration_minutes: int = 15
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    
-    def __init__(self, **data):
-        super().__init__(**data)
-        if not self.slug:
-            self.slug = create_slug(self.title)
 
 class LessonCreate(BaseModel):
     course_id: str
     title: str
-    slug: Optional[str] = None
-    description: Optional[str] = None
-    content: str
-    lesson_type: LessonType
+    description: Optional[str] = ""
+    content: str = ""
+    lesson_type: LessonType = LessonType.TEXT
     video_url: Optional[str] = None
-    video_duration: Optional[int] = None
-    order: int
-    estimated_duration_minutes: int = 15
+    order: int = 1
 
 class LessonUpdate(BaseModel):
     title: Optional[str] = None
@@ -158,10 +140,8 @@ class LessonUpdate(BaseModel):
     content: Optional[str] = None
     lesson_type: Optional[LessonType] = None
     video_url: Optional[str] = None
-    video_duration: Optional[int] = None
     order: Optional[int] = None
     is_published: Optional[bool] = None
-    estimated_duration_minutes: Optional[int] = None
 
 # Test/Quiz Models
 class QuestionOption(BaseModel):
