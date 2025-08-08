@@ -613,23 +613,15 @@ async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
 async def get_lesson_test(lesson_id: str):
     """Get test for a specific lesson"""
     try:
-        # Try new simple_tests table first
-        tests = await db_client.get_records("simple_tests", filters={"lesson_id": lesson_id})
-        if tests:
-            return SimpleTest(**tests[0])
-    except:
-        pass
-    
-    # Fallback to old tests table
-    try:
+        # Use the old tests table since that's what exists
         tests = await db_client.get_records("tests", filters={"lesson_id": lesson_id})
         if tests:
             test = tests[0]
             converted_test = {
                 "id": test.get("id"),
-                "lesson_id": test.get("lesson_id", ""),
-                "title": test.get("title", ""),
-                "description": test.get("description", ""),
+                "lesson_id": test.get("lesson_id") or "",
+                "title": test.get("title") or "",
+                "description": test.get("description") or "",
                 "questions": [],
                 "time_limit_minutes": test.get("time_limit_minutes", 10),
                 "is_published": test.get("is_published", True),
@@ -641,6 +633,34 @@ async def get_lesson_test(lesson_id: str):
         pass
     
     raise HTTPException(status_code=404, detail="No test found for this lesson")
+
+@api_router.get("/lessons/{lesson_id}/tests", response_model=List[SimpleTest])
+async def get_lesson_tests(lesson_id: str):
+    """Get all tests for a specific lesson (returns list for compatibility)"""
+    try:
+        # Use the old tests table since that's what exists
+        tests = await db_client.get_records("tests", filters={"lesson_id": lesson_id})
+        converted_tests = []
+        
+        for test in tests:
+            converted_test = {
+                "id": test.get("id"),
+                "lesson_id": test.get("lesson_id") or "",
+                "title": test.get("title") or "",
+                "description": test.get("description") or "",
+                "questions": [],
+                "time_limit_minutes": test.get("time_limit_minutes", 10),
+                "is_published": test.get("is_published", True),
+                "created_at": test.get("created_at"),
+                "updated_at": test.get("updated_at")
+            }
+            converted_tests.append(SimpleTest(**converted_test))
+        
+        return converted_tests
+        
+    except Exception as e:
+        logger.error(f"Error getting tests for lesson {lesson_id}: {str(e)}")
+        return []
 
 @api_router.post("/admin/tests", response_model=SimpleTest)
 async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = Depends(get_current_admin)):
