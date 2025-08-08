@@ -478,8 +478,8 @@ export const HeroSection = ({ onStartLearning }) => {
           <div className="relative">
             <div className="relative z-10">
               <img
-                src="https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxpc2xhbWljJTIwY2FsbGlncmFwaHl8ZW58MHx8fHwxNzUzMjcxNDE2fDA&ixlib=rb-4.1.0&q=85"
-                alt="Исламская каллиграфия"
+                src="https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=800&h=600&fit=crop&crop=center"
+                alt="Красивая мечеть на закате"
                 className="w-full h-96 object-cover rounded-2xl shadow-2xl"
               />
             </div>
