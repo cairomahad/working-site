@@ -195,6 +195,13 @@ const TestTakingComponent = () => {
           <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="space-y-3">
               <button
+                onClick={() => window.location.reload()}
+                className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2"
+              >
+                <span>🔄</span>
+                <span>Пройти тест заново</span>
+              </button>
+              <button
                 onClick={() => navigate('/leaderboard')}
                 className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 transition-colors"
               >
