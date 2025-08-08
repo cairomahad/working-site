@@ -578,12 +578,15 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
 async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
     """Get all tests for admin"""
     try:
+        logger.info("Getting tests from 'tests' table")
         # Use the old tests table since that's what exists
         tests = await db_client.get_records("tests")
+        logger.info(f"Found {len(tests)} tests in database")
         
         # Convert old format to new format (simplified)
         converted_tests = []
-        for test in tests:
+        for i, test in enumerate(tests):
+            logger.info(f"Converting test {i+1}: {test.get('title', 'Unknown')}")
             converted_test = {
                 "id": test.get("id"),
                 "lesson_id": test.get("lesson_id", ""),
@@ -597,10 +600,13 @@ async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
             }
             converted_tests.append(SimpleTest(**converted_test))
         
+        logger.info(f"Returning {len(converted_tests)} converted tests")
         return converted_tests
         
     except Exception as e:
         logger.error(f"Error getting tests: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return []
 
 @api_router.get("/lessons/{lesson_id}/test", response_model=SimpleTest)
