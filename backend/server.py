@@ -393,7 +393,7 @@ async def get_lesson(lesson_id: str):
 @api_router.get("/admin/lessons", response_model=List[Lesson])
 async def get_all_lessons_admin(current_admin: dict = Depends(get_current_admin)):
     """Get all lessons for admin panel"""
-    lessons = await db_client.get_records("lessons", order_by="created_at.desc")
+    lessons = await db_client.get_records("lessons", order_by="-created_at")
     return [Lesson(**lesson) for lesson in lessons]
 
 @api_router.get("/admin/courses/{course_id}/lessons", response_model=List[Lesson])
