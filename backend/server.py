@@ -578,40 +578,18 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
 async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
     """Get all tests for admin"""
     try:
-        # Always use the old tests table since that's what exists
+        # Use the old tests table since that's what exists
         tests = await db_client.get_records("tests")
         
-        # Convert old format to new format
+        # Convert old format to new format (simplified)
         converted_tests = []
         for test in tests:
-            # Get questions for this test
-            questions = []
-            try:
-                test_questions = await db_client.get_records("questions", filters={"test_id": test.get("id", "")})
-                for q in test_questions:
-                    question = {
-                        "question": q.get("text", ""),
-                        "options": [opt.get("text", "") for opt in q.get("options", [])],
-                        "correct": 0  # Default, we'll try to find correct answer
-                    }
-                    
-                    # Find correct answer index
-                    options = q.get("options", [])
-                    for i, opt in enumerate(options):
-                        if opt.get("is_correct", False):
-                            question["correct"] = i
-                            break
-                    
-                    questions.append(question)
-            except Exception as e:
-                logger.warning(f"Could not load questions for test {test.get('id')}: {e}")
-            
             converted_test = {
                 "id": test.get("id"),
                 "lesson_id": test.get("lesson_id", ""),
                 "title": test.get("title", ""),
                 "description": test.get("description", ""),
-                "questions": questions,
+                "questions": [],  # For now, questions are not loaded from separate table
                 "time_limit_minutes": test.get("time_limit_minutes", 10),
                 "is_published": test.get("is_published", True),
                 "created_at": test.get("created_at"),
