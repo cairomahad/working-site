@@ -373,7 +373,7 @@ class QuestionPool(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     text: str
     question_type: QuestionType
-    options: List[QuestionOption] = []
+    options: List[Dict[str, Any]] = []  # Changed to generic dict structure
     correct_answer: Optional[str] = None
     explanation: Optional[str] = None
     points: int = 1
