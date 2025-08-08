@@ -573,7 +573,7 @@ const LeaderboardPage = () => {
   return (
     <div className="App">
       <Header />
-      <Leaderboard />
+      <NewLeaderboardPage />
     </div>
   );
 };
