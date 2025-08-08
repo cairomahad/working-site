@@ -702,6 +702,8 @@ async def get_test_details(test_id: str):
     except Exception as e:
         logger.error(f"Error getting test details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get test: {str(e)}")
+
+@api_router.post("/admin/tests", response_model=SimpleTest)
 async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = Depends(get_current_admin)):
     """Create new test for a lesson"""
     try:
