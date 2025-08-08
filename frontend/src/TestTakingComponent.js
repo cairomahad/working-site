@@ -307,7 +307,7 @@ const TestTakingComponent = () => {
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  placeholder="Введите ваше полное имя (например: Ахмед Магомедов)"
+                  placeholder="Введите ваше имя (например: Ахмед Магомедов)"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   autoFocus
                   onKeyDown={(e) => {
@@ -317,7 +317,7 @@ const TestTakingComponent = () => {
                   }}
                 />
                 <p className="text-sm text-gray-500 mt-2">
-                  Введите ваше полное имя. Это поможет избежать повторного начисления баллов за один тест.
+                  Введите ваше имя.
                 </p>
               </div>
               <button
