@@ -12,7 +12,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://9ff3ac04-f888-4f2d-9a65-e994a70c18b2.preview.emergentagent.com/api"
+BACKEND_URL = "https://e5fbb0f7-feaa-4820-90b6-6651366b673e.preview.emergentagent.com/api"
 
 # Admin credentials for testing
 ADMIN_EMAIL = "admin@uroki-islama.ru"
