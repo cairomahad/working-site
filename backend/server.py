@@ -671,37 +671,33 @@ async def get_test_details(test_id: str):
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
         
-        # Get questions - try temporary storage first, then JSON field, then separate table
+        # Get questions from questions table or JSON field
         questions = []
         
-        # Try temporary questions storage
+        # Try to load from questions table first
         try:
-            questions_storage = await db_client.get_records("test_questions_storage", filters={"test_id": test_id})
-            if questions_storage:
-                questions = questions_storage[0].get("questions_data", [])
-                logger.info(f"Loaded {len(questions)} questions from temporary storage")
+            test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
+            for q in test_questions:
+                # Простая структура вопросов
+                question = {
+                    "question": q.get("text", ""),
+                    "options": [],  # Пока без вариантов ответов из старой системы
+                    "correct": int(q.get("correct_answer", "0"))
+                }
+                
+                # Попробуем загрузить опции, если они есть в правильном формате
+                if q.get("options") and isinstance(q.get("options"), list):
+                    question["options"] = [opt.get("text", "") for opt in q.get("options", [])]
+                
+                questions.append(question)
+            logger.info(f"Loaded {len(questions)} questions from questions table")
         except Exception as e:
-            logger.info(f"Temporary storage not available: {e}")
+            logger.warning(f"Could not load questions from questions table: {e}")
         
         if not questions and test.get("questions"):
-            # Load questions from JSON field (if exists)
+            # Fallback: Load questions from JSON field (if exists)
             questions = test.get("questions", [])
             logger.info(f"Loaded {len(questions)} questions from JSON field")
-        
-        if not questions:
-            # Fallback: try to load from separate questions table (old format)
-            try:
-                test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
-                for q in test_questions:
-                    question = {
-                        "question": q.get("text", ""),
-                        "options": [opt.get("text", "") for opt in q.get("options", [])],
-                        "correct": 0  # Don't reveal correct answer to frontend
-                    }
-                    questions.append(question)
-                logger.info(f"Loaded {len(questions)} questions from separate table")
-            except Exception as e:
-                logger.warning(f"Could not load questions from separate table: {e}")
         
         converted_test = {
             "id": test.get("id"),
