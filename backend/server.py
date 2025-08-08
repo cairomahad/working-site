@@ -578,31 +578,52 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
 async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
     """Get all tests for admin"""
     try:
-        # Try new simple_tests table first
-        tests = await db_client.get_records("simple_tests", order_by="-created_at")
-        return [SimpleTest(**test) for test in tests]
-    except:
-        # Fallback to old tests table if simple_tests doesn't exist
-        try:
-            tests = await db_client.get_records("tests", order_by="-created_at")
-            # Convert old format to new format
-            converted_tests = []
-            for test in tests:
-                converted_test = {
-                    "id": test.get("id"),
-                    "lesson_id": test.get("lesson_id", ""),
-                    "title": test.get("title", ""),
-                    "description": test.get("description", ""),
-                    "questions": [],  # We'll load separately if needed
-                    "time_limit_minutes": test.get("time_limit_minutes", 10),
-                    "is_published": test.get("is_published", True),
-                    "created_at": test.get("created_at"),
-                    "updated_at": test.get("updated_at")
-                }
-                converted_tests.append(SimpleTest(**converted_test))
-            return converted_tests
-        except:
-            return []
+        # Always use the old tests table since that's what exists
+        tests = await db_client.get_records("tests", order_by="-created_at")
+        
+        # Convert old format to new format
+        converted_tests = []
+        for test in tests:
+            # Get questions for this test
+            questions = []
+            try:
+                test_questions = await db_client.get_records("questions", filters={"test_id": test.get("id", "")})
+                for q in test_questions:
+                    question = {
+                        "question": q.get("text", ""),
+                        "options": [opt.get("text", "") for opt in q.get("options", [])],
+                        "correct": 0  # Default, we'll try to find correct answer
+                    }
+                    
+                    # Find correct answer index
+                    options = q.get("options", [])
+                    for i, opt in enumerate(options):
+                        if opt.get("is_correct", False):
+                            question["correct"] = i
+                            break
+                    
+                    questions.append(question)
+            except Exception as e:
+                logger.warning(f"Could not load questions for test {test.get('id')}: {e}")
+            
+            converted_test = {
+                "id": test.get("id"),
+                "lesson_id": test.get("lesson_id", ""),
+                "title": test.get("title", ""),
+                "description": test.get("description", ""),
+                "questions": questions,
+                "time_limit_minutes": test.get("time_limit_minutes", 10),
+                "is_published": test.get("is_published", True),
+                "created_at": test.get("created_at"),
+                "updated_at": test.get("updated_at")
+            }
+            converted_tests.append(SimpleTest(**converted_test))
+        
+        return converted_tests
+        
+    except Exception as e:
+        logger.error(f"Error getting tests: {str(e)}")
+        return []
 
 @api_router.get("/lessons/{lesson_id}/test", response_model=SimpleTest)
 async def get_lesson_test(lesson_id: str):
