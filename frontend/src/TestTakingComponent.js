@@ -152,10 +152,19 @@ const TestTakingComponent = () => {
           <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
             <div className="mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🎉</span>
+                <span className="text-3xl">{result.is_retake ? '📝' : '🎉'}</span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Тест завершен!</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {result.is_retake ? 'Тест завершен повторно!' : 'Тест завершен!'}
+              </h2>
               <p className="text-gray-600">{result.message}</p>
+              {result.is_retake && (
+                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    💡 Вы уже проходили этот тест ранее. Баллы начисляются только за первое прохождение.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="bg-gray-50 rounded-lg p-6 mb-6">
