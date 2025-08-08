@@ -983,7 +983,16 @@ async def submit_test(
             "total_questions": total_questions,
             "percentage": percentage,
             "points_earned": points_earned,
-            "message": f"Тест завершен! Получено {points_earned} очков."
+            "message": f"Тест завершен! Получено {points_earned} очков.",
+            "correct_answers": [
+                {
+                    "question": q.get("question", ""),
+                    "user_answer": answers.get(f"q{i}"),
+                    "correct_answer": q.get("correct"),
+                    "is_correct": answers.get(f"q{i}") == q.get("correct")
+                }
+                for i, q in enumerate(test_questions)
+            ]
         }
         
     except Exception as e:
