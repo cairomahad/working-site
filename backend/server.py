@@ -579,7 +579,7 @@ async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
     """Get all tests for admin"""
     try:
         # Always use the old tests table since that's what exists
-        tests = await db_client.get_records("tests", order_by="-created_at")
+        tests = await db_client.get_records("tests")
         
         # Convert old format to new format
         converted_tests = []
