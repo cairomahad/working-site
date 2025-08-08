@@ -965,7 +965,7 @@ const LessonModal = ({ lesson, courseId, courses, onClose, onSave }) => {
     content: lesson?.content || '',
     lesson_type: lesson?.lesson_type || 'text',
     video_url: lesson?.video_url || '',
-    video_duration: lesson?.video_duration || '',
+    video_duration: lesson?.video_duration || null,
     order: lesson?.order || 1,
     estimated_duration_minutes: lesson?.estimated_duration_minutes || 15,
     is_published: lesson?.is_published || false
