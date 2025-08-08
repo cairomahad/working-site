@@ -673,9 +673,9 @@ async def get_test_details(test_id: str):
         
         # Get questions - try JSON field first, then separate table
         questions = []
-        if test.get("questions_json"):
+        if test.get("questions"):
             # Load questions from JSON field (new format)
-            questions = test.get("questions_json", [])
+            questions = test.get("questions", [])
             logger.info(f"Loaded {len(questions)} questions from JSON field")
         else:
             # Fallback: try to load from separate questions table (old format)
