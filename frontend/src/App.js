@@ -560,20 +560,10 @@ const LessonDetailRouter = () => {
 };
 
 const TestRouter = () => {
-  const { testId } = useParams();
-  const navigate = useNavigate();
-
   return (
     <div className="App">
       <Header />
-      <TestTaking 
-        testId={testId} 
-        setCurrentPage={(page) => {
-          if (page === 'lessons') {
-            navigate('/lessons');
-          }
-        }}
-      />
+      <TestTakingComponent />
     </div>
   );
 };
