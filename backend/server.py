@@ -607,10 +607,35 @@ async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
 @api_router.get("/lessons/{lesson_id}/test", response_model=SimpleTest)
 async def get_lesson_test(lesson_id: str):
     """Get test for a specific lesson"""
-    tests = await db_client.get_records("simple_tests", filters={"lesson_id": lesson_id})
-    if not tests:
-        raise HTTPException(status_code=404, detail="No test found for this lesson")
-    return SimpleTest(**tests[0])
+    try:
+        # Try new simple_tests table first
+        tests = await db_client.get_records("simple_tests", filters={"lesson_id": lesson_id})
+        if tests:
+            return SimpleTest(**tests[0])
+    except:
+        pass
+    
+    # Fallback to old tests table
+    try:
+        tests = await db_client.get_records("tests", filters={"lesson_id": lesson_id})
+        if tests:
+            test = tests[0]
+            converted_test = {
+                "id": test.get("id"),
+                "lesson_id": test.get("lesson_id", ""),
+                "title": test.get("title", ""),
+                "description": test.get("description", ""),
+                "questions": [],
+                "time_limit_minutes": test.get("time_limit_minutes", 10),
+                "is_published": test.get("is_published", True),
+                "created_at": test.get("created_at"),
+                "updated_at": test.get("updated_at")
+            }
+            return SimpleTest(**converted_test)
+    except:
+        pass
+    
+    raise HTTPException(status_code=404, detail="No test found for this lesson")
 
 @api_router.post("/admin/tests", response_model=SimpleTest)
 async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = Depends(get_current_admin)):
