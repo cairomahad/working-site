@@ -204,22 +204,6 @@ class LessonProgress(BaseModel):
     completed_at: Optional[datetime] = None
     last_accessed: datetime = Field(default_factory=datetime.utcnow)
 
-class TestAttempt(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    student_id: str
-    test_id: str
-    course_id: str
-    lesson_id: Optional[str] = None
-    answers: Dict[str, Any] = {}  # question_id -> answer
-    score: int = 0
-    total_points: int = 0
-    percentage: float = 0.0
-    is_passed: bool = False
-    time_taken_minutes: int = 0
-    attempt_number: int = 1
-    started_at: datetime = Field(default_factory=datetime.utcnow)
-    completed_at: Optional[datetime] = None
-
 class CourseEnrollment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     student_id: str
