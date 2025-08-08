@@ -264,18 +264,27 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
     setLoading(true);
 
     try {
+      // Process form data for correct types
+      const processedData = {
+        ...formData,
+        video_duration: formData.video_duration === '' || formData.video_duration === null ? null : parseInt(formData.video_duration),
+        order: parseInt(formData.order),
+        estimated_duration_minutes: parseInt(formData.estimated_duration_minutes)
+      };
+
       if (lesson) {
-        await axios.put(`${API}/admin/lessons/${lesson.id}`, formData, {
+        await axios.put(`${API}/admin/lessons/${lesson.id}`, processedData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post(`${API}/admin/lessons`, formData, {
+        await axios.post(`${API}/admin/lessons`, processedData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
       onSave();
     } catch (error) {
       console.error('Failed to save lesson:', error);
+      console.error('Error details:', error.response?.data);
     }
     setLoading(false);
   };
