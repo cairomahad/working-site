@@ -857,42 +857,25 @@ async def submit_test(
         if not user_id or not user_name:
             raise HTTPException(status_code=400, detail="User ID and name are required")
         
-        # Get questions from temporary storage, JSON field or separate table
+        # Get questions from questions table
         test_questions = []
         
-        # Try temporary questions storage first
         try:
-            questions_storage = await db_client.get_records("test_questions_storage", filters={"test_id": test_id})
-            if questions_storage:
-                test_questions = questions_storage[0].get("questions_data", [])
-                logger.info(f"Using questions from temporary storage: {len(test_questions)}")
+            questions_records = await db_client.get_records("questions", filters={"test_id": test_id})
+            for q in questions_records:
+                question = {
+                    "question": q.get("text", ""),
+                    "correct": int(q.get("correct_answer", "0"))
+                }
+                test_questions.append(question)
+            logger.info(f"Using questions from questions table: {len(test_questions)}")
         except Exception as e:
-            logger.info(f"Temporary storage not available: {e}")
+            logger.warning(f"Could not load questions from questions table: {e}")
         
+        # Fallback: try JSON field
         if not test_questions and test.get("questions"):
             test_questions = test.get("questions", [])
             logger.info(f"Using questions from JSON: {len(test_questions)}")
-        
-        if not test_questions:
-            # Fallback to separate questions table
-            try:
-                questions_records = await db_client.get_records("questions", filters={"test_id": test_id})
-                for q in questions_records:
-                    question = {
-                        "question": q.get("text", ""),
-                        "options": [opt.get("text", "") for opt in q.get("options", [])],
-                        "correct": 0  # Will be determined from options
-                    }
-                    # Find correct answer
-                    options = q.get("options", [])
-                    for i, opt in enumerate(options):
-                        if opt.get("is_correct", False):
-                            question["correct"] = i
-                            break
-                    test_questions.append(question)
-                logger.info(f"Using questions from separate table: {len(test_questions)}")
-            except Exception as e:
-                logger.warning(f"Could not load questions from separate table: {e}")
         
         # Calculate score
         total_questions = len(test_questions)
