@@ -949,7 +949,25 @@ async def submit_test(
                 correct_count += 1
         
         percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
-        points_earned = 5  # Always 5 points for completing a test
+        
+        # Check if user has already taken this test before
+        try:
+            existing_results = await db_client.get_records("test_results", filters={
+                "user_id": user_id, 
+                "test_id": test_id
+            })
+            has_taken_before = len(existing_results) > 0
+        except Exception as e:
+            logger.info(f"Could not check existing results: {e}")
+            has_taken_before = False
+        
+        # Calculate points: 5 for completion + 1 per correct answer, but only if first attempt
+        if has_taken_before:
+            points_earned = 0  # No points for retaking
+            message = f"Тест завершен! Результат: {correct_count}/{total_questions} ({percentage:.1f}%). За повторное прохождение очки не начисляются."
+        else:
+            points_earned = 5 + correct_count  # 5 for completion + 1 per correct answer
+            message = f"Тест завершен! Получено {points_earned} очков (5 за завершение + {correct_count} за правильные ответы)."
         
         logger.info(f"Test result: {correct_count}/{total_questions} = {percentage}%, +{points_earned} points")
         
