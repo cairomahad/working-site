@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Testing Script for Reorganized Admin Panel
-Testing the integration of lesson management into courses panel
+Backend Testing Script for Test Scoring System
+Testing the fixed scoring logic: 5 points + 1 per correct answer for first attempt, 0 for retakes
 """
 
 import requests
@@ -18,12 +18,13 @@ BACKEND_URL = "https://b13f8f66-31dd-42be-a080-4ea955b19065.preview.emergentagen
 ADMIN_EMAIL = "admin@uroki-islama.ru"
 ADMIN_PASSWORD = "admin123"
 
-class AdminPanelTester:
+class TestScoringTester:
     def __init__(self):
         self.session = requests.Session()
         self.admin_token = None
-        self.test_course_id = None
-        self.test_lesson_id = None
+        self.test_id = None
+        self.test_user_id = str(uuid.uuid4())
+        self.test_user_name = "Ахмед Тестовый"
         
     def authenticate_admin(self):
         """Test admin authentication with email/password"""
@@ -59,266 +60,287 @@ class AdminPanelTester:
             print(f"❌ Authentication error: {str(e)}")
             return False
     
-    def test_admin_courses_endpoint(self):
-        """Test GET /api/admin/courses - get courses list"""
-        print("\n📚 Testing admin courses endpoint...")
+    def find_available_test(self):
+        """Find any available test in the system"""
+        print("\n🔍 Finding available test in system...")
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/admin/courses")
+            # Get all tests from admin endpoint
+            response = self.session.get(f"{BACKEND_URL}/admin/tests")
             
             if response.status_code == 200:
-                courses = response.json()
-                print(f"✅ GET /api/admin/courses successful")
-                print(f"   Found {len(courses)} courses")
+                tests = response.json()
+                print(f"✅ Found {len(tests)} tests in system")
                 
-                if courses:
-                    # Store first course ID for lesson testing
-                    self.test_course_id = courses[0]["id"]
-                    print(f"   Sample course: {courses[0]['title']} (ID: {self.test_course_id})")
+                if tests:
+                    # Use the first test
+                    self.test_id = tests[0]["id"]
+                    print(f"   Using test: {tests[0]['title']} (ID: {self.test_id})")
                     
-                    # Show course statuses
-                    statuses = {}
-                    for course in courses:
-                        status = course.get("status", "unknown")
-                        statuses[status] = statuses.get(status, 0) + 1
-                    print(f"   Course statuses: {statuses}")
-                
-                return True
+                    # Get test details to see questions
+                    test_response = self.session.get(f"{BACKEND_URL}/tests/{self.test_id}")
+                    if test_response.status_code == 200:
+                        test_details = test_response.json()
+                        questions_count = len(test_details.get("questions", []))
+                        print(f"   Test has {questions_count} questions")
+                        return True
+                    else:
+                        print(f"   ⚠️ Could not get test details: {test_response.status_code}")
+                        return True  # Still proceed with the test ID
+                else:
+                    print("❌ No tests found in system")
+                    return False
             else:
-                print(f"❌ GET /api/admin/courses failed: {response.status_code}")
+                print(f"❌ Failed to get tests: {response.status_code}")
                 print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Admin courses endpoint error: {str(e)}")
+            print(f"❌ Error finding test: {str(e)}")
             return False
     
-    def test_course_lessons_endpoint(self):
-        """Test GET /api/admin/courses/{course_id}/lessons - get course lessons"""
-        print("\n📖 Testing course lessons endpoint...")
+    def test_first_attempt_scoring(self):
+        """Test first attempt scoring: should give 5 + correct answers points"""
+        print("\n🎯 Testing first attempt scoring...")
         
-        if not self.test_course_id:
-            print("❌ No test course ID available")
+        if not self.test_id:
+            print("❌ No test ID available")
             return False
         
         try:
-            response = self.session.get(f"{BACKEND_URL}/admin/courses/{self.test_course_id}/lessons")
-            
-            if response.status_code == 200:
-                lessons = response.json()
-                print(f"✅ GET /api/admin/courses/{self.test_course_id}/lessons successful")
-                print(f"   Found {len(lessons)} lessons in course")
-                
-                if lessons:
-                    # Store first lesson ID for testing
-                    self.test_lesson_id = lessons[0]["id"]
-                    print(f"   Sample lesson: {lessons[0]['title']} (ID: {self.test_lesson_id})")
-                    
-                    # Show lesson types
-                    types = {}
-                    for lesson in lessons:
-                        lesson_type = lesson.get("lesson_type", "unknown")
-                        types[lesson_type] = types.get(lesson_type, 0) + 1
-                    print(f"   Lesson types: {types}")
-                
-                return True
-            else:
-                print(f"❌ GET /api/admin/courses/{self.test_course_id}/lessons failed: {response.status_code}")
-                print(f"   Response: {response.text}")
+            # Get test details first to understand the questions
+            test_response = self.session.get(f"{BACKEND_URL}/tests/{self.test_id}")
+            if test_response.status_code != 200:
+                print(f"❌ Could not get test details: {test_response.status_code}")
                 return False
-                
-        except Exception as e:
-            print(f"❌ Course lessons endpoint error: {str(e)}")
-            return False
-    
-    def test_create_lesson_endpoint(self):
-        """Test POST /api/admin/lessons - create new lesson"""
-        print("\n➕ Testing create lesson endpoint...")
-        
-        if not self.test_course_id:
-            print("❌ No test course ID available")
-            return False
-        
-        try:
-            # Create test lesson data
-            lesson_data = {
-                "title": f"Тестовый урок {datetime.now().strftime('%H:%M:%S')}",
-                "description": "Урок создан для тестирования реорганизованной админки",
-                "content": "Это тестовый контент урока для проверки интеграции управления уроками в панель курсов.",
-                "course_id": self.test_course_id,
-                "lesson_type": "text",
-                "order": 999,
-                "is_published": False,
-                "video_url": "",
-                "attachments": []
+            
+            test_data = test_response.json()
+            questions = test_data.get("questions", [])
+            
+            if not questions:
+                print("❌ Test has no questions")
+                return False
+            
+            print(f"   Test has {len(questions)} questions")
+            
+            # Prepare answers - answer first 3 questions correctly, rest incorrectly
+            answers = {}
+            correct_answers = 0
+            
+            for i, question in enumerate(questions):
+                question_id = f"q{i}"
+                if i < 3:  # Answer first 3 correctly
+                    answers[question_id] = question.get("correct", 0)
+                    correct_answers += 1
+                else:  # Answer rest incorrectly
+                    # Choose wrong answer (if correct is 0, choose 1, etc.)
+                    correct_option = question.get("correct", 0)
+                    wrong_option = (correct_option + 1) % 4
+                    answers[question_id] = wrong_option
+            
+            print(f"   Submitting answers with {correct_answers} correct out of {len(questions)}")
+            
+            # Submit test
+            submission_data = {
+                "user_id": self.test_user_id,
+                "user_name": self.test_user_name,
+                "answers": answers
             }
             
-            response = self.session.post(f"{BACKEND_URL}/admin/lessons", json=lesson_data)
-            
-            if response.status_code == 200:
-                created_lesson = response.json()
-                self.test_lesson_id = created_lesson["id"]
-                print(f"✅ POST /api/admin/lessons successful")
-                print(f"   Created lesson: {created_lesson['title']}")
-                print(f"   Lesson ID: {self.test_lesson_id}")
-                print(f"   Course ID: {created_lesson['course_id']}")
-                return True
-            else:
-                print(f"❌ POST /api/admin/lessons failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Create lesson endpoint error: {str(e)}")
-            return False
-    
-    def test_update_lesson_endpoint(self):
-        """Test PUT /api/admin/lessons/{lesson_id} - edit lesson"""
-        print("\n✏️ Testing update lesson endpoint...")
-        
-        if not self.test_lesson_id:
-            print("❌ No test lesson ID available")
-            return False
-        
-        try:
-            # Update lesson data
-            update_data = {
-                "title": f"Обновленный тестовый урок {datetime.now().strftime('%H:%M:%S')}",
-                "description": "Урок обновлен для тестирования функции редактирования",
-                "content": "Обновленный контент урока. Тестируем интеграцию управления уроками в панель курсов.",
-                "is_published": True
-            }
-            
-            response = self.session.put(f"{BACKEND_URL}/admin/lessons/{self.test_lesson_id}", json=update_data)
-            
-            if response.status_code == 200:
-                updated_lesson = response.json()
-                print(f"✅ PUT /api/admin/lessons/{self.test_lesson_id} successful")
-                print(f"   Updated lesson: {updated_lesson['title']}")
-                print(f"   Published: {updated_lesson['is_published']}")
-                print(f"   Updated at: {updated_lesson.get('updated_at', 'N/A')}")
-                return True
-            else:
-                print(f"❌ PUT /api/admin/lessons/{self.test_lesson_id} failed: {response.status_code}")
-                print(f"   Response: {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Update lesson endpoint error: {str(e)}")
-            return False
-    
-    def test_delete_lesson_endpoint(self):
-        """Test DELETE /api/admin/lessons/{lesson_id} - delete lesson"""
-        print("\n🗑️ Testing delete lesson endpoint...")
-        
-        if not self.test_lesson_id:
-            print("❌ No test lesson ID available")
-            return False
-        
-        try:
-            response = self.session.delete(f"{BACKEND_URL}/admin/lessons/{self.test_lesson_id}")
+            response = self.session.post(f"{BACKEND_URL}/tests/{self.test_id}/submit", json=submission_data)
             
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ DELETE /api/admin/lessons/{self.test_lesson_id} successful")
-                print(f"   Message: {result.get('message', 'Lesson deleted')}")
+                print(f"✅ First attempt submission successful")
+                print(f"   Score: {result['score']}/{result['total_questions']} ({result['percentage']:.1f}%)")
+                print(f"   Points earned: {result['points_earned']}")
+                print(f"   Is retake: {result.get('is_retake', 'N/A')}")
+                print(f"   Message: {result.get('message', 'N/A')}")
                 
-                # Verify lesson is deleted by trying to get it
-                verify_response = self.session.get(f"{BACKEND_URL}/admin/lessons/{self.test_lesson_id}")
-                if verify_response.status_code == 404:
-                    print(f"✅ Lesson deletion verified - lesson no longer exists")
+                # Verify scoring logic: should be 5 + correct_answers
+                expected_points = 5 + correct_answers
+                if result['points_earned'] == expected_points:
+                    print(f"✅ Scoring logic correct: {expected_points} points (5 completion + {correct_answers} correct)")
+                    return True
                 else:
-                    print(f"⚠️ Lesson may still exist after deletion")
-                
-                return True
+                    print(f"❌ Scoring logic incorrect: got {result['points_earned']}, expected {expected_points}")
+                    return False
             else:
-                print(f"❌ DELETE /api/admin/lessons/{self.test_lesson_id} failed: {response.status_code}")
+                print(f"❌ First attempt submission failed: {response.status_code}")
                 print(f"   Response: {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Delete lesson endpoint error: {str(e)}")
+            print(f"❌ First attempt test error: {str(e)}")
             return False
     
-    def test_lesson_course_relationship(self):
-        """Test the relationship between courses and lessons"""
-        print("\n🔗 Testing course-lesson relationship...")
+    def test_retake_scoring(self):
+        """Test retake scoring: should give 0 points"""
+        print("\n🔄 Testing retake scoring...")
         
-        if not self.test_course_id:
-            print("❌ No test course ID available")
+        if not self.test_id:
+            print("❌ No test ID available")
             return False
         
         try:
-            # Get course details
-            course_response = self.session.get(f"{BACKEND_URL}/courses/{self.test_course_id}")
-            if course_response.status_code != 200:
-                print(f"❌ Could not get course details: {course_response.status_code}")
+            # Get test details
+            test_response = self.session.get(f"{BACKEND_URL}/tests/{self.test_id}")
+            if test_response.status_code != 200:
+                print(f"❌ Could not get test details: {test_response.status_code}")
                 return False
             
-            course = course_response.json()
-            print(f"✅ Course details retrieved: {course['title']}")
+            test_data = test_response.json()
+            questions = test_data.get("questions", [])
             
-            # Get lessons for this course
-            lessons_response = self.session.get(f"{BACKEND_URL}/admin/courses/{self.test_course_id}/lessons")
-            if lessons_response.status_code != 200:
-                print(f"❌ Could not get course lessons: {lessons_response.status_code}")
-                return False
+            # Prepare different answers for retake - answer all correctly this time
+            answers = {}
+            for i, question in enumerate(questions):
+                question_id = f"q{i}"
+                answers[question_id] = question.get("correct", 0)
             
-            lessons = lessons_response.json()
-            print(f"✅ Course has {len(lessons)} lessons")
+            print(f"   Submitting retake with all {len(questions)} answers correct")
             
-            # Verify all lessons belong to this course
-            valid_relationships = 0
-            for lesson in lessons:
-                if lesson.get("course_id") == self.test_course_id:
-                    valid_relationships += 1
+            # Submit test again (retake)
+            submission_data = {
+                "user_id": self.test_user_id,
+                "user_name": self.test_user_name,
+                "answers": answers
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/tests/{self.test_id}/submit", json=submission_data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                print(f"✅ Retake submission successful")
+                print(f"   Score: {result['score']}/{result['total_questions']} ({result['percentage']:.1f}%)")
+                print(f"   Points earned: {result['points_earned']}")
+                print(f"   Is retake: {result.get('is_retake', 'N/A')}")
+                print(f"   Message: {result.get('message', 'N/A')}")
+                
+                # Verify retake logic: should be 0 points
+                if result['points_earned'] == 0 and result.get('is_retake') == True:
+                    print(f"✅ Retake logic correct: 0 points earned, is_retake=True")
+                    return True
                 else:
-                    print(f"⚠️ Lesson {lesson['id']} has incorrect course_id: {lesson.get('course_id')}")
-            
-            print(f"✅ {valid_relationships}/{len(lessons)} lessons have correct course relationship")
-            return valid_relationships == len(lessons)
-            
+                    print(f"❌ Retake logic incorrect: got {result['points_earned']} points, is_retake={result.get('is_retake')}")
+                    return False
+            else:
+                print(f"❌ Retake submission failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False
+                
         except Exception as e:
-            print(f"❌ Course-lesson relationship test error: {str(e)}")
+            print(f"❌ Retake test error: {str(e)}")
             return False
     
-    def test_supabase_connection(self):
-        """Test Supabase connection stability"""
-        print("\n🔌 Testing Supabase connection stability...")
+    def test_leaderboard_api(self):
+        """Test leaderboard API to ensure points display correctly"""
+        print("\n🏆 Testing leaderboard API...")
         
         try:
-            # Test multiple endpoints to verify connection
-            endpoints_to_test = [
-                "/admin/dashboard",
-                "/courses",
-                "/team",
-                "/qa/stats"
-            ]
+            response = self.session.get(f"{BACKEND_URL}/leaderboard")
             
-            successful_connections = 0
-            for endpoint in endpoints_to_test:
-                try:
-                    response = self.session.get(f"{BACKEND_URL}{endpoint}")
-                    if response.status_code in [200, 401]:  # 401 is OK for protected endpoints
-                        successful_connections += 1
-                        print(f"   ✅ {endpoint}: Connection OK")
-                    else:
-                        print(f"   ❌ {endpoint}: {response.status_code}")
-                except Exception as e:
-                    print(f"   ❌ {endpoint}: {str(e)}")
-            
-            connection_rate = (successful_connections / len(endpoints_to_test)) * 100
-            print(f"✅ Supabase connection stability: {connection_rate:.1f}% ({successful_connections}/{len(endpoints_to_test)})")
-            
-            return connection_rate >= 75  # Consider stable if 75%+ endpoints work
-            
+            if response.status_code == 200:
+                leaderboard = response.json()
+                print(f"✅ Leaderboard API successful")
+                print(f"   Found {len(leaderboard)} users on leaderboard")
+                
+                if leaderboard:
+                    print("   Top 3 users:")
+                    for i, user in enumerate(leaderboard[:3], 1):
+                        print(f"   {i}. {user['user_name']}: {user['total_points']} points ({user['tests_completed']} tests)")
+                    
+                    # Check if our test user is in the leaderboard
+                    test_user_found = False
+                    for user in leaderboard:
+                        if user['user_name'] == self.test_user_name:
+                            test_user_found = True
+                            print(f"   ✅ Test user found: {user['user_name']} with {user['total_points']} points")
+                            break
+                    
+                    if not test_user_found:
+                        print(f"   ⚠️ Test user {self.test_user_name} not found in leaderboard")
+                else:
+                    print("   Leaderboard is empty")
+                
+                return True
+            else:
+                print(f"❌ Leaderboard API failed: {response.status_code}")
+                print(f"   Response: {response.text}")
+                return False
+                
         except Exception as e:
-            print(f"❌ Supabase connection test error: {str(e)}")
+            print(f"❌ Leaderboard test error: {str(e)}")
+            return False
+    
+    def test_api_response_fields(self):
+        """Test that API response contains required fields"""
+        print("\n📋 Testing API response fields...")
+        
+        if not self.test_id:
+            print("❌ No test ID available")
+            return False
+        
+        try:
+            # Create a new user for this test
+            new_user_id = str(uuid.uuid4())
+            new_user_name = "Фатима Проверочная"
+            
+            # Get test details
+            test_response = self.session.get(f"{BACKEND_URL}/tests/{self.test_id}")
+            if test_response.status_code != 200:
+                print(f"❌ Could not get test details: {test_response.status_code}")
+                return False
+            
+            test_data = test_response.json()
+            questions = test_data.get("questions", [])
+            
+            # Prepare answers
+            answers = {}
+            for i, question in enumerate(questions):
+                question_id = f"q{i}"
+                answers[question_id] = question.get("correct", 0)
+            
+            # Submit test
+            submission_data = {
+                "user_id": new_user_id,
+                "user_name": new_user_name,
+                "answers": answers
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/tests/{self.test_id}/submit", json=submission_data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                print(f"✅ API response received")
+                
+                # Check required fields
+                required_fields = ['score', 'total_questions', 'percentage', 'points_earned', 'message', 'is_retake']
+                missing_fields = []
+                
+                for field in required_fields:
+                    if field not in result:
+                        missing_fields.append(field)
+                    else:
+                        print(f"   ✅ {field}: {result[field]}")
+                
+                if not missing_fields:
+                    print(f"✅ All required fields present in API response")
+                    return True
+                else:
+                    print(f"❌ Missing fields in API response: {missing_fields}")
+                    return False
+            else:
+                print(f"❌ API response test failed: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ API response test error: {str(e)}")
             return False
     
     def run_all_tests(self):
-        """Run all admin panel reorganization tests"""
-        print("🚀 Starting Admin Panel Reorganization Tests")
+        """Run all scoring system tests"""
+        print("🚀 Starting Test Scoring System Tests")
         print("=" * 60)
         
         test_results = {}
@@ -330,26 +352,24 @@ class AdminPanelTester:
             print("\n❌ Cannot proceed without admin authentication")
             return test_results
         
-        # Test 2: Admin Courses Endpoint
-        test_results["admin_courses"] = self.test_admin_courses_endpoint()
+        # Test 2: Find Available Test
+        test_results["find_test"] = self.find_available_test()
         
-        # Test 3: Course Lessons Endpoint
-        test_results["course_lessons"] = self.test_course_lessons_endpoint()
+        if not test_results["find_test"]:
+            print("\n❌ Cannot proceed without available test")
+            return test_results
         
-        # Test 4: Create Lesson
-        test_results["create_lesson"] = self.test_create_lesson_endpoint()
+        # Test 3: First Attempt Scoring
+        test_results["first_attempt"] = self.test_first_attempt_scoring()
         
-        # Test 5: Update Lesson
-        test_results["update_lesson"] = self.test_update_lesson_endpoint()
+        # Test 4: Retake Scoring
+        test_results["retake_scoring"] = self.test_retake_scoring()
         
-        # Test 6: Delete Lesson
-        test_results["delete_lesson"] = self.test_delete_lesson_endpoint()
+        # Test 5: Leaderboard API
+        test_results["leaderboard"] = self.test_leaderboard_api()
         
-        # Test 7: Course-Lesson Relationship
-        test_results["course_lesson_relationship"] = self.test_lesson_course_relationship()
-        
-        # Test 8: Supabase Connection
-        test_results["supabase_connection"] = self.test_supabase_connection()
+        # Test 6: API Response Fields
+        test_results["api_fields"] = self.test_api_response_fields()
         
         # Summary
         print("\n" + "=" * 60)
@@ -366,17 +386,17 @@ class AdminPanelTester:
         print(f"\nOverall: {passed}/{total} tests passed ({(passed/total)*100:.1f}%)")
         
         if passed == total:
-            print("🎉 All tests passed! Admin panel reorganization is working correctly.")
+            print("🎉 All tests passed! Test scoring system is working correctly.")
         elif passed >= total * 0.8:
             print("⚠️ Most tests passed. Minor issues detected.")
         else:
-            print("❌ Multiple test failures. Admin panel reorganization needs attention.")
+            print("❌ Multiple test failures. Test scoring system needs attention.")
         
         return test_results
 
 def main():
     """Main test execution"""
-    tester = AdminPanelTester()
+    tester = TestScoringTester()
     results = tester.run_all_tests()
     
     # Exit with appropriate code
