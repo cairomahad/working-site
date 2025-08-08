@@ -698,11 +698,22 @@ async def get_test_details(test_id: str):
                 for q in test_questions:
                     question = {
                         "question": q.get("text", ""),
-                        "options": [],  # Old system doesn't have options stored properly
+                        "options": [],
                         "correct": int(q.get("correct_answer", "0"))
                     }
+                    
+                    # Try to parse options from explanation field
+                    explanation = q.get("explanation", "")
+                    if explanation.startswith("OPTIONS_JSON:"):
+                        try:
+                            options_json = explanation[13:]  # Remove "OPTIONS_JSON:" prefix
+                            options = json.loads(options_json)
+                            question["options"] = options
+                        except Exception as e:
+                            logger.warning(f"Could not parse options JSON: {e}")
+                    
                     questions.append(question)
-                logger.info(f"Loaded {len(questions)} questions from questions table (no options)")
+                logger.info(f"Loaded {len(questions)} questions from questions table with JSON options")
             except Exception as e2:
                 logger.warning(f"Could not load questions from any table: {e2}")
         
