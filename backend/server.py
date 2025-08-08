@@ -671,31 +671,43 @@ async def get_test_details(test_id: str):
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
         
-        # Get questions from questions table or JSON field
+        # Get questions from simple_test_questions table or fallback to questions table
         questions = []
         
-        # Try to load from questions table first
+        # Try to load from new simple_test_questions table first
         try:
-            test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
+            test_questions = await db_client.get_records("simple_test_questions", filters={"test_id": test_id})
             for q in test_questions:
-                # Простая структура вопросов
                 question = {
-                    "question": q.get("text", ""),
-                    "options": [],  # Пока без вариантов ответов из старой системы
-                    "correct": int(q.get("correct_answer", "0"))
+                    "question": q.get("question_text", ""),
+                    "options": [
+                        q.get("option_a", ""),
+                        q.get("option_b", ""),
+                        q.get("option_c", ""),
+                        q.get("option_d", "")
+                    ],
+                    "correct": q.get("correct_option", 0)
                 }
-                
-                # Попробуем загрузить опции, если они есть в правильном формате
-                if q.get("options") and isinstance(q.get("options"), list):
-                    question["options"] = [opt.get("text", "") for opt in q.get("options", [])]
-                
                 questions.append(question)
-            logger.info(f"Loaded {len(questions)} questions from questions table")
+            logger.info(f"Loaded {len(questions)} questions from simple_test_questions table")
         except Exception as e:
-            logger.warning(f"Could not load questions from questions table: {e}")
+            logger.info(f"simple_test_questions table not available: {e}")
+            # Fallback to old questions table
+            try:
+                test_questions = await db_client.get_records("questions", filters={"test_id": test_id})
+                for q in test_questions:
+                    question = {
+                        "question": q.get("text", ""),
+                        "options": [],  # Old system doesn't have options stored properly
+                        "correct": int(q.get("correct_answer", "0"))
+                    }
+                    questions.append(question)
+                logger.info(f"Loaded {len(questions)} questions from questions table (no options)")
+            except Exception as e2:
+                logger.warning(f"Could not load questions from any table: {e2}")
         
+        # Fallback: Load questions from JSON field (if exists)
         if not questions and test.get("questions"):
-            # Fallback: Load questions from JSON field (if exists)
             questions = test.get("questions", [])
             logger.info(f"Loaded {len(questions)} questions from JSON field")
         
