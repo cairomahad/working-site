@@ -995,8 +995,12 @@ async def submit_test(
 async def update_user_score(user_id: str, user_name: str, points_earned: int):
     """Update user's total score"""
     try:
-        # Get existing user score
-        existing_scores = await db_client.get_records("user_scores", filters={"user_id": user_id})
+        # Try to get existing user score (fallback if table doesn't exist)
+        existing_scores = []
+        try:
+            existing_scores = await db_client.get_records("user_scores", filters={"user_id": user_id})
+        except Exception as e:
+            logger.info(f"user_scores table not available, will try to create record: {e}")
         
         if existing_scores:
             # Update existing score
@@ -1008,6 +1012,7 @@ async def update_user_score(user_id: str, user_name: str, points_earned: int):
                 "updated_at": datetime.utcnow().isoformat()
             }
             await db_client.update_record("user_scores", "id", user_score["id"], update_data)
+            logger.info(f"Updated score for user {user_name}: +{points_earned} points")
         else:
             # Create new user score
             score_data = {
@@ -1021,9 +1026,11 @@ async def update_user_score(user_id: str, user_name: str, points_earned: int):
                 "updated_at": datetime.utcnow().isoformat()
             }
             await db_client.create_record("user_scores", score_data)
+            logger.info(f"Created new score record for user {user_name}: {points_earned} points")
             
     except Exception as e:
         logger.error(f"Error updating user score: {str(e)}")
+        # Don't fail the whole test submission if scoring fails
 
 # ====================================================================
 # POINTS-BASED LEADERBOARD ENDPOINTS  
