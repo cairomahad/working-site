@@ -61,38 +61,28 @@ class TestScoringTester:
             return False
     
     def find_available_test(self):
-        """Find any available test in the system"""
-        print("\n🔍 Finding available test in system...")
+        """Find available test with questions"""
+        print("\n🔍 Using test with questions...")
         
         try:
-            # Get all tests from admin endpoint
-            response = self.session.get(f"{BACKEND_URL}/admin/tests")
+            # Use the test that we know has questions
+            self.test_id = "adee81b5-028c-46df-8ba1-a83ee040b56f"  # Тест по намазу
             
-            if response.status_code == 200:
-                tests = response.json()
-                print(f"✅ Found {len(tests)} tests in system")
+            # Get test details to verify questions
+            test_response = self.session.get(f"{BACKEND_URL}/tests/{self.test_id}")
+            if test_response.status_code == 200:
+                test_details = test_response.json()
+                questions_count = len(test_details.get("questions", []))
+                print(f"✅ Using test: {test_details.get('title', 'Unknown')} (ID: {self.test_id})")
+                print(f"   Test has {questions_count} questions")
                 
-                if tests:
-                    # Use the first test
-                    self.test_id = tests[0]["id"]
-                    print(f"   Using test: {tests[0]['title']} (ID: {self.test_id})")
-                    
-                    # Get test details to see questions
-                    test_response = self.session.get(f"{BACKEND_URL}/tests/{self.test_id}")
-                    if test_response.status_code == 200:
-                        test_details = test_response.json()
-                        questions_count = len(test_details.get("questions", []))
-                        print(f"   Test has {questions_count} questions")
-                        return True
-                    else:
-                        print(f"   ⚠️ Could not get test details: {test_response.status_code}")
-                        return True  # Still proceed with the test ID
+                if questions_count > 0:
+                    return True
                 else:
-                    print("❌ No tests found in system")
+                    print("❌ Test has no questions")
                     return False
             else:
-                print(f"❌ Failed to get tests: {response.status_code}")
-                print(f"   Response: {response.text}")
+                print(f"❌ Could not get test details: {test_response.status_code}")
                 return False
                 
         except Exception as e:
