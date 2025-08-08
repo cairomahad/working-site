@@ -1040,12 +1040,17 @@ async def update_user_score(user_id: str, user_name: str, points_earned: int):
 async def get_leaderboard(limit: int = 10):
     """Get top users leaderboard based on points earned from tests"""
     try:
-        # Get all user scores ordered by points
-        user_scores = await db_client.get_records(
-            "user_scores",
-            order_by="-total_points",
-            limit=limit
-        )
+        # Try to get all user scores ordered by points
+        user_scores = []
+        try:
+            user_scores = await db_client.get_records(
+                "user_scores",
+                order_by="-total_points",
+                limit=limit
+            )
+        except Exception as e:
+            logger.info(f"user_scores table not available: {e}")
+            return []
         
         leaderboard = []
         for i, score in enumerate(user_scores, 1):
