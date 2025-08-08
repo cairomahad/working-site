@@ -589,9 +589,9 @@ async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
             logger.info(f"Converting test {i+1}: {test.get('title', 'Unknown')}")
             converted_test = {
                 "id": test.get("id"),
-                "lesson_id": test.get("lesson_id", ""),
-                "title": test.get("title", ""),
-                "description": test.get("description", ""),
+                "lesson_id": test.get("lesson_id") or "",  # Handle None values
+                "title": test.get("title") or "",
+                "description": test.get("description") or "",
                 "questions": [],  # For now, questions are not loaded from separate table
                 "time_limit_minutes": test.get("time_limit_minutes", 10),
                 "is_published": test.get("is_published", True),
