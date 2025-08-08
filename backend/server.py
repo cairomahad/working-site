@@ -760,28 +760,45 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
         created_test = await db_client.create_record("tests", old_format_data)
         logger.info(f"Created test: {created_test}")
         
-        # Store questions in the questions table (simplified format)
+        # Store questions in the new simple_test_questions table
         questions = test_dict.get("questions", [])
         if questions:
-            logger.info(f"Will store {len(questions)} questions in questions table")
+            logger.info(f"Will store {len(questions)} questions in simple_test_questions table")
             for i, question_data in enumerate(questions):
                 try:
+                    # New simplified structure
                     question_record = {
                         "id": str(uuid.uuid4()),
                         "test_id": test_dict["id"],
-                        "text": question_data.get("question", ""),
-                        "question_type": "single_choice",
-                        "correct_answer": str(question_data.get("correct", 0)),
-                        "explanation": "",
-                        "points": 1,
+                        "question_text": question_data.get("question", ""),
+                        "option_a": question_data.get("options", ["", "", "", ""])[0] if len(question_data.get("options", [])) > 0 else "",
+                        "option_b": question_data.get("options", ["", "", "", ""])[1] if len(question_data.get("options", [])) > 1 else "",
+                        "option_c": question_data.get("options", ["", "", "", ""])[2] if len(question_data.get("options", [])) > 2 else "",
+                        "option_d": question_data.get("options", ["", "", "", ""])[3] if len(question_data.get("options", [])) > 3 else "",
+                        "correct_option": question_data.get("correct", 0),
                         "order": i + 1
                     }
-                    await db_client.create_record("questions", question_record)
-                    logger.info(f"Created question {i+1}")
+                    await db_client.create_record("simple_test_questions", question_record)
+                    logger.info(f"Created question {i+1} in simple_test_questions")
                 except Exception as e:
-                    logger.warning(f"Could not create question {i+1}: {e}")
-                    # If questions table doesn't work, try to store in a simple way
-                    break
+                    logger.warning(f"Could not create question in simple_test_questions: {e}")
+                    # Fallback to old questions table
+                    try:
+                        question_record = {
+                            "id": str(uuid.uuid4()),
+                            "test_id": test_dict["id"],
+                            "text": question_data.get("question", ""),
+                            "question_type": "single_choice",
+                            "correct_answer": str(question_data.get("correct", 0)),
+                            "explanation": "",
+                            "points": 1,
+                            "order": i + 1
+                        }
+                        await db_client.create_record("questions", question_record)
+                        logger.info(f"Created question {i+1} in fallback questions table")
+                    except Exception as e2:
+                        logger.error(f"Could not create question in any table: {e2}")
+                        break
         
         # Return in SimpleTest format
         result = SimpleTest(**{
