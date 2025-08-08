@@ -257,14 +257,23 @@ const TestTakingComponent = () => {
         {!userName && (
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Представьтесь, пожалуйста</h3>
-            <input
-              type="text"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              placeholder="Введите ваше имя"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              onKeyPress={(e) => e.key === 'Enter' && userName.trim() && setUserName(userName.trim())}
-            />
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Введите ваше имя"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                autoFocus
+              />
+              <button
+                onClick={() => userName.trim() && setUserName(userName.trim())}
+                disabled={!userName.trim()}
+                className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Начать тест
+              </button>
+            </div>
           </div>
         )}
 
