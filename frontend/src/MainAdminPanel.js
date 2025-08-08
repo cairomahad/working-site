@@ -7,6 +7,7 @@ import MaterialUploadPanel from './MaterialUploadPanel';
 import { QAManagement } from './QAManagement';
 import { TeamManagement } from './TeamManagement';
 import UniversalTableEditor from './UniversalTableEditor';
+import NewLessonManagement from './NewLessonManagement';
 
 // Login Component for Admin Panel
 const AdminLoginComponent = () => {
