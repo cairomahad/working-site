@@ -577,8 +577,32 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
 @api_router.get("/admin/tests", response_model=List[SimpleTest])
 async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
     """Get all tests for admin"""
-    tests = await db_client.get_records("simple_tests", order_by="-created_at")
-    return [SimpleTest(**test) for test in tests]
+    try:
+        # Try new simple_tests table first
+        tests = await db_client.get_records("simple_tests", order_by="-created_at")
+        return [SimpleTest(**test) for test in tests]
+    except:
+        # Fallback to old tests table if simple_tests doesn't exist
+        try:
+            tests = await db_client.get_records("tests", order_by="-created_at")
+            # Convert old format to new format
+            converted_tests = []
+            for test in tests:
+                converted_test = {
+                    "id": test.get("id"),
+                    "lesson_id": test.get("lesson_id", ""),
+                    "title": test.get("title", ""),
+                    "description": test.get("description", ""),
+                    "questions": [],  # We'll load separately if needed
+                    "time_limit_minutes": test.get("time_limit_minutes", 10),
+                    "is_published": test.get("is_published", True),
+                    "created_at": test.get("created_at"),
+                    "updated_at": test.get("updated_at")
+                }
+                converted_tests.append(SimpleTest(**converted_test))
+            return converted_tests
+        except:
+            return []
 
 @api_router.get("/lessons/{lesson_id}/test", response_model=SimpleTest)
 async def get_lesson_test(lesson_id: str):
