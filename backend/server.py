@@ -795,6 +795,7 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
                 except Exception as e:
                     logger.warning(f"Could not create question in simple_test_questions: {e}")
                     # Fallback to old questions table
+                    # Fallback to old questions table with JSON storage
                     try:
                         question_record = {
                             "id": str(uuid.uuid4()),
@@ -802,12 +803,12 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
                             "text": question_data.get("question", ""),
                             "question_type": "single_choice",
                             "correct_answer": str(question_data.get("correct", 0)),
-                            "explanation": "",
+                            "explanation": f"OPTIONS_JSON:{json.dumps(question_data.get('options', []))}",  # Store options in explanation field as JSON
                             "points": 1,
                             "order": i + 1
                         }
                         await db_client.create_record("questions", question_record)
-                        logger.info(f"Created question {i+1} in fallback questions table")
+                        logger.info(f"Created question {i+1} in fallback questions table with options in JSON")
                     except Exception as e2:
                         logger.error(f"Could not create question in any table: {e2}")
                         break
