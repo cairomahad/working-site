@@ -838,8 +838,8 @@ async def submit_test(
         
         # Get questions from JSON field or separate table
         test_questions = []
-        if test.get("questions_json"):
-            test_questions = test.get("questions_json", [])
+        if test.get("questions"):
+            test_questions = test.get("questions", [])
             logger.info(f"Using questions from JSON: {len(test_questions)}")
         else:
             # Fallback to separate questions table
