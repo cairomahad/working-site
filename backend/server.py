@@ -886,22 +886,35 @@ async def submit_test(
         if not user_id or not user_name:
             raise HTTPException(status_code=400, detail="User ID and name are required")
         
-        # Get questions from questions table
+        # Get questions from simple_test_questions table or fallback
         test_questions = []
         
+        # Try new simple_test_questions table first
         try:
-            questions_records = await db_client.get_records("questions", filters={"test_id": test_id})
+            questions_records = await db_client.get_records("simple_test_questions", filters={"test_id": test_id})
             for q in questions_records:
                 question = {
-                    "question": q.get("text", ""),
-                    "correct": int(q.get("correct_answer", "0"))
+                    "question": q.get("question_text", ""),
+                    "correct": q.get("correct_option", 0)
                 }
                 test_questions.append(question)
-            logger.info(f"Using questions from questions table: {len(test_questions)}")
+            logger.info(f"Using questions from simple_test_questions: {len(test_questions)}")
         except Exception as e:
-            logger.warning(f"Could not load questions from questions table: {e}")
+            logger.info(f"simple_test_questions not available: {e}")
+            # Fallback to old questions table
+            try:
+                questions_records = await db_client.get_records("questions", filters={"test_id": test_id})
+                for q in questions_records:
+                    question = {
+                        "question": q.get("text", ""),
+                        "correct": int(q.get("correct_answer", "0"))
+                    }
+                    test_questions.append(question)
+                logger.info(f"Using questions from questions table: {len(test_questions)}")
+            except Exception as e2:
+                logger.warning(f"Could not load questions from questions table: {e2}")
         
-        # Fallback: try JSON field
+        # Final fallback: try JSON field
         if not test_questions and test.get("questions"):
             test_questions = test.get("questions", [])
             logger.info(f"Using questions from JSON: {len(test_questions)}")
