@@ -694,22 +694,29 @@ export const LessonDetailPage = ({ lesson, course }) => {
 
         {/* Tests Section */}
         {tests.length > 0 && (
-          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Тесты к уроку</h3>
+          <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-6 mt-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <span className="text-2xl mr-2">🧠</span>
+              Тесты к уроку
+            </h3>
             <div className="space-y-3">
               {tests.map((test) => (
                 <div key={test.id} className="flex items-center justify-between bg-white rounded-lg p-4 border border-gray-200">
                   <div>
                     <h4 className="font-medium text-gray-900">{test.title}</h4>
                     <p className="text-sm text-gray-600">
-                      {test.questions_count} вопросов • {test.time_limit} мин • Проходной балл: {test.passing_score}%
+                      {test.description || 'Проверьте свои знания'}
+                    </p>
+                    <p className="text-xs text-teal-600 mt-1">
+                      ⏱ {test.time_limit_minutes} мин • 🏆 +5 очков за прохождение
                     </p>
                   </div>
                   <button
                     onClick={() => handleStartTest(test.id)}
-                    className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors"
+                    className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center space-x-2"
                   >
-                    Начать тест
+                    <span>Пройти тест</span>
+                    <span>🚀</span>
                   </button>
                 </div>
               ))}
