@@ -990,11 +990,12 @@ async def submit_test(
         except Exception as e:
             logger.warning(f"Could not save test result: {e}")
         
-        # Update user score (try to create table if not exists)
-        try:
-            await update_user_score(user_id, user_name, points_earned)
-        except Exception as e:
-            logger.warning(f"Could not update user score: {e}")
+        # Update user score only if points were earned (first time taking test)
+        if points_earned > 0:
+            try:
+                await update_user_score(user_id, user_name, points_earned)
+            except Exception as e:
+                logger.warning(f"Could not update user score: {e}")
         
         return {
             "score": correct_count,
