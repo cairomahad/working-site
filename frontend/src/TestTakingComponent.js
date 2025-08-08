@@ -323,7 +323,7 @@ const TestTakingComponent = () => {
         )}
 
         {/* Questions */}
-        {userName && (
+        {!showNameInput && (
           <div className="space-y-6">
             {test.questions.map((question, questionIndex) => (
               <div key={questionIndex} className="bg-white rounded-lg shadow-sm p-6">
