@@ -367,11 +367,13 @@ async def delete_course(course_id: str, current_admin: dict = Depends(require_ad
     return {"message": "Course deleted successfully"}
 
 # ====================================================================
-# LESSON MANAGEMENT ENDPOINTS  
+# ====================================================================
+# NEW LESSON MANAGEMENT ENDPOINTS - CLEAN AND SIMPLE
 # ====================================================================
 
 @api_router.get("/courses/{course_id}/lessons", response_model=List[Lesson])
 async def get_course_lessons(course_id: str):
+    """Get all published lessons for a course"""
     lessons = await db_client.get_records(
         "lessons", 
         filters={"course_id": course_id, "is_published": True},
@@ -379,8 +381,24 @@ async def get_course_lessons(course_id: str):
     )
     return [Lesson(**lesson) for lesson in lessons]
 
+@api_router.get("/lessons/{lesson_id}", response_model=Lesson)
+async def get_lesson(lesson_id: str):
+    """Get a specific lesson by ID"""
+    lesson = await db_client.get_record("lessons", "id", lesson_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    return Lesson(**lesson)
+
+# ADMIN ENDPOINTS
+@api_router.get("/admin/lessons", response_model=List[Lesson])
+async def get_all_lessons_admin(current_admin: dict = Depends(get_current_admin)):
+    """Get all lessons for admin panel"""
+    lessons = await db_client.get_records("lessons", order_by="created_at.desc")
+    return [Lesson(**lesson) for lesson in lessons]
+
 @api_router.get("/admin/courses/{course_id}/lessons", response_model=List[Lesson])
 async def get_admin_course_lessons(course_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Get all lessons for a specific course (admin view)"""
     lessons = await db_client.get_records(
         "lessons", 
         filters={"course_id": course_id},
@@ -388,67 +406,72 @@ async def get_admin_course_lessons(course_id: str, current_admin: dict = Depends
     )
     return [Lesson(**lesson) for lesson in lessons]
 
-@api_router.get("/lessons/{lesson_id}", response_model=Lesson)
-async def get_lesson(lesson_id: str):
-    lesson = await db_client.get_record("lessons", "id", lesson_id)
-    if not lesson:
-        raise HTTPException(status_code=404, detail="Lesson not found")
-    return Lesson(**lesson)
-
-@api_router.get("/admin/lessons/{lesson_id}", response_model=Lesson)
-async def get_admin_lesson(lesson_id: str, current_admin: dict = Depends(get_current_admin)):
-    lesson = await db_client.get_record("lessons", "id", lesson_id)
-    if not lesson:
-        raise HTTPException(status_code=404, detail="Lesson not found")
-    return Lesson(**lesson)
-
 @api_router.post("/admin/lessons", response_model=Lesson)
-async def create_lesson(lesson_data: LessonCreate, current_admin: dict = Depends(get_current_admin)):
-    lesson_dict = lesson_data.dict()
-    
-    # Check if course exists
-    course = await db_client.get_record("courses", "id", lesson_dict["course_id"])
-    if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
-    
-    # Convert YouTube URL to embed format
-    if lesson_dict.get("video_url"):
-        lesson_dict["video_url"] = convert_to_embed_url(lesson_dict["video_url"])
-    
+async def create_lesson_admin(lesson_data: LessonCreate, current_admin: dict = Depends(get_current_admin)):
+    """Create a new lesson"""
     try:
-        lesson_obj = Lesson(**lesson_dict)
-        created_lesson = await db_client.create_record("lessons", lesson_obj.dict())
+        # Validate course exists
+        course = await db_client.get_record("courses", "id", lesson_data.course_id)
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+        
+        # Create lesson data
+        lesson_dict = lesson_data.dict()
+        lesson_dict["id"] = str(uuid.uuid4())
+        lesson_dict["created_at"] = datetime.utcnow().isoformat()
+        lesson_dict["updated_at"] = datetime.utcnow().isoformat()
+        
+        # Generate slug from title
+        if not lesson_dict.get("slug"):
+            lesson_dict["slug"] = create_slug(lesson_dict["title"])
+        
+        # Convert YouTube URL if provided
+        if lesson_dict.get("video_url"):
+            lesson_dict["video_url"] = convert_to_embed_url(lesson_dict["video_url"])
+        
+        created_lesson = await db_client.create_record("lessons", lesson_dict)
         return Lesson(**created_lesson)
+        
     except Exception as e:
         logger.error(f"Error creating lesson: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create lesson")
+        raise HTTPException(status_code=500, detail=f"Failed to create lesson: {str(e)}")
 
 @api_router.put("/admin/lessons/{lesson_id}", response_model=Lesson)
-async def update_lesson(lesson_id: str, lesson_data: LessonUpdate, current_admin: dict = Depends(get_current_admin)):
-    lesson = await db_client.get_record("lessons", "id", lesson_id)
-    if not lesson:
-        raise HTTPException(status_code=404, detail="Lesson not found")
-    
-    update_data = {k: v for k, v in lesson_data.dict().items() if v is not None}
-    
-    # Convert YouTube URL to embed format
-    if update_data.get("video_url"):
-        update_data["video_url"] = convert_to_embed_url(update_data["video_url"])
-    
-    update_data["updated_at"] = datetime.utcnow().isoformat()
-    
-    updated_lesson = await db_client.update_record("lessons", "id", lesson_id, update_data)
-    return Lesson(**updated_lesson)
+async def update_lesson_admin(lesson_id: str, lesson_data: LessonUpdate, current_admin: dict = Depends(get_current_admin)):
+    """Update an existing lesson"""
+    try:
+        # Check lesson exists
+        lesson = await db_client.get_record("lessons", "id", lesson_id)
+        if not lesson:
+            raise HTTPException(status_code=404, detail="Lesson not found")
+        
+        # Prepare update data (only non-None values)
+        update_data = {k: v for k, v in lesson_data.dict().items() if v is not None}
+        
+        if update_data:
+            update_data["updated_at"] = datetime.utcnow().isoformat()
+            
+            # Convert YouTube URL if provided
+            if "video_url" in update_data and update_data["video_url"]:
+                update_data["video_url"] = convert_to_embed_url(update_data["video_url"])
+            
+            updated_lesson = await db_client.update_record("lessons", "id", lesson_id, update_data)
+            return Lesson(**updated_lesson)
+        
+        return Lesson(**lesson)
+        
+    except Exception as e:
+        logger.error(f"Error updating lesson: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update lesson: {str(e)}")
 
 @api_router.delete("/admin/lessons/{lesson_id}")
-async def delete_lesson(lesson_id: str, current_admin: dict = Depends(require_admin_role)):
+async def delete_lesson_admin(lesson_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete a lesson"""
     lesson = await db_client.get_record("lessons", "id", lesson_id)
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
     
-    success = await db_client.delete_record("lessons", "id", lesson_id)
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to delete lesson")
+    await db_client.delete_record("lessons", "id", lesson_id)
     return {"message": "Lesson deleted successfully"}
 
 # ====================================================================
