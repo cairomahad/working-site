@@ -571,442 +571,212 @@ async def delete_teacher(teacher_id: str, current_admin: dict = Depends(require_
     return {"message": "Teacher deleted successfully"}
 
 # ====================================================================
-# TEST MANAGEMENT ENDPOINTS
+# NEW SIMPLE TEST SYSTEM ENDPOINTS
 # ====================================================================
 
-@api_router.get("/admin/tests", response_model=List[Test])
+@api_router.get("/admin/tests", response_model=List[SimpleTest])
 async def get_admin_tests(current_admin: dict = Depends(get_current_admin)):
     """Get all tests for admin"""
-    tests = await db_client.get_records("tests", order_by="created_at")
-    return [Test(**test) for test in tests]
+    tests = await db_client.get_records("simple_tests", order_by="-created_at")
+    return [SimpleTest(**test) for test in tests]
 
-@api_router.get("/tests/{test_id}", response_model=Test)
-async def get_test(test_id: str):
-    """Get test by ID"""
-    test = await db_client.get_record("tests", "id", test_id)
-    if not test:
-        raise HTTPException(status_code=404, detail="Test not found")
-    return Test(**test)
+@api_router.get("/lessons/{lesson_id}/test", response_model=SimpleTest)
+async def get_lesson_test(lesson_id: str):
+    """Get test for a specific lesson"""
+    tests = await db_client.get_records("simple_tests", filters={"lesson_id": lesson_id})
+    if not tests:
+        raise HTTPException(status_code=404, detail="No test found for this lesson")
+    return SimpleTest(**tests[0])
 
-@api_router.post("/admin/tests", response_model=Test)
-async def create_test(test_data: TestCreate, current_admin: dict = Depends(get_current_admin)):
-    """Create new test"""
-    test_dict = test_data.dict()
-    
-    # Generate test ID first
-    test_id = str(uuid.uuid4())
-    test_dict['id'] = test_id
-    
-    # Extract questions to process separately
-    questions_data = test_dict.pop('questions', [])
-    
-    # Create test without questions first
-    test_obj = Test(**test_dict, questions=[])  # Empty questions list
-    test_for_db = test_obj.dict()
-    test_for_db.pop('questions', None)  # Remove questions field from DB insert
-    
-    created_test = await db_client.create_record("tests", test_for_db)
-    
-    # Create questions separately if provided
-    created_questions = []
-    for i, q in enumerate(questions_data):
-        # Create options as QuestionOption objects
-        options = []
-        for opt_text in q.get('options', []):
-            options.append(QuestionOption(
-                text=opt_text,
-                is_correct=False  # Will be set based on correct index
-            ))
+@api_router.post("/admin/tests", response_model=SimpleTest)
+async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = Depends(get_current_admin)):
+    """Create new test for a lesson"""
+    try:
+        # Validate lesson exists
+        lesson = await db_client.get_record("lessons", "id", test_data.lesson_id)
+        if not lesson:
+            raise HTTPException(status_code=404, detail="Lesson not found")
         
-        # Set correct answer (check both 'correct' and 'correct_answer' fields)
-        correct_index = q.get('correct_answer') or q.get('correct', 0)
-        if 0 <= correct_index < len(options):
-            options[correct_index].is_correct = True
+        # Check if test already exists for this lesson
+        existing_tests = await db_client.get_records("simple_tests", filters={"lesson_id": test_data.lesson_id})
+        if existing_tests:
+            raise HTTPException(status_code=400, detail="Test already exists for this lesson")
         
-        question = Question(
-            test_id=test_id,
-            text=q.get('question', ''),
-            question_type=QuestionType.SINGLE_CHOICE,  # Default type
-            options=options,
-            explanation=q.get('explanation', ''),
-            points=q.get('points', 1),
-            order=i + 1
-        )
+        # Create test data
+        test_dict = test_data.dict()
+        test_dict["id"] = str(uuid.uuid4())
+        test_dict["created_at"] = datetime.utcnow().isoformat()
+        test_dict["updated_at"] = datetime.utcnow().isoformat()
         
-        # Try to create question in DB - if questions table doesn't exist, skip
-        try:
-            question_for_db = question.dict()
-            created_question = await db_client.create_record("questions", question_for_db)
-            created_questions.append(Question(**created_question))
-        except Exception as e:
-            logger.warning(f"Could not create question in DB: {e}")
-            created_questions.append(question)
-    
-    # Return test with questions
-    result_test = Test(**created_test)
-    result_test.questions = created_questions
-    return result_test
+        created_test = await db_client.create_record("simple_tests", test_dict)
+        return SimpleTest(**created_test)
+        
+    except Exception as e:
+        logger.error(f"Error creating test: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create test: {str(e)}")
 
-@api_router.put("/admin/tests/{test_id}", response_model=Test)
-async def update_test(
-    test_id: str, 
-    test_data: TestUpdate, 
-    current_admin: dict = Depends(get_current_admin)
-):
-    """Update test"""
-    test = await db_client.get_record("tests", "id", test_id)
-    if not test:
-        raise HTTPException(status_code=404, detail="Test not found")
-    
-    update_data = {k: v for k, v in test_data.dict().items() if v is not None}
-    update_data["updated_at"] = datetime.utcnow().isoformat()
-    
-    updated_test = await db_client.update_record("tests", "id", test_id, update_data)
-    return Test(**updated_test)
+@api_router.put("/admin/tests/{test_id}", response_model=SimpleTest)
+async def update_test_admin(test_id: str, test_data: SimpleTestUpdate, current_admin: dict = Depends(get_current_admin)):
+    """Update an existing test"""
+    try:
+        # Check test exists
+        test = await db_client.get_record("simple_tests", "id", test_id)
+        if not test:
+            raise HTTPException(status_code=404, detail="Test not found")
+        
+        # Prepare update data
+        update_data = {k: v for k, v in test_data.dict().items() if v is not None}
+        
+        if update_data:
+            update_data["updated_at"] = datetime.utcnow().isoformat()
+            updated_test = await db_client.update_record("simple_tests", "id", test_id, update_data)
+            return SimpleTest(**updated_test)
+        
+        return SimpleTest(**test)
+        
+    except Exception as e:
+        logger.error(f"Error updating test: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update test: {str(e)}")
 
 @api_router.delete("/admin/tests/{test_id}")
-async def delete_test(test_id: str, current_admin: dict = Depends(get_current_admin)):
-    """Delete test"""
-    success = await db_client.delete_record("tests", "id", test_id)
-    if not success:
+async def delete_test_admin(test_id: str, current_admin: dict = Depends(get_current_admin)):
+    """Delete a test"""
+    test = await db_client.get_record("simple_tests", "id", test_id)
+    if not test:
         raise HTTPException(status_code=404, detail="Test not found")
+    
+    await db_client.delete_record("simple_tests", "id", test_id)
     return {"message": "Test deleted successfully"}
 
-@api_router.post("/admin/tests/import")
-async def import_test_data(
-    file: UploadFile = File(...),
-    course_id: str = Form(...),
-    lesson_id: Optional[str] = Form(None),
-    current_admin: dict = Depends(get_current_admin)
+@api_router.post("/tests/{test_id}/submit")
+async def submit_test(
+    test_id: str, 
+    submission_data: Dict[str, Any]
 ):
-    """Import test questions from JSON or CSV file"""
-    if not file.filename:
-        raise HTTPException(status_code=400, detail="No file provided")
-    
-    content = await file.read()
-    
+    """Submit test answers and calculate score with points system"""
     try:
-        if file.filename.endswith('.json'):
-            data = json.loads(content.decode('utf-8'))
-        elif file.filename.endswith('.csv'):
-            # Parse CSV (simplified)
-            csv_content = content.decode('utf-8')
-            reader = csv.DictReader(io.StringIO(csv_content))
-            data = {"questions": list(reader)}
-        else:
-            raise HTTPException(status_code=400, detail="Only JSON and CSV files are supported")
+        # Get test
+        test = await db_client.get_record("simple_tests", "id", test_id)
+        if not test:
+            raise HTTPException(status_code=404, detail="Test not found")
         
-        # Create test
-        test_data = {
-            "title": data.get("title", f"Imported Test - {file.filename}"),
-            "description": data.get("description", ""),
-            "course_id": course_id,
-            "lesson_id": lesson_id,
-            "time_limit_minutes": data.get("time_limit_minutes", 30),
-            "passing_score": data.get("passing_score", 70),
-            "max_attempts": data.get("max_attempts", 3)
+        user_id = submission_data.get("user_id")
+        user_name = submission_data.get("user_name")
+        answers = submission_data.get("answers", {})
+        
+        if not user_id or not user_name:
+            raise HTTPException(status_code=400, detail="User ID and name are required")
+        
+        # Calculate score
+        test_questions = test.get("questions", [])
+        total_questions = len(test_questions)
+        correct_count = 0
+        
+        for i, question in enumerate(test_questions):
+            question_id = f"q{i}"
+            user_answer = answers.get(question_id)
+            correct_answer = question.get("correct")
+            
+            if user_answer is not None and user_answer == correct_answer:
+                correct_count += 1
+        
+        percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
+        points_earned = 5  # Always 5 points for completing a test
+        
+        # Save test result
+        result_data = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "user_name": user_name,
+            "test_id": test_id,
+            "lesson_id": test["lesson_id"],
+            "score": correct_count,
+            "total_questions": total_questions,
+            "percentage": percentage,
+            "points_earned": points_earned,
+            "completed_at": datetime.utcnow().isoformat()
         }
         
-        # Generate test ID first
-        test_id = str(uuid.uuid4())
-        test_data['id'] = test_id
+        await db_client.create_record("test_results", result_data)
         
-        # Create test without questions first
-        test_obj = Test(**test_data, questions=[])
-        test_for_db = test_obj.dict()
-        test_for_db.pop('questions', None)  # Remove questions field from DB insert
-        
-        created_test = await db_client.create_record("tests", test_for_db)
-        
-        # Import questions
-        questions_imported = 0
-        for i, q_data in enumerate(data.get("questions", [])):
-            # Create options as QuestionOption objects
-            options = []
-            for opt_idx, opt_text in enumerate(q_data.get("options", [])):
-                is_correct = False
-                # Check multiple possible fields for correct answer
-                correct_idx = q_data.get("correct_option_index") or q_data.get("correct_answer") or q_data.get("correct", 0)
-                if opt_idx == correct_idx:
-                    is_correct = True
-                    
-                options.append(QuestionOption(
-                    text=opt_text,
-                    is_correct=is_correct
-                ))
-            
-            question = Question(
-                test_id=test_id,
-                text=q_data.get("question", q_data.get("text", "")),
-                question_type=QuestionType.SINGLE_CHOICE,  # Default type
-                options=options,
-                explanation=q_data.get("explanation", ""),
-                points=q_data.get("points", 1),
-                order=i + 1
-            )
-            
-            # Try to create question in DB
-            try:
-                question_for_db = question.dict()
-                await db_client.create_record("questions", question_for_db)
-                questions_imported += 1
-            except Exception as e:
-                logger.warning(f"Failed to create question {i+1}: {str(e)}")
+        # Update user score
+        await update_user_score(user_id, user_name, points_earned)
         
         return {
-            "message": f"Successfully imported test with {questions_imported} questions",
-            "test_id": created_test["id"],
-            "questions_count": questions_imported
+            "score": correct_count,
+            "total_questions": total_questions,
+            "percentage": percentage,
+            "points_earned": points_earned,
+            "message": f"Тест завершен! Получено {points_earned} очков."
         }
         
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error processing file: {str(e)}")
+        logger.error(f"Error submitting test: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to submit test: {str(e)}")
 
-@api_router.get("/lessons/{lesson_id}/tests", response_model=List[Test])
-async def get_lesson_tests(lesson_id: str):
-    """Get all tests for a specific lesson"""
-    tests = await db_client.get_records(
-        "tests", 
-        filters={"lesson_id": lesson_id, "is_published": True},
-        order_by="order"
-    )
-    return [Test(**test) for test in tests]
-
-# ====================================================================
-# TEST SESSION ENDPOINTS (Random Questions & Answer Shuffling)
-# ====================================================================
-
-@api_router.post("/tests/{test_id}/start-session")
-async def start_test_session(test_id: str, student_data: dict):
-    """Start a new test session with random question selection and shuffled answers"""
-    test = await db_client.get_record("tests", "id", test_id)
-    if not test:
-        raise HTTPException(status_code=404, detail="Test not found")
-    
-    # Create anonymous student if not provided
-    student_id = student_data.get("student_id")
-    if not student_id:
-        # Create anonymous student
-        anon_student_id = str(uuid.uuid4())
-        anon_student_data = {
-            "id": anon_student_id,
-            "name": f"Анонимный студент {anon_student_id[:8]}",
-            "email": f"anon_{anon_student_id[:8]}@example.com",
-            "total_score": 0,
-            "is_active": True,
-            "created_at": datetime.utcnow().isoformat(),
-            "completed_courses": [],
-            "current_level": "level_1"
-        }
-        try:
-            await db_client.create_record("students", anon_student_data)
-            student_id = anon_student_id
-        except:
-            # If student creation fails, use existing student
-            student_id = "fa6ddfcd-41b5-4d44-a867-52e88d35a99c"
-    
-    # Get all questions for this test
-    all_questions = await db_client.get_records(
-        "questions", 
-        filters={"test_id": test_id}
-    )
-    
-    if not all_questions:
-        raise HTTPException(status_code=400, detail="Test has no questions")
-    
-    # Parse questions and extract options
-    parsed_questions = []
-    for question in all_questions:
-        # Parse text field to extract question and options
-        text_parts = question["text"].split("||")
-        if len(text_parts) > 1:
-            parsed_question = {
-                "id": question["id"],
-                "question_text": text_parts[0],
-                "options": text_parts[1:],
-                "correct_answer": int(question["correct_answer"]),
-                "points": question.get("points", 1),
-                "order": question.get("order", 0)
+async def update_user_score(user_id: str, user_name: str, points_earned: int):
+    """Update user's total score"""
+    try:
+        # Get existing user score
+        existing_scores = await db_client.get_records("user_scores", filters={"user_id": user_id})
+        
+        if existing_scores:
+            # Update existing score
+            user_score = existing_scores[0]
+            update_data = {
+                "total_points": user_score["total_points"] + points_earned,
+                "tests_completed": user_score["tests_completed"] + 1,
+                "last_test_date": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat()
             }
-            parsed_questions.append(parsed_question)
-    
-    if not parsed_questions:
-        raise HTTPException(status_code=400, detail="No valid questions found")
-    
-    # Select random questions (limit to 10 or all available if less)
-    max_questions = min(10, len(parsed_questions))
-    selected_questions = random.sample(parsed_questions, max_questions)
-    
-    # Shuffle answer options for each question using Fisher-Yates algorithm
-    shuffled_options = {}
-    for question in selected_questions:
-        if question.get("options"):
-            option_indices = list(range(len(question["options"])))
-            # Fisher-Yates shuffle
-            for i in range(len(option_indices) - 1, 0, -1):
-                j = random.randint(0, i)
-                option_indices[i], option_indices[j] = option_indices[j], option_indices[i]
-            shuffled_options[question["id"]] = option_indices
-    
-    # Create test session
-    session_data = {
-        "id": str(uuid.uuid4()),
-        "student_id": student_id,
-        "test_id": test_id,
-        "course_id": test["course_id"],
-        "lesson_id": test.get("lesson_id"),
-        "selected_questions": [q["id"] for q in selected_questions],
-        "shuffled_options": shuffled_options,
-        "answers": {},
-        "score": 0,
-        "total_points": sum(q.get("points", 1) for q in selected_questions),
-        "is_completed": False,
-        "started_at": datetime.utcnow().isoformat()
-    }
-    
-    created_session = await db_client.create_record("test_sessions", session_data)
-    
-    # Return session with shuffled questions
-    shuffled_questions = []
-    for question in selected_questions:
-        q_dict = dict(question)
-        if question["id"] in shuffled_options and q_dict.get("options"):
-            # Reorder options based on shuffled indices
-            indices = shuffled_options[question["id"]]
-            original_options = q_dict["options"]
-            q_dict["options"] = [original_options[i] for i in indices]
-            # Update correct answer index to match new order
-            original_correct = question["correct_answer"]
-            new_correct_index = indices.index(original_correct)
-            q_dict["correct_answer"] = new_correct_index
-        shuffled_questions.append(q_dict)
-    
-    return {
-        "session_id": created_session["id"],
-        "test": test,
-        "questions": shuffled_questions,
-        "time_limit_minutes": test.get("time_limit_minutes"),
-        "total_points": session_data["total_points"]
-    }
-
-@api_router.post("/test-sessions/{session_id}/submit")
-async def submit_test_session(session_id: str, answers: dict):
-    """Submit test answers and calculate score"""
-    session = await db_client.get_record("test_sessions", "id", session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Test session not found")
-    
-    if session["is_completed"]:
-        raise HTTPException(status_code=400, detail="Test session already completed")
-    
-    # Get questions for scoring
-    questions = await db_client.get_records(
-        "questions", 
-        filters={"test_id": session["test_id"]}
-    )
-    
-    # Calculate score
-    score = 0
-    total_points = 0
-    correct_answers = {}
-    
-    for question in questions:
-        if question["id"] in session["selected_questions"]:
-            points = question.get("points", 1)
-            total_points += points
-            correct_answers[question["id"]] = question.get("correct_answer")
+            await db_client.update_record("user_scores", "id", user_score["id"], update_data)
+        else:
+            # Create new user score
+            score_data = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "user_name": user_name,
+                "total_points": points_earned,
+                "tests_completed": 1,
+                "last_test_date": datetime.utcnow().isoformat(),
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": datetime.utcnow().isoformat()
+            }
+            await db_client.create_record("user_scores", score_data)
             
-            if question["id"] in answers:
-                student_answer = answers[question["id"]]
-                if student_answer == question.get("correct_answer"):
-                    score += points
-    
-    # Calculate percentage
-    percentage = (score / total_points * 100) if total_points > 0 else 0
-    is_passed = percentage >= session.get("passing_score", 70)
-    
-    # Update session
-    update_data = {
-        "answers": answers,
-        "score": score,
-        "total_points": total_points,
-        "percentage": percentage,
-        "is_passed": is_passed,
-        "is_completed": True,
-        "completed_at": datetime.utcnow().isoformat()
-    }
-    
-    await db_client.update_record("test_sessions", "id", session_id, update_data)
-    
-    return {
-        "session_id": session_id,
-        "score": score,
-        "total_points": total_points,
-        "percentage": percentage,
-        "is_passed": is_passed,
-        "correct_answers": correct_answers
-    }
+    except Exception as e:
+        logger.error(f"Error updating user score: {str(e)}")
 
 # ====================================================================
-# LEADERBOARD ENDPOINTS
+# POINTS-BASED LEADERBOARD ENDPOINTS  
 # ====================================================================
 
 @api_router.get("/leaderboard")
 async def get_leaderboard(limit: int = 10):
-    """Get top students leaderboard based on test results"""
+    """Get top users leaderboard based on points earned from tests"""
     try:
-        # Get test attempts with completion data
-        attempts = await db_client.get_records(
-            "test_attempts",
-            filters={"completed_at": {"$ne": None}},
-            order_by="-score"
+        # Get all user scores ordered by points
+        user_scores = await db_client.get_records(
+            "user_scores",
+            order_by="-total_points",
+            limit=limit
         )
         
-        # Aggregate scores by student
-        student_scores = {}
-        for attempt in attempts:
-            student_id = attempt.get('student_id')
-            score = attempt.get('score', 0)
-            
-            if student_id:
-                if student_id not in student_scores:
-                    student_scores[student_id] = {
-                        'student_id': student_id,
-                        'total_score': 0,
-                        'test_count': 0,
-                        'best_score': 0
-                    }
-                
-                student_scores[student_id]['total_score'] += score
-                student_scores[student_id]['test_count'] += 1
-                student_scores[student_id]['best_score'] = max(
-                    student_scores[student_id]['best_score'], 
-                    score
-                )
-        
-        # Sort by total score and limit results
-        leaderboard = sorted(
-            student_scores.values(),
-            key=lambda x: x['total_score'],
-            reverse=True
-        )[:limit]
-        
-        # Add student names and additional info
-        for entry in leaderboard:
-            # Try to get student info - for now use placeholder names
-            entry['name'] = f"Студент {entry['student_id'][:8]}"
-            entry['created_at'] = datetime.utcnow().isoformat()
+        leaderboard = []
+        for i, score in enumerate(user_scores, 1):
+            leaderboard.append({
+                "rank": i,
+                "user_name": score["user_name"],
+                "total_points": score["total_points"],
+                "tests_completed": score["tests_completed"],
+                "last_test_date": score.get("last_test_date")
+            })
         
         return leaderboard
         
     except Exception as e:
-        logger.error(f"Error fetching leaderboard: {e}")
-        # Return mock data on error
-        return [
-            {'student_id': '1', 'name': 'Ахмед Иванов', 'total_score': 45, 'test_count': 3, 'created_at': datetime.utcnow().isoformat()},
-            {'student_id': '2', 'name': 'Фатима Петрова', 'total_score': 42, 'test_count': 2, 'created_at': datetime.utcnow().isoformat()},
-            {'student_id': '3', 'name': 'Умар Сидоров', 'total_score': 38, 'test_count': 4, 'created_at': datetime.utcnow().isoformat()},
-        ]
+        logger.error(f"Error getting leaderboard: {str(e)}")
+        return []
 
 # ====================================================================
 # FILE UPLOAD ENDPOINTS
