@@ -19,6 +19,35 @@ const TestTakingComponent = () => {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [userName, setUserName] = useState('');
+  const [showNameInput, setShowNameInput] = useState(true);
+
+  // Generate consistent user ID based on full name
+  const generateConsistentUserId = (fullName) => {
+    if (currentUser?.email) {
+      return currentUser.email;
+    }
+    
+    // For guests, create consistent ID based on full name
+    const cleanName = fullName.toLowerCase().trim().replace(/\s+/g, '_');
+    
+    // Get or create device ID from localStorage
+    let deviceId = localStorage.getItem('device_id');
+    if (!deviceId) {
+      deviceId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('device_id', deviceId);
+    }
+    
+    // Create consistent user ID: guest_[name]_[device_id]
+    return `guest_${cleanName}_${deviceId}`;
+  };
+
+  const handleStartTest = () => {
+    if (!userName.trim() || userName.trim().length < 3) {
+      alert('Пожалуйста, введите ваше полное имя (минимум 3 символа)');
+      return;
+    }
+    setShowNameInput(false);
+  };
 
   useEffect(() => {
     loadTest();
