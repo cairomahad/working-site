@@ -732,7 +732,7 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
         
         logger.info(f"Prepared test dict: {test_dict}")
         
-        # Create in old tests table format - ВКЛЮЧАЕМ ВОПРОСЫ В JSON
+        # Create in old tests table format - БЕЗ ПОЛЯ QUESTIONS пока что
         old_format_data = {
             "id": test_dict["id"],
             "lesson_id": test_dict["lesson_id"],
@@ -745,8 +745,7 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
             "is_published": True,
             "order": 1,
             "created_at": test_dict["created_at"],
-            "updated_at": test_dict["updated_at"],
-            "questions": test_dict.get("questions", [])  # Сохраняем вопросы в JSON поле
+            "updated_at": test_dict["updated_at"]
         }
         
         logger.info(f"Creating test in old format: {old_format_data}")
