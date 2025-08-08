@@ -117,8 +117,8 @@ const TestTakingComponent = () => {
   if (result) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
             <div className="mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🎉</span>
@@ -144,7 +144,55 @@ const TestTakingComponent = () => {
                 </div>
               </div>
             </div>
+          </div>
 
+          {/* Correct Answers Section */}
+          {result.correct_answers && (
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <span className="text-2xl mr-2">📋</span>
+                Правильные ответы
+              </h3>
+              <div className="space-y-4">
+                {result.correct_answers.map((answer, index) => (
+                  <div key={index} className={`p-4 rounded-lg border-2 ${
+                    answer.is_correct ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                  }`}>
+                    <h4 className="font-medium text-gray-900 mb-3">
+                      {index + 1}. {answer.question}
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      {test && test.questions[index] && test.questions[index].options.map((option, optIndex) => (
+                        <div key={optIndex} className={`flex items-center p-2 rounded ${
+                          optIndex === answer.correct_answer ? 'bg-green-100 border border-green-300' :
+                          optIndex === answer.user_answer && !answer.is_correct ? 'bg-red-100 border border-red-300' :
+                          'bg-gray-50'
+                        }`}>
+                          <span className="font-medium text-gray-700 mr-2 w-6">
+                            {String.fromCharCode(65 + optIndex)})
+                          </span>
+                          <span className="text-gray-900 flex-1">{option}</span>
+                          {optIndex === answer.correct_answer && (
+                            <span className="text-green-600 font-medium ml-2">✓ Правильно</span>
+                          )}
+                          {optIndex === answer.user_answer && optIndex !== answer.correct_answer && (
+                            <span className="text-red-600 font-medium ml-2">✗ Ваш ответ</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 text-sm">
+                      <span className={`font-medium ${answer.is_correct ? 'text-green-600' : 'text-red-600'}`}>
+                        {answer.is_correct ? '✓ Верно' : '✗ Неверно'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="space-y-3">
               <button
                 onClick={() => navigate('/leaderboard')}
