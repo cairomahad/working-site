@@ -143,77 +143,53 @@ class LessonUpdate(BaseModel):
     order: Optional[int] = None
     is_published: Optional[bool] = None
 
-# Test/Quiz Models
-class QuestionOption(BaseModel):
+# NEW Simple Test System Models
+class SimpleTest(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    text: str
-    is_correct: bool = False
-
-class Question(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    test_id: str  # ID теста к которому принадлежит вопрос
-    text: str
-    question_type: QuestionType
-    options: List[QuestionOption] = []
-    correct_answer: Optional[str] = None  # For text input questions
-    explanation: Optional[str] = None
-    points: int = 1
-    order: int
-
-class Test(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    lesson_id: str  # Тест привязан к конкретному уроку
     title: str
-    description: Optional[str] = None
-    course_id: str
-    lesson_id: Optional[str] = None  # If None, it's a course-level test
-    questions: List[Question] = []
-    time_limit_minutes: Optional[int] = None
-    passing_score: int = 70  # Percentage
-    max_attempts: int = 3
+    description: Optional[str] = ""
+    questions: List[Dict[str, Any]] = []  # Список вопросов с вариантами ответов
+    time_limit_minutes: int = 10  # По умолчанию 10 минут
     is_published: bool = True
-    order: int = 1
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-class TestCreate(BaseModel):
+class SimpleTestCreate(BaseModel):
+    lesson_id: str
     title: str
-    description: Optional[str] = None
-    course_id: str
-    lesson_id: Optional[str] = None
-    questions: List[Dict[str, Any]] = []  # Accept raw question data
-    time_limit_minutes: Optional[int] = None
-    passing_score: int = 70
-    max_attempts: int = 3
-    order: int = 1
+    description: Optional[str] = ""
+    questions: List[Dict[str, Any]] = []  # Вопросы с вариантами ответов
+    time_limit_minutes: int = 10
 
-class TestUpdate(BaseModel):
+class SimpleTestUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    lesson_id: Optional[str] = None
+    questions: Optional[List[Dict[str, Any]]] = None
     time_limit_minutes: Optional[int] = None
-    passing_score: Optional[int] = None
-    max_attempts: Optional[int] = None
     is_published: Optional[bool] = None
-    order: Optional[int] = None
 
-class QuestionCreate(BaseModel):
+class TestResult(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # ID пользователя (может быть email или другой идентификатор)
+    user_name: str  # Имя пользователя
     test_id: str
-    text: str
-    question_type: QuestionType
-    options: List[QuestionOption] = []
-    correct_answer: Optional[str] = None
-    explanation: Optional[str] = None
-    points: int = 1
-    order: int
+    lesson_id: str
+    score: int  # Количество правильных ответов
+    total_questions: int  # Общее количество вопросов
+    percentage: float  # Процент правильных ответов
+    points_earned: int = 5  # Очки за прохождение (всегда 5)
+    completed_at: datetime = Field(default_factory=datetime.utcnow)
 
-class QuestionUpdate(BaseModel):
-    text: Optional[str] = None
-    question_type: Optional[QuestionType] = None
-    options: Optional[List[QuestionOption]] = None
-    correct_answer: Optional[str] = None
-    explanation: Optional[str] = None
-    points: Optional[int] = None
-    order: Optional[int] = None
+class UserScore(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: str
+    total_points: int = 0
+    tests_completed: int = 0
+    last_test_date: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Student Progress Models
 class LessonProgress(BaseModel):
