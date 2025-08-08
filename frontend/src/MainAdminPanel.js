@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from './components';
 import { CompleteAdminProvider, useCompleteAdmin, EnhancedCourseManagement, EnhancedTeacherManagement } from './CompleteAdminPanel';
-import { TestManagement } from './AdminLessonsTests';
 import { StudentManagement, ApplicationManagement, ReportsComponent } from './AdminComponents';
 import MaterialUploadPanel from './MaterialUploadPanel';
 import { QAManagement } from './QAManagement';
 import { TeamManagement } from './TeamManagement';
 import UniversalTableEditor from './UniversalTableEditor';
 import NewLessonManagement from './NewLessonManagement';
+import NewTestManagement from './NewTestManagement';
 
 // Login Component for Admin Panel
 const AdminLoginComponent = () => {
