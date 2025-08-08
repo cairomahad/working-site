@@ -139,8 +139,12 @@ const TestTakingComponent = () => {
                   <div className="text-xs text-gray-500">результат</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-green-600">+{result.points_earned}</div>
-                  <div className="text-xs text-gray-500">очков получено</div>
+                  <div className={`text-2xl font-bold ${result.points_earned > 0 ? 'text-green-600' : 'text-gray-500'}`}>
+                    {result.points_earned > 0 ? `+${result.points_earned}` : '0'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {result.is_retake ? 'повтор' : 'очков получено'}
+                  </div>
                 </div>
               </div>
             </div>
