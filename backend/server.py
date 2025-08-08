@@ -700,27 +700,13 @@ async def create_test_admin(test_data: SimpleTestCreate, current_admin: dict = D
         created_test = await db_client.create_record("tests", old_format_data)
         logger.info(f"Created test: {created_test}")
         
-        # Store questions as separate records
+        # Store questions as separate records (if questions table supports it)
         questions = test_dict.get("questions", [])
         if questions:
-            logger.info(f"Storing {len(questions)} questions")
-            for i, q in enumerate(questions):
-                question_data = {
-                    "id": str(uuid.uuid4()),
-                    "test_id": test_dict["id"],
-                    "text": q.get("question", ""),
-                    "question_type": "single_choice",
-                    "options": [
-                        {"id": str(uuid.uuid4()), "text": opt, "is_correct": idx == q.get("correct", 0)}
-                        for idx, opt in enumerate(q.get("options", []))
-                    ],
-                    "correct_answer": str(q.get("correct", 0)),
-                    "explanation": "",
-                    "points": 1,
-                    "order": i + 1
-                }
-                question_created = await db_client.create_record("questions", question_data)
-                logger.info(f"Created question {i+1}: {question_created}")
+            logger.info(f"Skipping separate question storage for now - will store in test record")
+        
+        # For now, we'll skip separate question storage and keep questions in the test JSON
+        # TODO: Create proper questions table structure later
         
         # Return in SimpleTest format
         result = SimpleTest(**{
