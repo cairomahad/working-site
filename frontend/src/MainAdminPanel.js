@@ -315,7 +315,7 @@ const MainAdminPanel = () => {
       case 'lessons':
         return <NewLessonManagement />;
       case 'tests':
-        return <TestManagement />;
+        return <NewTestManagement />;
       case 'qa':
         return <QAManagement />;
       case 'team':
