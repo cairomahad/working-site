@@ -289,21 +289,31 @@ const TestTakingComponent = () => {
         </div>
 
         {/* Name Input */}
-        {!userName && (
+        {showNameInput && (
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Представьтесь, пожалуйста</h3>
             <div className="space-y-4">
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Введите ваше имя"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                autoFocus
-              />
+              <div>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Введите ваше полное имя (например: Ахмед Магомедов)"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleStartTest();
+                    }
+                  }}
+                />
+                <p className="text-sm text-gray-500 mt-2">
+                  Введите ваше полное имя. Это поможет избежать повторного начисления баллов за один тест.
+                </p>
+              </div>
               <button
-                onClick={() => userName.trim() && setUserName(userName.trim())}
-                disabled={!userName.trim()}
+                onClick={handleStartTest}
+                disabled={!userName.trim() || userName.trim().length < 3}
                 className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 Начать тест
