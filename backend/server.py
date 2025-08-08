@@ -950,13 +950,27 @@ async def submit_test(
         
         percentage = (correct_count / total_questions * 100) if total_questions > 0 else 0
         
-        # Check if user has already taken this test before
+        # Check if user has already taken this test before (more strict checking)
         try:
             existing_results = await db_client.get_records("test_results", filters={
                 "user_id": user_id, 
                 "test_id": test_id
             })
             has_taken_before = len(existing_results) > 0
+            
+            # Also check by user_name as additional verification
+            if not has_taken_before:
+                name_results = await db_client.get_records("test_results", filters={
+                    "user_name": user_name, 
+                    "test_id": test_id
+                })
+                has_taken_before = len(name_results) > 0
+                
+            if has_taken_before:
+                logger.info(f"User {user_name} (ID: {user_id}) has already taken test {test_id}")
+            else:
+                logger.info(f"First attempt for user {user_name} (ID: {user_id}) on test {test_id}")
+                
         except Exception as e:
             logger.info(f"Could not check existing results: {e}")
             has_taken_before = False
