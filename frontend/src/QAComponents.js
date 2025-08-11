@@ -577,7 +577,7 @@ export const QAQuestionPage = () => {
                   <div
                     key={relatedQuestion.id}
                     onClick={() => handleQuestionClick(relatedQuestion)}
-                    className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer hover:border-teal-300"
+                    className="p-4 border border-gray-200 rounded-lg hover:shadow-md  cursor-pointer hover:border-teal-300"
                   >
                     <h3 className="font-semibold text-gray-900 mb-2 hover:text-teal-600 ">
                       {relatedQuestion.title}
