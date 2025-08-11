@@ -68,7 +68,7 @@ const QuestionCard = ({ question, onClick, showCategory = true }) => {
             </span>
           </div>
         )}
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-teal-600 transition-colors">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-teal-600">
           {question.title}
         </h3>
         <p className="text-gray-600 text-sm line-clamp-2">
