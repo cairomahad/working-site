@@ -247,7 +247,7 @@ export const LessonsPage = () => {
                           href={config.literatureUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 transition-colors break-words"
+                          className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 break-words"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
