@@ -380,7 +380,7 @@ export const QACategoryPage = () => {
                 <button
                   onClick={loadMore}
                   disabled={loading}
-                  className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
+                  className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 disabled:opacity-50"
                 >
                   {loading ? 'Загрузка...' : 'Показать еще'}
                 </button>
