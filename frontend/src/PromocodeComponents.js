@@ -213,7 +213,7 @@ export const PromocodePromo = ({ onOpenEntry, onContactAdmin }) => {
       <div className="space-y-3">
         <button
           onClick={onOpenEntry}
-          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800  duration-200 transform hover:scale-105"
+          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800  duration-200 "
         >
           📝 У меня есть промокод
         </button>

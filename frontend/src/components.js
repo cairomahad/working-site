@@ -461,7 +461,7 @@ export const HeroSection = ({ onStartLearning }) => {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
               <button
                 onClick={onStartLearning}
-                className="bg-teal-500 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-teal-600  transform hover:scale-105 shadow-lg"
+                className="bg-teal-500 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-teal-600   shadow-lg"
               >
                 Начать учиться
               </button>
