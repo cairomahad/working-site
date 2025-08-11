@@ -58,7 +58,7 @@ const QuestionCard = ({ question, onClick, showCategory = true }) => {
   return (
     <div 
       onClick={() => onClick(question)}
-      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer hover:border-teal-300"
+      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md cursor-pointer hover:border-teal-300"
     >
       <div className="mb-4">
         {showCategory && (
