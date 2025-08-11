@@ -142,14 +142,14 @@ export const CourseLevels = ({ setCurrentPage, setSelectedCourse }) => {
 const CourseCard = ({ course, onClick, currentUser }) => {
   return (
     <div 
-      className="bg-white rounded-lg shadow-lg hover:shadow-xl  duration-300 overflow-hidden cursor-pointer group"
+      className="bg-white rounded-lg shadow-lg hover:shadow-xl   overflow-hidden cursor-pointer group"
       onClick={onClick}
     >
       <div className="relative h-48">
         <img
           src={course.image_url || 'https://via.placeholder.com/400x200?text=Course'}
           alt={course.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform "
         />
         <div className="absolute top-4 left-4">
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${

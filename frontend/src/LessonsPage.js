@@ -498,7 +498,7 @@ export const CourseLessonsPage = ({ course }) => {
           {lessons.map((lesson, index) => (
             <div
               key={lesson.id}
-              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md  duration-300 cursor-pointer group"
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md   cursor-pointer group"
               onClick={() => handleLessonClick(lesson)}
             >
               <div className="flex items-start justify-between">

@@ -290,7 +290,7 @@ const TestTakingComponent = () => {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-teal-600 h-2 rounded-full  duration-300"
+                className="bg-teal-600 h-2 rounded-full  "
                 style={{ width: `${(getAnsweredCount() / test.questions.length) * 100}%` }}
               ></div>
             </div>

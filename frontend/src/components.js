@@ -769,12 +769,12 @@ export const Lessons = ({ setCurrentPage }) => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
           {lessons.map((lesson) => (
-            <div key={lesson.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl  duration-300 overflow-hidden group">
+            <div key={lesson.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl   overflow-hidden group">
               <div className="relative h-48">
                 <img
                   src={lesson.image}
                   alt={lesson.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform "
                 />
                 <div className="absolute top-4 left-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -1182,7 +1182,7 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
           
           <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
             <div 
-              className="bg-teal-500 h-2 rounded-full  duration-300"
+              className="bg-teal-500 h-2 rounded-full  "
               style={{ width: `${((currentQuestion + 1) / currentQuiz.questions.length) * 100}%` }}
             ></div>
           </div>

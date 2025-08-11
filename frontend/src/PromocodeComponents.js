@@ -486,7 +486,7 @@ export const StudentCourses = ({ studentEmail, onBack }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
-            <div key={course.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl  duration-300 overflow-hidden">
+            <div key={course.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl   overflow-hidden">
               {course.image_url && (
                 <img 
                   src={course.image_url} 

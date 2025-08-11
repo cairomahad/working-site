@@ -468,7 +468,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
           
           <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
             <div 
-              className="bg-teal-500 h-2 rounded-full  duration-300"
+              className="bg-teal-500 h-2 rounded-full  "
               style={{ width: `${((currentQuestion + 1) / test.questions.length) * 100}%` }}
             ></div>
           </div>
