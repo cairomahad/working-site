@@ -23,7 +23,7 @@ const CategoryCard = ({ category, onClick }) => {
   return (
     <div 
       onClick={() => onClick(category.id)}
-      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer hover:border-teal-300"
+      className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md cursor-pointer hover:border-teal-300"
     >
       <div className="flex items-center justify-between">
         <div>
