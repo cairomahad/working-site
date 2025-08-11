@@ -146,7 +146,7 @@ export const Header = () => {
               </Link>
               <Link 
                 to="/lessons"
-                className={`${isCurrentPage('/lessons') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+                className={`${isCurrentPage('/lessons') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium`}
               >
                 Уроки
               </Link>
