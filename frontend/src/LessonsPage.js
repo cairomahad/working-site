@@ -167,133 +167,135 @@ export const LessonsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main Content - Full Width */}
-      <div className="min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-6xl">
-            <h1 className="text-3xl font-bold text-gray-900 mb-8">Уроки</h1>
+      {/* Main Content - Mobile Optimized */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Уроки</h1>
+        
+        {/* Courses List */}
+        <div className="space-y-6 lg:space-y-8">
+          {courses.map((course, index) => {
+            const config = getCourseConfig(course.title);
+            const lessonsCount = course.lessons_count || 10; // Default to 10 for demo
             
-            {/* Courses List */}
-            <div className="space-y-8">
-              {courses.map((course, index) => {
-                const config = getCourseConfig(course.title);
-                const lessonsCount = course.lessons_count || 10; // Default to 10 for demo
+            return (
+              <div
+                key={course.id}
+                className={`relative bg-white rounded-lg border transition-all duration-300 cursor-pointer group ${
+                  config.isPremium 
+                    ? 'border-amber-300 hover:border-amber-400 hover:shadow-amber-100 hover:shadow-lg' 
+                    : 'border-gray-200 hover:shadow-md'
+                }`}
+                onClick={() => handleCourseClick(course)}
+              >
+                {/* Premium Badge */}
+                {config.isPremium && (
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg z-10">
+                    ⭐ ПРЕМИУМ
+                  </div>
+                )}
                 
-                return (
-                  <div
-                    key={course.id}
-                    className={`relative bg-white rounded-lg border transition-all duration-300 cursor-pointer group ${
-                      config.isPremium 
-                        ? 'border-amber-300 hover:border-amber-400 hover:shadow-amber-100 hover:shadow-lg' 
-                        : 'border-gray-200 hover:shadow-md'
-                    }`}
-                    onClick={() => handleCourseClick(course)}
-                  >
-                    {/* Premium Badge */}
-                    {config.isPremium && (
-                      <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                        ⭐ ПРЕМИУМ
-                      </div>
-                    )}
-                    
-                    <div className={`p-6 ${config.isPremium ? 'bg-gradient-to-br from-amber-50 to-yellow-50' : ''}`}>
-                      <div className="flex items-start space-x-6">
-                        {/* Course Icon */}
-                        <div className="flex-shrink-0">
-                          {config.icon}
-                        </div>
-                        
-                        {/* Course Content */}
-                        <div className="flex-1">
-                          <h2 className="text-2xl font-bold text-teal-600 mb-2 group-hover:text-teal-700 transition-colors">
-                            {course.title}
-                          </h2>
-                          <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                            {config.description}
-                          </p>
-                          
-                          {/* Progress Circles */}
-                          <div className="flex items-center space-x-2 mb-4">
-                            {[...Array(lessonsCount)].map((_, i) => (
-                              <div
-                                key={i}
-                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                  i === 0 ? 'bg-teal-500 border-teal-500' : 
-                                  i === lessonsCount - 1 ? 'bg-teal-500 border-teal-500' :
-                                  'border-teal-300 bg-white'
-                                }`}
-                              >
-                                {(i === 0 || i === lessonsCount - 1) && (
-                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                )}
-                                {(i > 0 && i < lessonsCount - 1) && (
-                                  <svg className="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                  </svg>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                          
-                          {/* Additional Literature Link */}
-                          {config.hasLiterature && (
-                            <a
-                              href={config.literatureUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 transition-colors"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              Дополнительная литература
-                              <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
-                          )}
-                        </div>
-                        
-                        {/* Right side content */}
-                        <div className="flex-shrink-0 text-right">
-                          {course.additional_materials && (
-                            <div className="mb-2">
-                              <a
-                                href={course.additional_materials}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-gray-500 hover:text-teal-600 transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                Пособие
-                                <svg className="w-3 h-3 ml-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                              </a>
-                            </div>
-                          )}
-                        </div>
+                <div className={`p-4 sm:p-6 ${config.isPremium ? 'bg-gradient-to-br from-amber-50 to-yellow-50' : ''}`}>
+                  {/* Mobile Layout - Vertical Stack */}
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-6 space-y-4 sm:space-y-0">
+                    {/* Course Icon */}
+                    <div className="flex-shrink-0 self-center sm:self-start">
+                      <div className="w-12 h-12 sm:w-12 sm:h-12">
+                        {config.icon}
                       </div>
                     </div>
+                    
+                    {/* Course Content */}
+                    <div className="flex-1 min-w-0"> {/* min-w-0 prevents text overflow */}
+                      <h2 className="text-xl sm:text-2xl font-bold text-teal-600 mb-2 group-hover:text-teal-700 transition-colors break-words">
+                        {course.title}
+                      </h2>
+                      <p className="text-gray-600 mb-4 text-sm leading-relaxed break-words">
+                        {config.description}
+                      </p>
+                      
+                      {/* Progress Circles - Responsive */}
+                      <div className="flex items-center flex-wrap gap-2 mb-4 overflow-x-auto">
+                        {[...Array(Math.min(lessonsCount, 10))].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                              i === 0 ? 'bg-teal-500 border-teal-500' : 
+                              i === Math.min(lessonsCount, 10) - 1 ? 'bg-teal-500 border-teal-500' :
+                              'border-teal-300 bg-white'
+                            }`}
+                          >
+                            {(i === 0 || i === Math.min(lessonsCount, 10) - 1) && (
+                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                            {(i > 0 && i < Math.min(lessonsCount, 10) - 1) && (
+                              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            )}
+                          </div>
+                        ))}
+                        {lessonsCount > 10 && (
+                          <span className="text-xs text-gray-500 whitespace-nowrap">+{lessonsCount - 10}</span>
+                        )}
+                      </div>
+                      
+                      {/* Additional Literature Link */}
+                      {config.hasLiterature && (
+                        <a
+                          href={config.literatureUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-sm text-gray-500 hover:text-teal-600 transition-colors break-words"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="break-words">Дополнительная литература</span>
+                          <svg className="w-3 h-3 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+                    
+                    {/* Right side content - Mobile Bottom */}
+                    <div className="flex-shrink-0 text-center sm:text-right">
+                      {course.additional_materials && (
+                        <div className="mb-2">
+                          <a
+                            href={course.additional_materials}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-gray-500 hover:text-teal-600 transition-colors inline-flex items-center break-words"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span>Пособие</span>
+                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-
-            {courses.length === 0 && (
-              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Курсы скоро будут добавлены</h3>
-                <p className="text-gray-500">Платформа находится в разработке</p>
+                </div>
               </div>
-            )}
-          </div>
+            );
+          })}
         </div>
+
+        {courses.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Курсы скоро будут добавлены</h3>
+            <p className="text-gray-500">Платформа находится в разработке</p>
+          </div>
+        )}
       </div>
 
       {/* Premium Course Info Modal */}
