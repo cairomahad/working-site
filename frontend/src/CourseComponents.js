@@ -197,7 +197,7 @@ const CourseCard = ({ course, onClick, currentUser }) => {
           </div>
         </div>
         
-        <button className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium">
+        <button className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600  font-medium">
           {currentUser ? 'Начать изучение' : 'Войти для изучения'}
         </button>
       </div>
@@ -315,7 +315,7 @@ export const CourseDetail = ({ course, setCurrentPage, setSelectedLesson }) => {
               </div>
               
               {currentUser && (
-                <button className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors font-medium">
+                <button className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600  font-medium">
                   Записаться на курс
                 </button>
               )}

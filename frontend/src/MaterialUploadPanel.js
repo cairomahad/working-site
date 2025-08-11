@@ -42,7 +42,7 @@ const FileDropZone = ({ onFilesSelected, acceptedTypes, maxSize, children }) => 
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+      className={`border-2 border-dashed rounded-lg p-8 text-center  ${
         isDragOver 
           ? 'border-teal-500 bg-teal-50' 
           : 'border-gray-300 hover:border-gray-400'
@@ -279,7 +279,7 @@ const DocumentUploadSection = () => {
           />
           <label
             htmlFor="doc-file-input"
-            className="inline-block px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 cursor-pointer transition-colors"
+            className="inline-block px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 cursor-pointer "
           >
             Выбрать файлы
           </label>
@@ -465,7 +465,7 @@ const TestImportSection = () => {
         <div className="flex space-x-2">
           <button
             onClick={createSampleJSON}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700  text-sm"
           >
             📥 Скачать пример JSON
           </button>
@@ -581,11 +581,11 @@ const BatchOperationsSection = () => {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {batchOperations.map(operation => (
-          <div key={operation.id} className="border border-gray-200 rounded-lg p-4 hover:border-teal-300 transition-colors">
+          <div key={operation.id} className="border border-gray-200 rounded-lg p-4 hover:border-teal-300 ">
             <div className="text-3xl mb-2">{operation.icon}</div>
             <h4 className="font-medium text-gray-900 mb-1">{operation.title}</h4>
             <p className="text-sm text-gray-600 mb-3">{operation.description}</p>
-            <button className="w-full px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm">
+            <button className="w-full px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700  text-sm">
               Запустить
             </button>
           </div>

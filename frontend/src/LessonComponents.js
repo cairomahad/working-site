@@ -164,7 +164,7 @@ export const LessonView = ({ lesson, setCurrentPage, setSelectedCourse }) => {
                       <div className="bg-teal-500 h-2 rounded-full" style={{ width: '0%' }}></div>
                     </div>
                   </div>
-                  <button className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition-colors">
+                  <button className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 ">
                     Отметить как завершенный
                   </button>
                 </div>
@@ -187,7 +187,7 @@ export const LessonView = ({ lesson, setCurrentPage, setSelectedCourse }) => {
                       </div>
                       <button
                         onClick={() => handleTestClick(test)}
-                        className="w-full bg-teal-500 text-white py-2 px-3 rounded hover:bg-teal-600 transition-colors text-sm"
+                        className="w-full bg-teal-500 text-white py-2 px-3 rounded hover:bg-teal-600  text-sm"
                         disabled={!currentUser}
                       >
                         {currentUser ? 'Пройти тест' : 'Войти для прохождения'}
@@ -298,7 +298,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
           <p className="text-gray-600 mb-6">Войдите в систему, чтобы проходить тесты</p>
           <button
             onClick={() => setCurrentPage('lessons')}
-            className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
+            className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 "
           >
             Назад к урокам
           </button>
@@ -322,7 +322,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Тест не найден</h2>
           <button
             onClick={() => setCurrentPage('lessons')}
-            className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
+            className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 "
           >
             Назад к урокам
           </button>
@@ -362,7 +362,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
             
             <button
               onClick={startTest}
-              className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium"
+              className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600  font-medium"
             >
               Начать тест
             </button>
@@ -424,14 +424,14 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
             <div className="space-y-3">
               <button
                 onClick={() => setCurrentPage('lessons')}
-                className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium"
+                className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600  font-medium"
               >
                 Назад к урокам
               </button>
               {!isPassed && (
                 <button
                   onClick={() => window.location.reload()}
-                  className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200  font-medium"
                 >
                   Попробовать снова
                 </button>
@@ -509,7 +509,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
             <button
               onClick={handlePrevQuestion}
               disabled={currentQuestion === 0}
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50  disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Назад
             </button>
@@ -517,14 +517,14 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
             {currentQuestion === test.questions.length - 1 ? (
               <button
                 onClick={handleSubmitTest}
-                className="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors font-medium"
+                className="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600  font-medium"
               >
                 Завершить тест
               </button>
             ) : (
               <button
                 onClick={handleNextQuestion}
-                className="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors font-medium"
+                className="px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600  font-medium"
               >
                 Далее
               </button>

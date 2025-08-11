@@ -516,7 +516,7 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
                 <button
                   type="button"
                   onClick={() => setShowTestForm(!showTestForm)}
-                  className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+                  className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 "
                 >
                   {showTestForm ? 'Скрыть форму теста' : 'Добавить тест'}
                 </button>
@@ -685,7 +685,7 @@ const LessonModal = ({ lesson, courses, onClose, onSave }) => {
                       <button
                         type="button"
                         onClick={createTestForLesson}
-                        className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                        className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 "
                       >
                         Создать тест ({testFormData.questions.length} вопросов)
                       </button>

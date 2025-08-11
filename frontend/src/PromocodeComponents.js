@@ -501,7 +501,7 @@ export const StudentCourses = ({ studentEmail, onBack }) => {
                   <span className="text-emerald-600 font-semibold">{course.level}</span>
                   <span className="text-gray-500 text-sm">{course.estimated_duration_hours}ч</span>
                 </div>
-                <button className="w-full mt-4 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200">
+                <button className="w-full mt-4 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700  duration-200">
                   Начать изучение
                 </button>
               </div>

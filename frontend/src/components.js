@@ -158,13 +158,13 @@ export const Header = () => {
               </Link>
               <Link 
                 to="/leaderboard"
-                className={`${isCurrentPage('/leaderboard') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+                className={`${isCurrentPage('/leaderboard') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium `}
               >
                 Лидерборд
               </Link>
               <Link 
                 to="/about"
-                className={`${isCurrentPage('/about') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+                className={`${isCurrentPage('/about') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium `}
               >
                 О проекте
               </Link>
@@ -177,7 +177,7 @@ export const Header = () => {
                   <span className="text-gray-700 hidden lg:block">Привет, {currentUser.displayName || currentUser.email}</span>
                   <button
                     onClick={handleLogout}
-                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 "
                   >
                     Выйти
                   </button>
@@ -185,7 +185,7 @@ export const Header = () => {
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition-colors font-medium"
+                  className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600  font-medium"
                 >
                   Войти
                 </button>
@@ -418,7 +418,7 @@ export const AuthModal = ({ onClose }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition-colors disabled:opacity-50"
+            className="w-full bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600  disabled:opacity-50"
           >
             {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
           </button>
@@ -465,7 +465,7 @@ export const HeroSection = ({ onStartLearning }) => {
               >
                 Начать учиться
               </button>
-              <button className="flex items-center text-teal-600 font-medium text-lg hover:text-teal-700 transition-colors">
+              <button className="flex items-center text-teal-600 font-medium text-lg hover:text-teal-700 ">
                 <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
@@ -808,7 +808,7 @@ export const Lessons = ({ setCurrentPage }) => {
                 
                 <button
                   onClick={() => handleStartLesson(lesson.id)}
-                  className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium"
+                  className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600  font-medium"
                 >
                   Начать урок
                 </button>
@@ -1050,7 +1050,7 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
           <p className="text-gray-600 mb-6">Войдите в систему, чтобы проходить тесты</p>
           <button
             onClick={() => setCurrentPage('home')}
-            className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-colors"
+            className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 "
           >
             Вернуться на главную
           </button>
@@ -1081,7 +1081,7 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
             </div>
             <button
               onClick={startQuiz}
-              className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium"
+              className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600  font-medium"
             >
               Начать тест
             </button>
@@ -1137,13 +1137,13 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
             <div className="space-y-3">
               <button
                 onClick={() => setCurrentPage('lessons')}
-                className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium"
+                className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600  font-medium"
               >
                 К урокам
               </button>
               <button
                 onClick={() => setCurrentPage('leaderboard')}
-                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200  font-medium"
               >
                 Посмотреть лидерборд
               </button>
@@ -1222,7 +1222,7 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
           <button
             onClick={handleNextQuestion}
             disabled={selectedAnswer === null}
-            className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600  font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {currentQuestion + 1 === currentQuiz.questions.length ? 'Завершить тест' : 'Следующий вопрос'}
           </button>

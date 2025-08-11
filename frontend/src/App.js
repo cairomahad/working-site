@@ -468,7 +468,7 @@ const CourseLessonsRouter = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Курс не найден</h2>
             <button
               onClick={() => navigate('/lessons')}
-              className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors"
+              className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 "
             >
               Вернуться к урокам
             </button>
@@ -539,7 +539,7 @@ const LessonDetailRouter = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Урок не найден</h2>
             <button
               onClick={() => navigate('/lessons')}
-              className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors"
+              className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 "
             >
               Вернуться к урокам
             </button>

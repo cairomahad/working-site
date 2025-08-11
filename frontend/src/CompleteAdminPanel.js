@@ -338,13 +338,13 @@ export const EnhancedCourseManagement = () => {
                 <div className="flex flex-col space-y-2">
                   <button
                     onClick={() => handleEditCourse(course)}
-                    className="bg-teal-100 text-teal-700 py-2 px-4 rounded text-sm hover:bg-teal-200 transition-colors"
+                    className="bg-teal-100 text-teal-700 py-2 px-4 rounded text-sm hover:bg-teal-200 "
                   >
                     Редактировать
                   </button>
                   <button
                     onClick={() => handlePublishCourse(course)}
-                    className={`py-2 px-4 rounded text-sm transition-colors ${
+                    className={`py-2 px-4 rounded text-sm  ${
                       course.status === 'published' 
                         ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' 
                         : 'bg-green-100 text-green-700 hover:bg-green-200'
@@ -369,13 +369,13 @@ export const EnhancedCourseManagement = () => {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleCreateLesson(course.id)}
-                    className="bg-blue-100 text-blue-700 py-2 px-3 rounded text-sm hover:bg-blue-200 transition-colors"
+                    className="bg-blue-100 text-blue-700 py-2 px-3 rounded text-sm hover:bg-blue-200 "
                   >
                     + Добавить урок
                   </button>
                   <button
                     onClick={() => handleDeleteCourse(course.id)}
-                    className="bg-red-100 text-red-700 py-2 px-3 rounded text-sm hover:bg-red-200 transition-colors"
+                    className="bg-red-100 text-red-700 py-2 px-3 rounded text-sm hover:bg-red-200 "
                   >
                     Удалить курс
                   </button>

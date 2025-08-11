@@ -92,7 +92,7 @@ const AdminLoginComponent = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:opacity-50"
+            className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700  font-medium disabled:opacity-50"
           >
             {loading ? 'Вход...' : 'Войти в панель'}
           </button>
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Быстрые действия</h3>
           <div className="space-y-3">
-            <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 ">
               <div className="flex items-center">
                 <span className="text-2xl mr-3">📚</span>
                 <div>
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </button>
-            <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            <button className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-gray-50 ">
               <div className="flex items-center">
                 <span className="text-2xl mr-3">👨‍🏫</span>
                 <div>
@@ -265,7 +265,7 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
-              className={`w-full text-left px-6 py-3 text-sm font-medium flex items-center space-x-3 transition-colors ${
+              className={`w-full text-left px-6 py-3 text-sm font-medium flex items-center space-x-3  ${
                 currentPage === item.id
                   ? 'bg-teal-50 text-teal-700 border-r-2 border-teal-600'
                   : 'text-gray-700 hover:bg-gray-50'
@@ -280,7 +280,7 @@ const AdminLayout = ({ children, currentPage, setCurrentPage }) => {
         <div className="absolute bottom-6 left-6 right-6">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg flex items-center space-x-3 transition-colors"
+            className="w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg flex items-center space-x-3 "
           >
             <span className="text-lg">🚪</span>
             <span>Выйти</span>

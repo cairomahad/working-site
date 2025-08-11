@@ -240,20 +240,20 @@ const TestTakingComponent = () => {
             <div className="space-y-3">
               <button
                 onClick={() => window.location.reload()}
-                className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2"
+                className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600  flex items-center justify-center space-x-2"
               >
                 <span>🔄</span>
                 <span>Пройти тест заново</span>
               </button>
               <button
                 onClick={() => navigate('/leaderboard')}
-                className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 transition-colors"
+                className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 "
               >
                 Посмотреть лидерборд
               </button>
               <button
                 onClick={() => navigate(-1)}
-                className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors"
+                className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 "
               >
                 Вернуться к уроку
               </button>
@@ -323,7 +323,7 @@ const TestTakingComponent = () => {
               <button
                 onClick={handleStartTest}
                 disabled={!userName.trim() || userName.trim().length < 3}
-                className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-teal-600 text-white py-3 px-6 rounded-lg hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed "
               >
                 Начать тест
               </button>
@@ -370,7 +370,7 @@ const TestTakingComponent = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="bg-teal-600 text-white px-8 py-3 rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                  className="bg-teal-600 text-white px-8 py-3 rounded-lg hover:bg-teal-700 disabled:opacity-50  flex items-center space-x-2"
                 >
                   {submitting ? (
                     <>

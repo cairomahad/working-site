@@ -420,7 +420,7 @@ export const QAManagement = () => {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+          className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 "
         >
           Добавить вопрос
         </button>
@@ -537,7 +537,7 @@ export const QAManagement = () => {
                 <div className="flex items-center space-x-2 ml-4">
                   <button
                     onClick={() => handleEdit(question)}
-                    className="p-2 text-teal-600 hover:bg-teal-50 rounded-md transition-colors"
+                    className="p-2 text-teal-600 hover:bg-teal-50 rounded-md "
                     title="Редактировать"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -546,7 +546,7 @@ export const QAManagement = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(question.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-md "
                     title="Удалить"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

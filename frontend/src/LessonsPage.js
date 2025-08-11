@@ -507,7 +507,7 @@ export const CourseLessonsPage = ({ course }) => {
                     <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center mr-4">
                       <span className="text-teal-600 font-medium">{index + 1}</span>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-teal-600 ">
                       {lesson.title}
                     </h3>
                   </div>
@@ -546,7 +546,7 @@ export const CourseLessonsPage = ({ course }) => {
                   </div>
                 </div>
                 
-                <div className="text-gray-400 group-hover:text-teal-500 transition-colors">
+                <div className="text-gray-400 group-hover:text-teal-500 ">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -715,7 +715,7 @@ export const LessonDetailPage = ({ lesson, course }) => {
                   </div>
                   <button
                     onClick={() => handleStartTest(test.id)}
-                    className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center space-x-2"
+                    className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600  flex items-center space-x-2"
                   >
                     <span>Пройти тест</span>
                     <span>🚀</span>

@@ -267,7 +267,7 @@ const UniversalTableEditor = () => {
               <button
                 key={table.table_name}
                 onClick={() => handleTableSelect(table.table_name)}
-                className={`p-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`p-3 rounded-lg text-sm font-medium  ${
                   selectedTable === table.table_name
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
