@@ -142,7 +142,7 @@ export const CourseLevels = ({ setCurrentPage, setSelectedCourse }) => {
 const CourseCard = ({ course, onClick, currentUser }) => {
   return (
     <div 
-      className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer group"
+      className="bg-white rounded-lg shadow-lg hover:shadow-xl  duration-300 overflow-hidden cursor-pointer group"
       onClick={onClick}
     >
       <div className="relative h-48">
@@ -415,7 +415,7 @@ export const CourseDetail = ({ course, setCurrentPage, setSelectedLesson }) => {
 const LessonCard = ({ lesson, index, onClick, currentUser }) => {
   return (
     <div 
-      className="border border-gray-200 rounded-lg p-4 hover:border-teal-300 hover:shadow-md transition-all cursor-pointer"
+      className="border border-gray-200 rounded-lg p-4 hover:border-teal-300 hover:shadow-md  cursor-pointer"
       onClick={onClick}
     >
       <div className="flex items-center justify-between">
@@ -454,7 +454,7 @@ const LessonCard = ({ lesson, index, onClick, currentUser }) => {
 const TestCard = ({ test, onClick, currentUser }) => {
   return (
     <div 
-      className="border border-gray-200 rounded-lg p-3 hover:border-teal-300 hover:shadow-md transition-all cursor-pointer"
+      className="border border-gray-200 rounded-lg p-3 hover:border-teal-300 hover:shadow-md  cursor-pointer"
       onClick={onClick}
     >
       <h4 className="font-medium text-gray-900 mb-1">{test.title}</h4>

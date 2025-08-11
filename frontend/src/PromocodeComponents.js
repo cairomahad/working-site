@@ -139,7 +139,7 @@ export const PromocodeEntry = ({ onSuccess, onClose }) => {
             <button
               type="submit"
               disabled={loading || !promocode.trim() || !email.trim()}
-              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-emerald-700 hover:to-emerald-800  duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -213,14 +213,14 @@ export const PromocodePromo = ({ onOpenEntry, onContactAdmin }) => {
       <div className="space-y-3">
         <button
           onClick={onOpenEntry}
-          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 transform hover:scale-105"
+          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-4 px-6 rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800  duration-200 transform hover:scale-105"
         >
           📝 У меня есть промокод
         </button>
         
         <button
           onClick={onContactAdmin}
-          className="w-full bg-white text-emerald-700 py-4 px-6 rounded-xl font-semibold border-2 border-emerald-200 hover:bg-emerald-50 transition-all duration-200"
+          className="w-full bg-white text-emerald-700 py-4 px-6 rounded-xl font-semibold border-2 border-emerald-200 hover:bg-emerald-50  duration-200"
         >
           💬 Купить промокод
         </button>
@@ -277,14 +277,14 @@ export const PromocodeSuccess = ({ data, onClose, onViewCourses }) => {
           <div className="space-y-3">
             <button
               onClick={onViewCourses}
-              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-200"
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-green-700 hover:to-green-800  duration-200"
             >
               Перейти к курсам
             </button>
             
             <button
               onClick={onClose}
-              className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200"
+              className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300  duration-200"
             >
               Закрыть
             </button>
@@ -323,7 +323,7 @@ export const AdminContactDialog = ({ onClose }) => {
           <p className="text-gray-600 mb-6">Администратор свяжется с вами в ближайшее время для оформления покупки промокода.</p>
           <button
             onClick={onClose}
-            className="w-full bg-emerald-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-emerald-700 transition-all duration-200"
+            className="w-full bg-emerald-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-emerald-700  duration-200"
           >
             Понятно
           </button>
@@ -405,7 +405,7 @@ export const AdminContactDialog = ({ onClose }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800  duration-200 disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center justify-center">

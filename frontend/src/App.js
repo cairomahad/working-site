@@ -230,7 +230,7 @@ const AboutPage = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <a
               href="/lessons"
-              className="block p-6 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl hover:from-teal-100 hover:to-teal-200 transition-all duration-300 text-center group"
+              className="block p-6 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl hover:from-teal-100 hover:to-teal-200  duration-300 text-center group"
             >
               <div className="text-3xl mb-3">📚</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Уроки</h3>
@@ -239,7 +239,7 @@ const AboutPage = () => {
             
             <a
               href="/qa"
-              className="block p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 text-center group"
+              className="block p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200  duration-300 text-center group"
             >
               <div className="text-3xl mb-3">❓</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Вопросы и ответы</h3>
@@ -248,7 +248,7 @@ const AboutPage = () => {
             
             <a
               href="/leaderboard"
-              className="block p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl hover:from-yellow-100 hover:to-yellow-200 transition-all duration-300 text-center group"
+              className="block p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl hover:from-yellow-100 hover:to-yellow-200  duration-300 text-center group"
             >
               <div className="text-3xl mb-3">🏆</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Лидерборд</h3>
@@ -257,7 +257,7 @@ const AboutPage = () => {
             
             <a
               href="/"
-              className="block p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-300 text-center group"
+              className="block p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl hover:from-green-100 hover:to-green-200  duration-300 text-center group"
             >
               <div className="text-3xl mb-3">🏠</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Главная</h3>

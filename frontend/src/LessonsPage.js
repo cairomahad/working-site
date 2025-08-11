@@ -380,7 +380,7 @@ export const LessonsPage = () => {
                     setShowPremiumInfo(false);
                     setShowPromocodeEntry(true);
                   }}
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-200"
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700  duration-200"
                 >
                   🎫 У меня есть промокод
                 </button>
@@ -390,7 +390,7 @@ export const LessonsPage = () => {
                     // Показать контактную информацию или переход к покупке
                     alert('Для покупки промокода свяжитесь с нами по email: admin@uroki-islama.ru');
                   }}
-                  className="w-full bg-white text-amber-600 py-3 px-6 rounded-lg font-semibold border-2 border-amber-200 hover:bg-amber-50 transition-all duration-200"
+                  className="w-full bg-white text-amber-600 py-3 px-6 rounded-lg font-semibold border-2 border-amber-200 hover:bg-amber-50  duration-200"
                 >
                   💰 Купить промокод
                 </button>
@@ -400,7 +400,7 @@ export const LessonsPage = () => {
                     setShowPremiumInfo(false);
                     setSelectedPremiumCourse(null);
                   }}
-                  className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200"
+                  className="w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300  duration-200"
                 >
                   Закрыть
                 </button>
@@ -498,7 +498,7 @@ export const CourseLessonsPage = ({ course }) => {
           {lessons.map((lesson, index) => (
             <div
               key={lesson.id}
-              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300 cursor-pointer group"
+              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md  duration-300 cursor-pointer group"
               onClick={() => handleLessonClick(lesson)}
             >
               <div className="flex items-start justify-between">

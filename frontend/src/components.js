@@ -461,7 +461,7 @@ export const HeroSection = ({ onStartLearning }) => {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
               <button
                 onClick={onStartLearning}
-                className="bg-teal-500 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-teal-600 transition-all transform hover:scale-105 shadow-lg"
+                className="bg-teal-500 text-white px-8 py-4 rounded-lg text-lg font-medium hover:bg-teal-600  transform hover:scale-105 shadow-lg"
               >
                 Начать учиться
               </button>
@@ -636,7 +636,7 @@ export const Leaderboard = () => {
                 {leaders.map((leader, index) => (
                   <div
                     key={leader.id}
-                    className={`flex items-center justify-between p-3 sm:p-4 rounded-lg transition-all ${
+                    className={`flex items-center justify-between p-3 sm:p-4 rounded-lg  ${
                       index === 0
                         ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-300'
                         : index === 1
@@ -769,7 +769,7 @@ export const Lessons = ({ setCurrentPage }) => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
           {lessons.map((lesson) => (
-            <div key={lesson.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+            <div key={lesson.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl  duration-300 overflow-hidden group">
               <div className="relative h-48">
                 <img
                   src={lesson.image}
@@ -1182,7 +1182,7 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
           
           <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
             <div 
-              className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+              className="bg-teal-500 h-2 rounded-full  duration-300"
               style={{ width: `${((currentQuestion + 1) / currentQuiz.questions.length) * 100}%` }}
             ></div>
           </div>
@@ -1197,7 +1197,7 @@ export const Quiz = ({ lessonId, setCurrentPage }) => {
               <button
                 key={index}
                 onClick={() => handleAnswerSelect(index)}
-                className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                className={`w-full p-4 text-left rounded-lg border-2  ${
                   selectedAnswer === index
                     ? 'border-teal-500 bg-teal-50'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'

@@ -468,7 +468,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
           
           <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
             <div 
-              className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+              className="bg-teal-500 h-2 rounded-full  duration-300"
               style={{ width: `${((currentQuestion + 1) / test.questions.length) * 100}%` }}
             ></div>
           </div>
@@ -483,7 +483,7 @@ export const TestTaking = ({ testId, setCurrentPage }) => {
               <button
                 key={option.id}
                 onClick={() => handleAnswerSelect(currentQ.id, option.id)}
-                className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                className={`w-full p-4 text-left rounded-lg border-2  ${
                   answers[currentQ.id] === option.id
                     ? 'border-teal-500 bg-teal-50'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
