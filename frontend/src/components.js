@@ -140,7 +140,7 @@ export const Header = () => {
             <nav className="hidden md:flex space-x-8">
               <Link 
                 to="/"
-                className={`${isCurrentPage('/') && location.pathname === '/' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+                className={`${isCurrentPage('/') && location.pathname === '/' ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium`}
               >
                 Главная
               </Link>
