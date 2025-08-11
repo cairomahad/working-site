@@ -152,7 +152,7 @@ export const Header = () => {
               </Link>
               <Link 
                 to="/qa"
-                className={`${isCurrentPage('/qa') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium transition-colors`}
+                className={`${isCurrentPage('/qa') ? 'text-teal-600' : 'text-gray-700'} hover:text-teal-600 font-medium`}
               >
                 Вопросы и Ответы
               </Link>
