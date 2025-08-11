@@ -463,7 +463,7 @@ export const QAQuestionPage = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Вопрос не найден</h2>
           <button
             onClick={() => navigate('/qa')}
-            className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+            className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700"
           >
             Вернуться к вопросам
           </button>
