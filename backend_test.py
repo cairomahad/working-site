@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Testing Script for Test Scoring System
-Testing the fixed scoring logic: 5 points + 1 per correct answer for first attempt, 0 for retakes
+Backend Testing Script for Supabase Connection Testing
+Testing Supabase database connection and basic API endpoints
 """
 
 import requests
