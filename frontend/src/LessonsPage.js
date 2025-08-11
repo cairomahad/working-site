@@ -206,7 +206,7 @@ export const LessonsPage = () => {
                     
                     {/* Course Content */}
                     <div className="flex-1 min-w-0"> {/* min-w-0 prevents text overflow */}
-                      <h2 className="text-xl sm:text-2xl font-bold text-teal-600 mb-2 group-hover:text-teal-700 transition-colors break-words">
+                      <h2 className="text-xl sm:text-2xl font-bold text-teal-600 mb-2 break-words">
                         {course.title}
                       </h2>
                       <p className="text-gray-600 mb-4 text-sm leading-relaxed break-words">
