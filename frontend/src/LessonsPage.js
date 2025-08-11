@@ -269,7 +269,7 @@ export const LessonsPage = () => {
                             href={course.additional_materials}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-gray-500 hover:text-teal-600 transition-colors inline-flex items-center break-words"
+                            className="text-sm text-gray-500 hover:text-teal-600 inline-flex items-center break-words"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <span>Пособие</span>
