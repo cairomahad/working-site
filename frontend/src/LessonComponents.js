@@ -110,10 +110,7 @@ export const LessonView = ({ lesson, setCurrentPage, setSelectedCourse }) => {
             {/* Lesson Content */}
             <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Содержание урока</h2>
-              <div 
-                className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: lesson.content }}
-              ></div>
+              <FormattedContent content={lesson.content} />
             </div>
 
             {/* Attachments */}
