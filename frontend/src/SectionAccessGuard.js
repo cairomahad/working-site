@@ -80,6 +80,7 @@ const PromocodeEntryModal = ({ sectionTitle, onAccessGranted, currentEmail }) =>
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState(currentEmail ? 'promocode' : 'email');
+  const VALID_PROMOCODE = 'DEMO2024';
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
@@ -94,43 +95,16 @@ const PromocodeEntryModal = ({ sectionTitle, onAccessGranted, currentEmail }) =>
     if (!promocode.trim()) return;
 
     setLoading(true);
-    setError('');
+setError('');
 
-    try {
-      // Сначала проверим промокод
-      const validateResponse = await axios.post(`${BACKEND_URL}/api/validate-promocode`, {
-        code: promocode.trim(),
-        student_email: email
-      });
+if (promocode.trim() === VALID_PROMOCODE) {
+  onAccessGranted(email);
+} else {
+  setError('Неверный промокод');
+}
 
-      if (validateResponse.data.valid) {
-        if (validateResponse.data.already_used) {
-          // Промокод уже использован
-          onAccessGranted(email);
-          return;
-        }
-
-        // Активируем промокод
-        const activateResponse = await axios.post(`${BACKEND_URL}/api/activate-promocode`, {
-          code: promocode.trim(),
-          student_email: email
-        });
-
-        if (activateResponse.data.success) {
-          onAccessGranted(email);
-        }
-      }
-    } catch (error) {
-      console.error('Promocode error:', error);
-      if (error.response?.data?.detail) {
-        setError(error.response.data.detail);
-      } else {
-        setError('Ошибка при проверке промокода. Попробуйте снова.');
-      }
-    }
-
-    setLoading(false);
-  };
+setLoading(false);
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
