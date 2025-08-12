@@ -597,7 +597,9 @@ const QACategoryPageRouter = () => {
   return (
     <div className="App">
       <Header />
-      <QACategoryPage />
+      <SectionAccessGuard section="qa" sectionTitle="Вопросы и Ответы">
+        <QACategoryPage />
+      </SectionAccessGuard>
     </div>
   );
 };
