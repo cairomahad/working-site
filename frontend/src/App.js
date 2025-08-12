@@ -414,10 +414,12 @@ const LessonsPageRouter = () => {
   return (
     <div className="App">
       <Header />
-      <LessonsPage 
-        setSelectedCourse={handleCourseSelect}
-        setSelectedLesson={setSelectedLesson}
-      />
+      <SectionAccessGuard section="lessons" sectionTitle="Уроки">
+        <LessonsPage 
+          setSelectedCourse={handleCourseSelect}
+          setSelectedLesson={setSelectedLesson}
+        />
+      </SectionAccessGuard>
     </div>
   );
 };
