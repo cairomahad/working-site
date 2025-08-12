@@ -12,7 +12,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://471881a1-d8ba-40f7-8bb3-c2bc817a49be.preview.emergentagent.com/api"
+BACKEND_URL = "https://supabase-deps.preview.emergentagent.com/api"
 
 # Admin credentials for testing
 ADMIN_EMAIL = "admin@uroki-islama.ru"
