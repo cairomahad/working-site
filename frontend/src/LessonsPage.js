@@ -671,9 +671,7 @@ export const LessonDetailPage = ({ lesson, course }) => {
         {/* Text Content */}
         {lesson.content && (
           <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
-            <div className="prose max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-            </div>
+            <FormattedContent content={lesson.content} />
           </div>
         )}
 
