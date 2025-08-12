@@ -231,5 +231,4 @@ const PromocodeEntryModal = ({ sectionTitle, onAccessGranted, currentEmail }) =>
   );
 };
 
-export { SectionAccessGuard };
 export default SectionAccessGuard;
