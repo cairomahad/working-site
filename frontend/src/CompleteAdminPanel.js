@@ -1123,15 +1123,13 @@ const LessonModal = ({ lesson, courseId, courses, onClose, onSave }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Содержание урока</label>
-              <textarea
+              <ContentEditor
                 value={formData.content}
-                onChange={(e) => setFormData({...formData, content: e.target.value})}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
-                rows="6"
-                placeholder="Введите содержание урока в формате HTML или Markdown..."
-                required
+                onChange={(value) => setFormData({...formData, content: value})}
+                placeholder="Введите содержание урока с поддержкой Markdown..."
+                showPreview={true}
               />
-              <p className="text-xs text-gray-500 mt-1">Поддерживается HTML разметка</p>
+              <p className="text-xs text-gray-500 mt-1">Поддерживается Markdown разметка для форматирования текста</p>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
