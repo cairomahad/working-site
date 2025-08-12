@@ -35,9 +35,7 @@ async def add_new_promocodes():
                 "is_active": True,
                 "max_uses": 200,
                 "used_count": 0,
-                "created_by": admin_id,
-                "created_at": "2025-08-12T20:45:00Z",
-                "updated_at": "2025-08-12T20:45:00Z"
+                "created_by": admin_id
             },
             {
                 "code": "WELCOME25", 
@@ -48,9 +46,7 @@ async def add_new_promocodes():
                 "is_active": True,
                 "max_uses": 100,
                 "used_count": 0,
-                "created_by": admin_id,
-                "created_at": "2025-08-12T20:45:00Z",
-                "updated_at": "2025-08-12T20:45:00Z"
+                "created_by": admin_id
             }
         ]
         
