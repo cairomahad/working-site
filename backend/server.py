@@ -1512,6 +1512,215 @@ async def delete_table_record(
         logger.error(f"Error deleting record: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ======================================
+# PROMOCODE API ENDPOINTS
+# ======================================
+
+@api_router.post("/validate-promocode")
+async def validate_promocode(validation: PromocodeValidation):
+    """Проверить валидность промокода"""
+    try:
+        # Найти промокод в базе
+        promocode = await db_client.find_one("promocodes", {"code": validation.code})
+        
+        if not promocode:
+            raise HTTPException(status_code=404, detail="Промокод не найден")
+        
+        if not promocode.get("is_active", True):
+            raise HTTPException(status_code=400, detail="Промокод неактивен")
+        
+        # Проверить срок действия
+        if promocode.get("expires_at"):
+            expires_at = datetime.fromisoformat(promocode["expires_at"].replace('Z', '+00:00'))
+            if datetime.utcnow() > expires_at:
+                raise HTTPException(status_code=400, detail="Срок действия промокода истек")
+        
+        # Проверить лимит использований
+        if promocode.get("max_uses") and promocode.get("used_count", 0) >= promocode["max_uses"]:
+            raise HTTPException(status_code=400, detail="Лимит использований промокода исчерпан")
+        
+        # Проверить, использовал ли уже этот пользователь промокод
+        existing_usage = await db_client.find_one("promocode_usage", {
+            "promocode_code": validation.code,
+            "student_email": validation.student_email
+        })
+        
+        if existing_usage:
+            # Если уже использовал, просто возвращаем информацию о доступе
+            return {
+                "valid": True,
+                "already_used": True,
+                "promocode_type": promocode["promocode_type"],
+                "description": promocode["description"],
+                "course_ids": promocode.get("course_ids", []),
+                "message": "Промокод уже был использован ранее"
+            }
+        
+        return {
+            "valid": True,
+            "already_used": False,
+            "promocode_type": promocode["promocode_type"],
+            "description": promocode["description"],
+            "course_ids": promocode.get("course_ids", []),
+            "price_rub": promocode.get("price_rub"),
+            "discount_percent": promocode.get("discount_percent")
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error validating promocode: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка при проверке промокода")
+
+@api_router.post("/activate-promocode")
+async def activate_promocode(validation: PromocodeValidation):
+    """Активировать промокод для пользователя"""
+    try:
+        # Сначала валидируем промокод
+        promocode = await db_client.find_one("promocodes", {"code": validation.code})
+        
+        if not promocode:
+            raise HTTPException(status_code=404, detail="Промокод не найден")
+        
+        if not promocode.get("is_active", True):
+            raise HTTPException(status_code=400, detail="Промокод неактивен")
+        
+        # Проверить, не использовал ли уже этот пользователь промокод
+        existing_usage = await db_client.find_one("promocode_usage", {
+            "promocode_code": validation.code,
+            "student_email": validation.student_email
+        })
+        
+        if existing_usage:
+            raise HTTPException(status_code=400, detail="Промокод уже был использован")
+        
+        # Создать запись об использовании
+        usage_data = {
+            "promocode_id": promocode["id"],
+            "promocode_code": validation.code,
+            "student_id": str(uuid.uuid4()),  # Генерируем ID студента
+            "student_email": validation.student_email,
+            "course_ids": promocode.get("course_ids", []),
+            "used_at": datetime.utcnow().isoformat()
+        }
+        
+        await db_client.create_record("promocode_usage", usage_data)
+        
+        # Обновить счетчик использований промокода
+        new_used_count = promocode.get("used_count", 0) + 1
+        await db_client.update_record("promocodes", "id", promocode["id"], {
+            "used_count": new_used_count,
+            "updated_at": datetime.utcnow().isoformat()
+        })
+        
+        # Создать записи доступа к курсам если нужно
+        if promocode.get("course_ids"):
+            for course_id in promocode["course_ids"]:
+                access_data = {
+                    "student_email": validation.student_email,
+                    "course_id": course_id,
+                    "promocode_id": promocode["id"],
+                    "granted_at": datetime.utcnow().isoformat(),
+                    "is_active": True
+                }
+                await db_client.create_record("user_course_access", access_data)
+        
+        return {
+            "success": True,
+            "message": "Промокод успешно активирован",
+            "promocode_type": promocode["promocode_type"],
+            "description": promocode["description"],
+            "course_ids": promocode.get("course_ids", [])
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error activating promocode: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка при активации промокода")
+
+@api_router.post("/check-access")
+async def check_user_access(request: Dict[str, str]):
+    """Проверить доступ пользователя к разделам"""
+    try:
+        student_email = request.get("student_email")
+        section = request.get("section")  # "lessons" или "qa"
+        
+        if not student_email:
+            raise HTTPException(status_code=400, detail="Email пользователя обязателен")
+        
+        # Проверить активированные промокоды пользователя
+        usages = await db_client.get_records("promocode_usage", {"student_email": student_email})
+        
+        access_granted = False
+        access_details = []
+        
+        for usage in usages:
+            # Получить информацию о промокоде
+            promocode = await db_client.get_record("promocodes", "id", usage["promocode_id"])
+            if promocode and promocode.get("is_active", True):
+                if promocode["promocode_type"] == "all_courses":
+                    access_granted = True
+                    access_details.append({
+                        "code": promocode["code"],
+                        "type": "all_courses",
+                        "description": promocode["description"]
+                    })
+                elif section == "lessons" and promocode.get("course_ids"):
+                    access_granted = True
+                    access_details.append({
+                        "code": promocode["code"],
+                        "type": "single_course",
+                        "description": promocode["description"],
+                        "course_ids": promocode["course_ids"]
+                    })
+        
+        return {
+            "has_access": access_granted,
+            "access_details": access_details,
+            "student_email": student_email,
+            "section": section
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error checking user access: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка при проверке доступа")
+
+@api_router.get("/promocodes/{code}")
+async def get_promocode_info(code: str):
+    """Получить публичную информацию о промокоде"""
+    try:
+        promocode = await db_client.find_one("promocodes", {"code": code})
+        
+        if not promocode:
+            raise HTTPException(status_code=404, detail="Промокод не найден")
+        
+        if not promocode.get("is_active", True):
+            raise HTTPException(status_code=400, detail="Промокод неактивен")
+        
+        # Возвращаем только публичную информацию
+        return {
+            "code": promocode["code"],
+            "description": promocode["description"],
+            "promocode_type": promocode["promocode_type"],
+            "price_rub": promocode.get("price_rub"),
+            "discount_percent": promocode.get("discount_percent"),
+            "is_active": promocode.get("is_active", True),
+            "expires_at": promocode.get("expires_at"),
+            "usage_stats": {
+                "used_count": promocode.get("used_count", 0),
+                "max_uses": promocode.get("max_uses")
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting promocode info: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка при получении информации о промокоде")
+
 @api_router.post("/admin/tables/{table_name}/query")
 async def execute_custom_query(
     table_name: str,
