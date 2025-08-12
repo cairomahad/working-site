@@ -29,16 +29,24 @@ async def fix_qa_categories():
         
         print(f"\nНайденные категории: {categories_found}")
         
-        # Исправляем 'iqidah' на 'aqidah'
+        # Исправляем неправильные категории
         fixed_count = 0
         for question in questions:
-            if question.get('category') == 'iqidah':
-                print(f"🔧 Исправляем категорию для: {question.get('title', 'Без названия')[:50]}...")
+            category = question.get('category')
+            new_category = None
+            
+            if category == 'iqidah':
+                new_category = 'aqidah'
+            elif category == 'qeneral':
+                new_category = 'general'
+            
+            if new_category:
+                print(f"🔧 Исправляем категорию '{category}' → '{new_category}' для: {question.get('title', 'Без названия')[:50]}...")
                 await supabase_client.update_record(
                     "qa_questions", 
                     "id", 
                     question['id'], 
-                    {"category": "aqidah"}
+                    {"category": new_category}
                 )
                 fixed_count += 1
         
