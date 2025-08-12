@@ -22,13 +22,13 @@ const CATEGORY_NAMES = {
 const CategoryCard = ({ category, onClick }) => {
   return (
     <div 
-      onClick={() => onClick(category.id)}
+      onClick={() => onClick(category.name)}
       className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md cursor-pointer hover:border-teal-300"
     >
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {category.name}
+            {CATEGORY_NAMES[category.name] || category.name}
           </h3>
           <p className="text-sm text-gray-600">
             {category.count} {category.count === 1 ? 'вопрос' : category.count < 5 ? 'вопроса' : 'вопросов'}
