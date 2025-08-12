@@ -586,7 +586,9 @@ const QAMainPageRouter = () => {
   return (
     <div className="App">
       <Header />
-      <QAMainPage />
+      <SectionAccessGuard section="qa" sectionTitle="Вопросы и Ответы">
+        <QAMainPage />
+      </SectionAccessGuard>
     </div>
   );
 };
