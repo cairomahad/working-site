@@ -220,7 +220,7 @@ export const QAMainPage = () => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {categories.map((category) => (
               <CategoryCard 
-                key={category.id} 
+                key={category.name} 
                 category={category} 
                 onClick={handleCategoryClick} 
               />
