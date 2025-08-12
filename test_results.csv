@@ -1,3 +1,0 @@
-id,user_id,user_name,test_id,lesson_id,score,total_questions,percentage,points_earned,completed_at
-sample-result-1,user123,Ахмад Тестов,test-abc-123,lesson-xyz-456,3,3,100.00,5,2025-08-08T17:00:00Z
-sample-result-2,user456,Фатима Исламова,test-abc-123,lesson-xyz-456,2,3,66.67,5,2025-08-08T16:30:00Z

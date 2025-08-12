@@ -1,6 +1,0 @@
-code,promocode_type,description,price_rub,discount_percent,is_active,max_uses,expires_at,course_ids
-НОВЫЙ2025,all_courses,Новогодняя скидка на все курсы,3920,20,TRUE,50,2026-01-31 23:59:59,
-ВЕСНА30,all_courses,Весенняя акция 30% скидка,3430,30,TRUE,75,2025-05-31 23:59:59,
-БЕСПЛАТНО,all_courses,Бесплатный доступ для тестирования,0,,TRUE,10,,
-КОРАН50,single_course,Скидка на курс изучения Корана,2450,50,TRUE,25,,"[""4e89a0ff-527e-4d8d-93db-620feef87217""]"
-VIP100,all_courses,VIP доступ без ограничений,9900,,TRUE,5,,
