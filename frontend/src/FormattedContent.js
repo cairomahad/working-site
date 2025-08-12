@@ -138,27 +138,42 @@ const FormattedContent = ({ content, className = "" }) => {
     return null;
   }
 
-  // Если это обычный текст без markdown
-  if (typeof content === 'string' && !content.includes('#') && !content.includes('*') && !content.includes('[')) {
+  // Проверяем наличие markdown синтаксиса
+  const hasMarkdown = content.includes('#') || 
+                     content.includes('**') || 
+                     content.includes('*') || 
+                     content.includes('> ') || 
+                     content.includes('---') || 
+                     content.includes('- ') || 
+                     content.includes('1. ');
+
+  // Если это markdown контент, используем ReactMarkdown
+  if (hasMarkdown) {
     return (
       <div className={`prose max-w-none ${className}`}>
-        {content.split('\n').map((line, index) => (
-          <p key={index} className="text-gray-700 leading-relaxed mb-4 text-justify">
-            {line}
-          </p>
-        ))}
+        <ReactMarkdown
+          components={components}
+          remarkPlugins={[remarkGfm]}
+        >
+          {content}
+        </ReactMarkdown>
       </div>
     );
   }
 
+  // Если это обычный текст, обрабатываем как параграфы
   return (
     <div className={`prose max-w-none ${className}`}>
-      <ReactMarkdown
-        components={components}
-        remarkPlugins={[remarkGfm]}
-      >
-        {content}
-      </ReactMarkdown>
+      {content.split('\n\n').map((paragraph, index) => (
+        <p key={index} className="text-gray-700 leading-relaxed mb-4 text-justify">
+          {paragraph.split('\n').map((line, lineIndex, lines) => (
+            <React.Fragment key={lineIndex}>
+              {line}
+              {lineIndex < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </p>
+      ))}
     </div>
   );
 };
