@@ -14,6 +14,42 @@
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
+        <script>
+            // МЕНЯЙТЕ ЭТУ ЦИФРУ ПРИ КАЖДОМ ДЕПЛОЕ!
+            const APP_VERSION = '1.0.2';
+            
+            // Проверка версии и принудительное обновление
+            const checkVersion = () => {
+                const stored = localStorage.getItem('app_version');
+                if (stored && stored !== APP_VERSION) {
+                    // Очищаем все кэши
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Очищаем Service Worker кэш
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistrations().then(registrations => {
+                            registrations.forEach(registration => registration.unregister());
+                        });
+                    }
+                    
+                    // Очищаем браузерный кэш
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => caches.delete(name));
+                        });
+                    }
+                    
+                    // Перезагружаем страницу с очисткой кэша
+                    window.location.reload(true);
+                    return;
+                }
+                localStorage.setItem('app_version', APP_VERSION);
+            };
+            
+            // Запускаем проверку
+            checkVersion();
+        </script>
         <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
