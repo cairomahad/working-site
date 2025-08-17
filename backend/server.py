@@ -1794,22 +1794,24 @@ async def startup_event():
         course_count = await db_client.count_records("courses", {"status": "published"})
         logger.info(f"Found {course_count} published courses in database")
         
-        # Run autostart to ensure quality data
-        logger.info("Running Supabase autostart to ensure quality data...")
-        try:
-            import subprocess
-            import sys
-            result = subprocess.run([
-                sys.executable, 
-                str(ROOT_DIR / "autostart_supabase.py")
-            ], capture_output=True, text=True, timeout=30)
-            
-            if result.returncode == 0:
-                logger.info("✅ Supabase autostart completed successfully")
-            else:
-                logger.warning(f"⚠️ Supabase autostart issues: {result.stderr}")
-        except Exception as e:
-            logger.warning(f"⚠️ Could not run autostart: {e}")
+        # NOTE: autostart_supabase.py отключен - демо курсы не создаются
+        # Run autostart to ensure quality data  
+        # logger.info("Running Supabase autostart to ensure quality data...")
+        # try:
+        #     import subprocess
+        #     import sys
+        #     result = subprocess.run([
+        #         sys.executable, 
+        #         str(ROOT_DIR / "autostart_supabase.py")
+        #     ], capture_output=True, text=True, timeout=30)
+        #     
+        #     if result.returncode == 0:
+        #         logger.info("✅ Supabase autostart completed successfully")
+        #     else:
+        #         logger.warning(f"⚠️ Supabase autostart issues: {result.stderr}")
+        # except Exception as e:
+        #     logger.warning(f"⚠️ Could not run autostart: {e}")
+        logger.info("🚫 Autostart disabled - no demo courses will be created")
         
         logger.info("Application startup completed with Supabase integration")
     except Exception as e:
