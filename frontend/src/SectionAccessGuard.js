@@ -1,26 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from './components';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Компонент защиты доступа к разделам
+// Компонент защиты доступа к разделам с интеграцией useAuth
 export const SectionAccessGuard = ({ section, sectionTitle, children }) => {
+  const { currentUser } = useAuth();
   const [hasAccess, setHasAccess] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPromocodeEntry, setShowPromocodeEntry] = useState(false);
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    // Получаем email пользователя из localStorage или запрашиваем
-    const savedEmail = localStorage.getItem('user_email');
-    if (savedEmail) {
-      setUserEmail(savedEmail);
-      checkAccess(savedEmail);
+    // 🔐 ЛОГИКА ОПРЕДЕЛЕНИЯ ДОСТУПА
+    if (currentUser && currentUser.email) {
+      // ✅ ЗАРЕГИСТРИРОВАННЫЙ ПОЛЬЗОВАТЕЛЬ
+      const savedAccess = localStorage.getItem(`section_access_${section}`);
+      
+      if (savedAccess === 'granted') {
+        setUserEmail(currentUser.email);
+        setHasAccess(true);
+        setLoading(false);
+      } else {
+        // Нужен только промокод
+        setUserEmail(currentUser.email);
+        setLoading(false);
+        setShowPromocodeEntry(true);
+      }
     } else {
-      setLoading(false);
-      setShowPromocodeEntry(true);
+      // ❌ НЕЗАРЕГИСТРИРОВАННЫЙ ГОСТЬ
+      const savedEmail = localStorage.getItem('user_email');
+      const savedAccess = localStorage.getItem(`section_access_${section}`);
+      
+      if (savedAccess === 'granted' && savedEmail) {
+        setUserEmail(savedEmail);
+        setHasAccess(true);
+        setLoading(false);
+      } else {
+        // Нужен email + промокод
+        setLoading(false);
+        setShowPromocodeEntry(true);
+      }
     }
-  }, [section]);
+  }, [section, currentUser]);
 
   const checkAccess = async (email) => {
     try {
