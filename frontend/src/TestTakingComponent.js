@@ -19,7 +19,7 @@ const TestTakingComponent = () => {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [userName, setUserName] = useState('');
-  const [showNameInput, setShowNameInput] = useState(true);
+  const [showNameInput, setShowNameInput] = useState(false); // По умолчанию false, будет определено в useEffect
 
   // Generate consistent user ID based on full name
   const generateConsistentUserId = (fullName) => {
