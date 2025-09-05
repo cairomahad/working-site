@@ -583,6 +583,16 @@ const LeaderboardPage = () => {
   );
 };
 
+// User Profile Page Component
+const UserProfilePage = () => {
+  return (
+    <div className="App">
+      <Header />
+      <UserProfile />
+    </div>
+  );
+};
+
 // Q&A Route Components
 const QAMainPageRouter = () => {
   return (
