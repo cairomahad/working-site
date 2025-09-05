@@ -174,7 +174,16 @@ export const Header = () => {
             <div className="hidden md:flex items-center space-x-4">
               {currentUser ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-gray-700 hidden lg:block">Привет, {currentUser.displayName || currentUser.email}</span>
+                  <Link 
+                    to="/profile"
+                    className="flex items-center space-x-2 text-gray-700 hover:text-teal-600 transition duration-200"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="hidden lg:block">Профиль</span>
+                  </Link>
+                  <span className="text-gray-700 hidden lg:block">Привет, {currentUser.displayName || currentUser.name || 'Пользователь'}</span>
                   <button
                     onClick={handleLogout}
                     className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 "
