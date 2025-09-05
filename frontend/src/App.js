@@ -21,6 +21,7 @@ import { PromocodePromo, PromocodeEntry, PromocodeSuccess, AdminContactDialog, S
 import TestTakingComponent from "./TestTakingComponent";
 import NewLeaderboardPage from "./LeaderboardPage";
 import SectionAccessGuard from "./SectionAccessGuard";
+import UserProfile from "./UserProfile";
 
 // Home Page Component
 const HomePage = ({ setCurrentPage }) => {
