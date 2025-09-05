@@ -97,9 +97,15 @@ const TestTakingComponent = () => {
   };
 
   const handleSubmit = async () => {
+    // Для зарегистрированных пользователей имя уже установлено автоматически
     if (!userName.trim()) {
-      alert('Пожалуйста, введите ваше имя');
-      return;
+      if (currentUser) {
+        // Если пользователь зарегистрирован, но по какой-то причине имя не установлено
+        setUserName(currentUser.name || currentUser.displayName || currentUser.email.split('@')[0]);
+      } else {
+        alert('Пожалуйста, введите ваше имя');
+        return;
+      }
     }
 
     setSubmitting(true);
