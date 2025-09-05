@@ -53,6 +53,19 @@ const TestTakingComponent = () => {
     loadTest();
   }, [testId]);
 
+  // Автоматическое определение пользователя
+  useEffect(() => {
+    if (currentUser && currentUser.email) {
+      // Зарегистрированный пользователь - автоматически используем его данные
+      const displayName = currentUser.name || currentUser.displayName || currentUser.email.split('@')[0];
+      setUserName(displayName);
+      setShowNameInput(false); // Не показываем форму ввода имени
+    } else {
+      // Незарегистрированный пользователь - показываем форму ввода
+      setShowNameInput(true);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
