@@ -278,6 +278,18 @@ export const Header = () => {
                   О проекте
                 </Link>
                 
+                {currentUser && (
+                  <Link
+                    to="/profile"
+                    className={`block px-3 py-2 rounded-md text-base font-medium ${
+                      isCurrentPage('/profile') ? 'text-teal-600 bg-teal-50' : 'text-gray-700 hover:text-teal-600 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    👤 Мой профиль
+                  </Link>
+                )}
+                
                 {!currentUser && (
                   <button
                     onClick={() => {
