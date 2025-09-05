@@ -83,13 +83,15 @@ export const SectionAccessGuard = ({ section, sectionTitle, children }) => {
   return null;
 };
 
-// Модальное окно для ввода промокода
-const PromocodeEntryModal = ({ sectionTitle, onAccessGranted, currentEmail }) => {
+// Модальное окно для ввода промокода - Адаптивное с умной логикой
+const PromocodeEntryModal = ({ sectionTitle, onAccessGranted, currentEmail, isLoggedIn }) => {
   const [email, setEmail] = useState(currentEmail || '');
   const [promocode, setPromocode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [step, setStep] = useState(currentEmail ? 'promocode' : 'email');
+  const [step, setStep] = useState(
+    isLoggedIn ? 'promocode' : (currentEmail ? 'promocode' : 'email')
+  );
   const VALID_PROMOCODE = 'DEMO2024';
 
   const handleEmailSubmit = (e) => {
@@ -105,114 +107,164 @@ const PromocodeEntryModal = ({ sectionTitle, onAccessGranted, currentEmail }) =>
     if (!promocode.trim()) return;
 
     setLoading(true);
-setError('');
+    setError('');
 
-if (promocode.trim() === VALID_PROMOCODE) {
-  onAccessGranted(email);
-} else {
-  setError('Неверный промокод');
-}
+    if (promocode.trim().toUpperCase() === VALID_PROMOCODE) {
+      onAccessGranted(email);
+    } else {
+      setError('Неверный промокод');
+    }
 
-setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <div className="mx-auto h-16 w-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 sm:p-8">
+        
+        {/* ЗАГОЛОВОК - Адаптивный */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="h-6 w-6 sm:h-8 sm:w-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Доступ к разделу</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+            Доступ к разделу
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600">
             Для доступа к разделу "{sectionTitle}" необходим промокод
           </p>
         </div>
 
+        {/* УСЛОВНЫЕ ФОРМЫ */}
         {step === 'email' ? (
-          <form onSubmit={handleEmailSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Ваш Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition duration-200"
-            >
-              Продолжить
-            </button>
-          </form>
+          <EmailForm 
+            email={email}
+            setEmail={setEmail}
+            onSubmit={handleEmailSubmit}
+          />
         ) : (
-          <form onSubmit={handlePromocodeSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="promocode" className="block text-sm font-medium text-gray-700 mb-2">
-                Промокод
-              </label>
-              <input
-                type="text"
-                id="promocode"
-                value={promocode}
-                onChange={(e) => setPromocode(e.target.value.toUpperCase())}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-center text-lg font-mono tracking-wider"
-                placeholder="ВВЕДИТЕ ПРОМОКОД"
-                required
-              />
-              {error && (
-                <p className="mt-2 text-sm text-red-600">{error}</p>
-              )}
-            </div>
-
-            <div className="text-sm text-gray-600 mb-4">
-              <p><strong>Email:</strong> {email}</p>
-              <button
-                type="button"
-                onClick={() => setStep('email')}
-                className="text-teal-600 hover:text-teal-700 underline"
-              >
-                Изменить email
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Проверяем...
-                </div>
-              ) : (
-                'Проверить промокод'
-              )}
-            </button>
-          </form>
+          <PromocodeForm 
+            email={email}
+            promocode={promocode}
+            setPromocode={setPromocode}
+            onSubmit={handlePromocodeSubmit}
+            loading={loading}
+            error={error}
+            showEmailInfo={!isLoggedIn}
+            onChangeEmail={() => setStep('email')}
+          />
         )}
-
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="text-center text-sm text-gray-500">
-            <p className="mb-2">💡 <strong>Где получить промокод?</strong></p>
-            <p>Промокоды предоставляются администрацией проекта "Уроки Ислама".</p>
-            <p className="mt-2">Обратитесь к нашим преподавателям за получением доступа.</p>
-          </div>
-        </div>
+        
+        {/* ИНФОРМАЦИОННЫЙ БЛОК */}
+        <InfoSection />
       </div>
     </div>
   );
 };
+
+// Email Form Component для незарегистрированных
+const EmailForm = ({ email, setEmail, onSubmit }) => (
+  <form onSubmit={onSubmit} className="space-y-6">
+    <div>
+      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+        Ваш Email
+      </label>
+      <input
+        type="email"
+        id="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-base"
+        placeholder="your@email.com"
+        required
+      />
+    </div>
+
+    <button
+      type="submit"
+      className="w-full min-h-12 bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition duration-200 font-medium"
+    >
+      Продолжить
+    </button>
+  </form>
+);
+
+// Promocode Form Component
+const PromocodeForm = ({ 
+  email, 
+  promocode, 
+  setPromocode, 
+  onSubmit, 
+  loading, 
+  error, 
+  showEmailInfo, 
+  onChangeEmail 
+}) => (
+  <form onSubmit={onSubmit} className="space-y-6">
+    <div>
+      <label htmlFor="promocode" className="block text-sm font-medium text-gray-700 mb-2">
+        Промокод
+      </label>
+      <input
+        type="text"
+        id="promocode"
+        value={promocode}
+        onChange={(e) => setPromocode(e.target.value.toUpperCase())}
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-center text-base sm:text-lg font-mono tracking-wider"
+        placeholder="ВВЕДИТЕ ПРОМОКОД"
+        required
+      />
+      {error && (
+        <p className="mt-2 text-sm text-red-600">{error}</p>
+      )}
+    </div>
+
+    {showEmailInfo && (
+      <div className="text-sm text-gray-600 mb-4">
+        <p><strong>Email:</strong> {email}</p>
+        <button
+          type="button"
+          onClick={onChangeEmail}
+          className="text-teal-600 hover:text-teal-700 underline"
+        >
+          Изменить email
+        </button>
+      </div>
+    )}
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full min-h-12 bg-teal-600 text-white py-3 px-4 rounded-lg hover:bg-teal-700 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50 font-medium"
+    >
+      {loading ? (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+          Проверяем...
+        </div>
+      ) : (
+        'Проверить промокод'
+      )}
+    </button>
+  </form>
+);
+
+// Info Section Component
+const InfoSection = () => (
+  <div className="mt-8 pt-6 border-t border-gray-200">
+    <div className="text-center text-sm text-gray-500">
+      <p className="mb-2">💡 <strong>Где получить промокод?</strong></p>
+      <p>Промокоды предоставляются администрацией проекта "Уроки Ислама".</p>
+      <p className="mt-2">Обратитесь к нашим преподавателям за получением доступа.</p>
+      <div className="mt-4 p-3 bg-teal-50 rounded-lg">
+        <p className="text-teal-700 text-xs">
+          <strong>Для тестирования:</strong> используйте промокод <code className="bg-teal-100 px-1 rounded">DEMO2024</code>
+        </p>
+      </div>
+    </div>
+  </div>
+);
 
 export default SectionAccessGuard;
