@@ -1112,6 +1112,84 @@ async def get_leaderboard(limit: int = 10):
         return []
 
 # ====================================================================
+# USER PROFILE ENDPOINTS
+# ====================================================================
+
+@api_router.get("/user/profile")
+async def get_user_profile(user_id: str = None, user_email: str = None):
+    """Get user profile with statistics and test history"""
+    try:
+        if not user_id and not user_email:
+            raise HTTPException(status_code=400, detail="user_id or user_email is required")
+        
+        # Get user score data
+        user_score = None
+        try:
+            if user_id:
+                user_scores = await db_client.get_records("user_scores", filters={"user_id": user_id})
+            else:
+                user_scores = await db_client.get_records("user_scores", filters={"user_id": user_email})
+            
+            if user_scores:
+                user_score = user_scores[0]
+        except Exception as e:
+            logger.info(f"user_scores table not available: {e}")
+        
+        # Get test results history
+        test_history = []
+        try:
+            if user_id:
+                test_results = await db_client.get_records("test_results", 
+                    filters={"user_id": user_id}, 
+                    order_by="-completed_at", 
+                    limit=20
+                )
+            else:
+                test_results = await db_client.get_records("test_results", 
+                    filters={"user_id": user_email}, 
+                    order_by="-completed_at", 
+                    limit=20
+                )
+            
+            test_history = test_results
+        except Exception as e:
+            logger.info(f"test_results table not available: {e}")
+        
+        # Calculate user rank from leaderboard
+        rank = None
+        try:
+            leaderboard_data = await db_client.get_records("user_scores", order_by="-total_points")
+            user_identifier = user_id or user_email
+            for i, leader in enumerate(leaderboard_data, 1):
+                if leader.get("user_id") == user_identifier:
+                    rank = i
+                    break
+        except Exception as e:
+            logger.info(f"Could not calculate rank: {e}")
+        
+        # Build profile response
+        profile = {
+            "user_name": user_score.get("user_name") if user_score else (user_email or user_id),
+            "total_points": user_score.get("total_points", 0) if user_score else 0,
+            "tests_completed": user_score.get("tests_completed", 0) if user_score else len(test_history),
+            "rank": rank,
+            "test_history": test_history
+        }
+        
+        return profile
+        
+    except Exception as e:
+        logger.error(f"Error getting user profile: {str(e)}")
+        # Return empty profile in case of error
+        return {
+            "user_name": user_email or user_id or "Неизвестный пользователь",
+            "total_points": 0,
+            "tests_completed": 0,
+            "rank": None,
+            "test_history": []
+        }
+
+# ====================================================================
 # FILE UPLOAD ENDPOINTS
 # ====================================================================
 
