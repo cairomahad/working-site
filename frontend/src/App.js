@@ -395,6 +395,7 @@ const AppRouter = () => {
       <Route path="/qa/search" element={<QASearchPageRouter />} />
       <Route path="/leaderboard" element={<LeaderboardPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/profile" element={<UserProfilePage />} />
       <Route path="/test/:testId" element={<TestRouter />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
