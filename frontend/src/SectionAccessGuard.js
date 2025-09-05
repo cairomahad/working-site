@@ -45,32 +45,18 @@ export const SectionAccessGuard = ({ section, sectionTitle, children }) => {
     }
   }, [section, currentUser]);
 
-  const checkAccess = async (email) => {
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/check-access`, {
-        student_email: email,
-        section: section
-      });
-
-      setHasAccess(response.data.has_access);
-      if (!response.data.has_access) {
-        setShowPromocodeEntry(true);
-      }
-    } catch (error) {
-      console.error('Error checking access:', error);
-      setHasAccess(false);
-      setShowPromocodeEntry(true);
-    }
-    setLoading(false);
-  };
-
+  // 🎯 ОБРАБОТЧИК УСПЕШНОГО ВВОДА
   const handleAccessGranted = (email) => {
     setUserEmail(email);
-    localStorage.setItem('user_email', email);
+    if (!currentUser) {
+      localStorage.setItem('user_email', email);
+    }
+    localStorage.setItem(`section_access_${section}`, 'granted');
     setHasAccess(true);
     setShowPromocodeEntry(false);
   };
 
+  // 🔄 СОСТОЯНИЯ РЕНДЕРА
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
@@ -89,6 +75,7 @@ export const SectionAccessGuard = ({ section, sectionTitle, children }) => {
         sectionTitle={sectionTitle}
         onAccessGranted={handleAccessGranted}
         currentEmail={userEmail}
+        isLoggedIn={!!currentUser}
       />
     );
   }
